@@ -5,12 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   Search, 
-  MapPin, 
   User, 
   Heart, 
   ShoppingBag, 
   PhoneCall, 
-  Check, 
   X,
   ChevronDown,
   Menu
@@ -23,18 +21,13 @@ const Header = () => {
     user, 
     cart, 
     wishlist, 
-    pincode, 
-    pincodeStatus, 
-    verifyPincode, 
-    clearPincode,
     logoutUser,
     searchQuery,
     setSearchQuery,
     categories
   } = useStore();
 
-  const [pinInput, setPinInput] = useState('');
-  const [showPinModal, setShowPinModal] = useState(false);
+
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
@@ -52,13 +45,7 @@ const Header = () => {
     setShowMobileSearch(false);
   };
 
-  const handlePincodeSubmit = (e) => {
-    e.preventDefault();
-    if (pinInput.trim()) {
-      verifyPincode(pinInput.trim());
-      setShowPinModal(false);
-    }
-  };
+
 
   const activeCategories = categories.filter(c => c.isActive);
 
@@ -94,21 +81,7 @@ const Header = () => {
 
             {/* Header Action Items */}
             <div className="header-actions">
-              {/* Delivery Pincode Checker */}
-              <div 
-                className="pincode-checker" 
-                onClick={() => {
-                  setPinInput(pincode);
-                  setShowPinModal(true);
-                }}
-              >
-                <MapPin size={16} className="text-dark" />
-                <span>
-                  {pincode ? `Deliver to: ${pincode}` : 'Select pincode'}
-                </span>
-                {pincodeStatus === 'deliverable' && <Check size={12} className="text-success" />}
-                {pincodeStatus === 'undeliverable' && <X size={12} className="text-danger" />}
-              </div>
+
 
               {/* Support */}
               <Link href="/contact" className="action-icon-btn">
@@ -450,25 +423,7 @@ const Header = () => {
                 </ul>
               </div>
 
-              <div className="drawer-section" style={{ borderTop: '1px solid var(--bg-light-border)', paddingTop: '20px', marginTop: '20px' }}>
-                <h4 className="drawer-section-title">Pincode Check</h4>
-                <div style={{ padding: '0 20px' }}>
-                  <div 
-                    className="pincode-checker" 
-                    onClick={() => {
-                      setShowMobileMenu(false);
-                      setPinInput(pincode);
-                      setShowPinModal(true);
-                    }}
-                    style={{ width: '100%', justifyContent: 'center' }}
-                  >
-                    <MapPin size={16} />
-                    <span>
-                      {pincode ? `Deliver to: ${pincode}` : 'Select Delivery Pincode'}
-                    </span>
-                  </div>
-                </div>
-              </div>
+
 
               <div className="drawer-section" style={{ borderTop: '1px solid var(--bg-light-border)', paddingTop: '20px', marginTop: '20px' }}>
                 <h4 className="drawer-section-title">User Account</h4>
@@ -513,57 +468,7 @@ const Header = () => {
         </>
       )}
 
-      {/* 6. PINCODE CHECKER MODAL */}
-      {showPinModal && (
-        <div className="admin-modal-overlay" style={{ zIndex: 250 }}>
-          <div className="admin-modal animate-slide-up" style={{ maxWidth: '400px' }}>
-            <div className="admin-modal-header">
-              <h3>Delivery Pincode</h3>
-              <button 
-                type="button" 
-                onClick={() => setShowPinModal(false)}
-                style={{ color: 'var(--text-dark-muted)' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <form onSubmit={handlePincodeSubmit} className="admin-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-dark-muted)', lineHeight: '1.4' }}>
-                Enter your pincode to check product delivery availability. Delivery is available all over India.
-              </p>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="text"
-                  placeholder="Enter 6 digit pincode"
-                  value={pinInput}
-                  onChange={(e) => setPinInput(e.target.value)}
-                  className="form-control"
-                  style={{ flexGrow: 1 }}
-                  required
-                />
-                <button type="submit" className="btn btn-primary btn-sm">Verify</button>
-              </div>
-              {pincode && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', borderTop: '1px solid var(--bg-light-border)', paddingTop: '10px' }}>
-                  <span>Currently: {pincode} ({pincodeStatus})</span>
-                  <button 
-                    type="button" 
-                    className="text-danger" 
-                    style={{ fontWeight: 600 }}
-                    onClick={() => {
-                      clearPincode();
-                      setPinInput('');
-                      setShowPinModal(false);
-                    }}
-                  >
-                    Clear Location
-                  </button>
-                </div>
-              )}
-            </form>
-          </div>
-        </div>
-      )}
+
     </>
   );
 };

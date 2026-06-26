@@ -81,22 +81,6 @@
   gap: 20px;
 }
 
-.pincode-checker {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  color: var(--text-dark);
-  cursor: pointer;
-  padding: 6px 12px;
-  background-color: var(--bg-light);
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--bg-light-border);
-  transition: var(--transition);
-}
-.pincode-checker:hover {
-  border-color: var(--text-dark);
-}
 
 .action-icon-btn {
   display: flex;
