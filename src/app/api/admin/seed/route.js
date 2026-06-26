@@ -9,16 +9,16 @@ import Banner from 'src/models/Banner';
 import { hashPassword, verifyAdmin } from 'src/lib/auth';
 
 const DEFAULT_CATEGORIES = [
-  { name: 'Cricket Bats', slug: 'cricket-bats', image: '/images/categories/cricket-bats.svg', displayOrder: 1, isActive: true },
-  { name: 'Cricket Balls', slug: 'cricket-balls', image: '/images/categories/cricket-balls.svg', displayOrder: 2, isActive: true },
-  { name: 'Batting Gloves', slug: 'batting-gloves', image: '/images/categories/batting-gloves.svg', displayOrder: 3, isActive: true },
-  { name: 'Wicket Keeping Gloves', slug: 'wicket-keeping-gloves', image: '/images/categories/wicket-keeping-gloves.svg', displayOrder: 4, isActive: true },
-  { name: 'Batting Pads', slug: 'batting-pads', image: '/images/categories/batting-pads.svg', displayOrder: 5, isActive: true },
-  { name: 'Helmets', slug: 'helmets', image: '/images/categories/helmets.svg', displayOrder: 6, isActive: true },
-  { name: 'Cricket Shoes', slug: 'cricket-shoes', image: '/images/categories/cricket-shoes.svg', displayOrder: 7, isActive: true },
-  { name: 'Kit Bags', slug: 'kit-bags', image: '/images/categories/kit-bags.svg', displayOrder: 8, isActive: true },
-  { name: 'Complete Cricket Kits', slug: 'complete-cricket-kits', image: '/images/categories/complete-cricket-kits.svg', displayOrder: 9, isActive: true },
-  { name: 'Accessories', slug: 'accessories', image: '/images/categories/accessories.svg', displayOrder: 10, isActive: true }
+  { name: 'Cricket Bats', slug: 'cricket-bats', image: '/images/categories/cricket-bats.jpg', displayOrder: 1, isActive: true },
+  { name: 'Cricket Balls', slug: 'cricket-balls', image: '/images/categories/cricket-balls.jpg', displayOrder: 2, isActive: true },
+  { name: 'Batting Gloves', slug: 'batting-gloves', image: '/images/categories/batting-gloves.jpg', displayOrder: 3, isActive: true },
+  { name: 'Wicket Keeping Gloves', slug: 'wicket-keeping-gloves', image: '/images/categories/wicket-keeping-gloves.jpg', displayOrder: 4, isActive: true },
+  { name: 'Batting Pads', slug: 'batting-pads', image: '/images/categories/batting-pads.jpg', displayOrder: 5, isActive: true },
+  { name: 'Helmets', slug: 'helmets', image: '/images/categories/helmets.jpg', displayOrder: 6, isActive: true },
+  { name: 'Cricket Shoes', slug: 'cricket-shoes', image: '/images/categories/cricket-shoes.jpg', displayOrder: 7, isActive: true },
+  { name: 'Kit Bags', slug: 'kit-bags', image: '/images/categories/kit-bags.jpg', displayOrder: 8, isActive: true },
+  { name: 'Complete Cricket Kits', slug: 'complete-cricket-kits', image: '/images/categories/complete-cricket-kits.jpg', displayOrder: 9, isActive: true },
+  { name: 'Accessories', slug: 'accessories', image: '/images/categories/accessories.jpg', displayOrder: 10, isActive: true }
 ];
 
 const DEFAULT_PRODUCTS = [

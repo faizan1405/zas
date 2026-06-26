@@ -126,17 +126,17 @@ const UserSchema = new mongoose.Schema({
 }, { collection: 'users' });
 
 const CATEGORIES = [
-  { name: 'Cricket Bats', slug: 'cricket-bats', image: '/images/categories/cricket-bats.svg', displayOrder: 1, isActive: true },
-  { name: 'Cricket Balls', slug: 'cricket-balls', image: '/images/categories/cricket-balls.svg', displayOrder: 2, isActive: true },
-  { name: 'Batting Gloves', slug: 'batting-gloves', image: '/images/categories/batting-gloves.svg', displayOrder: 3, isActive: true },
-  { name: 'Batting Pads', slug: 'batting-pads', image: '/images/categories/batting-pads.svg', displayOrder: 4, isActive: true },
-  { name: 'Cricket Helmets', slug: 'cricket-helmets', image: '/images/categories/cricket-helmets.svg', displayOrder: 5, isActive: true },
-  { name: 'Cricket Shoes', slug: 'cricket-shoes', image: '/images/categories/cricket-shoes.svg', displayOrder: 6, isActive: true },
-  { name: 'Cricket Bags', slug: 'cricket-bags', image: '/images/categories/cricket-bags.svg', displayOrder: 7, isActive: true },
-  { name: 'Cricket Clothing', slug: 'cricket-clothing', image: '/images/categories/cricket-clothing.svg', displayOrder: 8, isActive: true },
-  { name: 'Protective Gear', slug: 'protective-gear', image: '/images/categories/protective-gear.svg', displayOrder: 9, isActive: true },
-  { name: 'Training Equipment', slug: 'training-equipment', image: '/images/categories/training-equipment.svg', displayOrder: 10, isActive: true },
-  { name: 'Accessories', slug: 'accessories', image: '/images/categories/accessories.svg', displayOrder: 11, isActive: true }
+  { name: 'Cricket Bats', slug: 'cricket-bats', image: '/images/categories/cricket-bats.jpg', displayOrder: 1, isActive: true },
+  { name: 'Cricket Balls', slug: 'cricket-balls', image: '/images/categories/cricket-balls.jpg', displayOrder: 2, isActive: true },
+  { name: 'Batting Gloves', slug: 'batting-gloves', image: '/images/categories/batting-gloves.jpg', displayOrder: 3, isActive: true },
+  { name: 'Batting Pads', slug: 'batting-pads', image: '/images/categories/batting-pads.jpg', displayOrder: 4, isActive: true },
+  { name: 'Cricket Helmets', slug: 'cricket-helmets', image: '/images/categories/cricket-helmets.jpg', displayOrder: 5, isActive: true },
+  { name: 'Cricket Shoes', slug: 'cricket-shoes', image: '/images/categories/cricket-shoes.jpg', displayOrder: 6, isActive: true },
+  { name: 'Cricket Bags', slug: 'cricket-bags', image: '/images/categories/cricket-bags.jpg', displayOrder: 7, isActive: true },
+  { name: 'Cricket Clothing', slug: 'cricket-clothing', image: '/images/categories/cricket-clothing.jpg', displayOrder: 8, isActive: true },
+  { name: 'Protective Gear', slug: 'protective-gear', image: '/images/categories/protective-gear.jpg', displayOrder: 9, isActive: true },
+  { name: 'Training Equipment', slug: 'training-equipment', image: '/images/categories/training-equipment.jpg', displayOrder: 10, isActive: true },
+  { name: 'Accessories', slug: 'accessories', image: '/images/categories/accessories.jpg', displayOrder: 11, isActive: true }
 ];
 
 const PRODUCTS = [
