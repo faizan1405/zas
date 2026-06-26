@@ -2,7 +2,7 @@ import React from 'react';
 
 const InlineSVG = ({ type, width = '100%', height = '100%', className = '' }) => {
   // Electric Volt & Dark Slate styling for premium sports vector look
-  const voltColor = '#CCFF00';
+  const voltColor = '#3643BA';
   const darkColor = '#1E293B';
   const midColor = '#64748B';
   const lightColor = '#E2E8F0';

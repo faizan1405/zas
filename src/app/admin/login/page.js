@@ -65,7 +65,7 @@ const AdminLoginPage = () => {
       <div style={{ backgroundColor: '#0e1726', border: '1px solid #1f2937', borderRadius: 'var(--border-radius-lg)', width: '100%', maxWidth: '420px', padding: '40px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5)' }}>
         
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <div style={{ backgroundColor: 'rgba(204, 255, 0, 0.1)', width: '56px', height: '56px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px', color: 'var(--primary)' }}>
+          <div style={{ backgroundColor: 'rgba(54, 67, 186, 0.1)', width: '56px', height: '56px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px', color: 'var(--primary)' }}>
             <ShieldAlert size={28} />
           </div>
           <h1 style={{ fontSize: '1.5rem', fontFamily: 'Outfit', textTransform: 'uppercase', color: 'white' }}>

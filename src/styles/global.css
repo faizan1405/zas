@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary: #CCFF00;       /* Sporty Neon Volt Green */
-  --primary-dark: #A3D900;
-  --primary-light: #E6FF80;
-  --primary-glow: rgba(204, 255, 0, 0.3);
+  --primary: #3643BA;       /* Sporty Premium Blue */
+  --primary-dark: #2530A2;
+  --primary-light: #6372F2;
+  --primary-glow: rgba(54, 67, 186, 0.3);
   
   --bg-dark: #0B0F19;        /* Obsidian Deep Black */
   --bg-dark-card: #151E2F;   /* Obsidian Card Grey */
