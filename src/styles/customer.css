@@ -1040,3 +1040,130 @@
 .tracker-node.active .tracker-node-label {
   color: var(--text-dark);
 }
+
+/* ==========================================================================
+   CHECKLIST & COLLECTION CARDS STYLING
+   ========================================================================== */
+.checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .checklist-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .checklist-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .checklist-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.checklist-card {
+  background-color: var(--bg-light);
+  border: 1px solid var(--bg-light-border);
+  border-radius: var(--border-radius-md);
+  padding: 20px 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: var(--transition);
+}
+
+.checklist-card:hover {
+  border-color: var(--text-dark);
+  background-color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.checklist-icon-wrapper {
+  color: var(--text-dark);
+  background-color: white;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.checklist-card:hover .checklist-icon-wrapper {
+  background-color: var(--primary);
+  color: var(--bg-dark);
+}
+
+.checklist-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-dark);
+}
+
+.collection-banner-card {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 24px;
+  color: white;
+  transition: var(--transition);
+  border: 1px solid var(--bg-light-border);
+}
+
+.collection-banner-card:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-md);
+}
+
+.collection-content h3 {
+  color: white;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.collection-btn {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.slider-control-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  transition: var(--transition);
+}
+
+.slider-control-btn:hover {
+  background: var(--primary);
+  color: var(--bg-dark);
+}
+
+.slider-control-btn.left { left: 20px; }
+.slider-control-btn.right { right: 20px; }
+

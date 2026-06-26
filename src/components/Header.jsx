@@ -9,11 +9,11 @@ import {
   User, 
   Heart, 
   ShoppingBag, 
-  HelpCircle, 
   PhoneCall, 
   Check, 
   X,
-  ChevronDown
+  ChevronDown,
+  Menu
 } from 'lucide-react';
 import { useStore } from 'src/context/StoreContext';
 
@@ -29,12 +29,15 @@ const Header = () => {
     clearPincode,
     logoutUser,
     searchQuery,
-    setSearchQuery
+    setSearchQuery,
+    categories
   } = useStore();
 
   const [pinInput, setPinInput] = useState('');
   const [showPinModal, setShowPinModal] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   // Cart total quantities
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
@@ -46,6 +49,7 @@ const Header = () => {
     } else {
       router.push('/shop');
     }
+    setShowMobileSearch(false);
   };
 
   const handlePincodeSubmit = (e) => {
@@ -56,6 +60,8 @@ const Header = () => {
     }
   };
 
+  const activeCategories = categories.filter(c => c.isActive);
+
   return (
     <>
       {/* 1. TOP OFFER BAR */}
@@ -65,8 +71,8 @@ const Header = () => {
 
       <header className="main-header">
         <div className="container">
-          {/* 2. MAIN HEADER ROW */}
-          <div className="header-top">
+          {/* 2. MAIN HEADER ROW (DESKTOP) */}
+          <div className="header-top desktop-only-flex">
             {/* Logo */}
             <Link href="/" className="logo">
               ZAS<span>SPORTS</span>
@@ -76,7 +82,7 @@ const Header = () => {
             <form onSubmit={handleSearchSubmit} className="search-bar-container">
               <input
                 type="text"
-                placeholder="Search bats, balls, gloves, pads, accessories..."
+                placeholder="Search bats, balls, gloves, shoes, protective gear..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="search-input"
@@ -104,7 +110,7 @@ const Header = () => {
                 {pincodeStatus === 'undeliverable' && <X size={12} className="text-danger" />}
               </div>
 
-              {/* Store Locator / Support */}
+              {/* Support */}
               <Link href="/contact" className="action-icon-btn">
                 <PhoneCall size={20} />
                 <span>Support</span>
@@ -128,7 +134,7 @@ const Header = () => {
                 )}
               </Link>
 
-              {/* Authentication User Portal */}
+              {/* Authentication Portal */}
               <div className="position-relative" style={{ position: 'relative' }}>
                 {user ? (
                   <div 
@@ -148,33 +154,14 @@ const Header = () => {
                   </Link>
                 )}
 
-                {/* User Options Dropdown */}
                 {user && showUserDropdown && (
                   <div 
-                    className="admin-modal-overlay" 
-                    style={{ 
-                      position: 'absolute', 
-                      top: '100%', 
-                      right: 0, 
-                      left: 'auto',
-                      width: '200px', 
-                      height: 'auto', 
-                      backgroundColor: 'white', 
-                      boxShadow: 'var(--shadow-lg)', 
-                      borderRadius: 'var(--border-radius-md)', 
-                      border: '1px solid var(--bg-light-border)',
-                      zIndex: 102, 
-                      padding: '10px 0',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'flex-start'
-                    }}
+                    className="user-dropdown-menu" 
                     onMouseLeave={() => setShowUserDropdown(false)}
                   >
                     <Link 
                       href={user.role === 'admin' ? '/admin' : '/account'} 
-                      className="btn-sm" 
-                      style={{ padding: '8px 20px', width: '100%', textAlign: 'left', display: 'block', fontSize: '0.85rem' }}
+                      className="dropdown-link"
                       onClick={() => setShowUserDropdown(false)}
                     >
                       {user.role === 'admin' ? 'Admin Dashboard' : 'My Account'}
@@ -182,8 +169,7 @@ const Header = () => {
                     {user.role !== 'admin' && (
                       <Link 
                         href="/account#orders" 
-                        className="btn-sm" 
-                        style={{ padding: '8px 20px', width: '100%', textAlign: 'left', display: 'block', fontSize: '0.85rem' }}
+                        className="dropdown-link"
                         onClick={() => setShowUserDropdown(false)}
                       >
                         My Orders
@@ -191,8 +177,7 @@ const Header = () => {
                     )}
                     <button 
                       type="button" 
-                      className="btn-sm text-danger" 
-                      style={{ padding: '8px 20px', width: '100%', textAlign: 'left', display: 'block', fontWeight: 600, fontSize: '0.85rem' }}
+                      className="dropdown-link text-danger" 
                       onClick={() => {
                         logoutUser();
                         setShowUserDropdown(false);
@@ -205,13 +190,63 @@ const Header = () => {
               </div>
             </div>
           </div>
+
+          {/* 3. MOBILE HEADER ROW */}
+          <div className="header-top mobile-only-flex">
+            <button 
+              type="button" 
+              className="mobile-menu-trigger" 
+              onClick={() => setShowMobileMenu(true)}
+              aria-label="Open Menu"
+            >
+              <Menu size={24} />
+            </button>
+
+            <Link href="/" className="logo">
+              ZAS<span>SPORTS</span>
+            </Link>
+
+            <div className="header-actions">
+              <button 
+                type="button" 
+                className="mobile-action-btn"
+                onClick={() => setShowMobileSearch(!showMobileSearch)}
+              >
+                <Search size={22} />
+              </button>
+              <Link href="/wishlist" className="mobile-action-btn position-relative">
+                <Heart size={22} />
+                {wishlist.length > 0 && <span className="icon-badge">{wishlist.length}</span>}
+              </Link>
+              <Link href="/cart" className="mobile-action-btn position-relative">
+                <ShoppingBag size={22} />
+                {cartCount > 0 && <span className="icon-badge">{cartCount}</span>}
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/* 3. MEGA MENU NAVIGATION BAR */}
-        <nav className="nav-bar">
+        {/* 4. SECONDARY NAVIGATION (DESKTOP) */}
+        <nav className="nav-bar desktop-only-flex">
           <div className="container">
             <ul className="nav-links">
-              {/* Category: Cricket Bats */}
+              <li className="nav-item">
+                <Link href="/shop" className="nav-link">All Sports</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?ageGroup=Men" className="nav-link">Men</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?ageGroup=Women" className="nav-link">Women</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?ageGroup=Kids" className="nav-link">Kids</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop" className="nav-link">Cricket Gear</Link>
+              </li>
+
+              {/* Mega-menu Cricket Bats */}
               <li className="nav-item">
                 <Link href="/shop?category=cricket-bats" className="nav-link">Cricket Bats</Link>
                 <div className="mega-menu">
@@ -225,11 +260,12 @@ const Header = () => {
                       </ul>
                     </div>
                     <div>
-                      <h4 className="mega-col-title">Level & Playing</h4>
+                      <h4 className="mega-col-title">Wood Subcategories</h4>
                       <ul className="mega-links">
-                        <li><Link href="/shop?category=cricket-bats&level=Professional">Professional Bats</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&level=Intermediate">Intermediate Bats</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&level=Beginner">Beginner Bats</Link></li>
+                        <li><Link href="/shop?category=cricket-bats&subcategory=english-willow-bat">English Willow</Link></li>
+                        <li><Link href="/shop?category=cricket-bats&subcategory=kashmir-willow-bat">Kashmir Willow</Link></li>
+                        <li><Link href="/shop?category=cricket-bats&subcategory=tennis-cricket-bat">Tennis Cricket</Link></li>
+                        <li><Link href="/shop?category=cricket-bats&subcategory=kids-cricket-bat">Kids Bats</Link></li>
                       </ul>
                     </div>
                     <div>
@@ -237,20 +273,20 @@ const Header = () => {
                       <ul className="mega-links">
                         <li><Link href="/shop?category=cricket-bats&size=Short+Handle">Short Handle (SH)</Link></li>
                         <li><Link href="/shop?category=cricket-bats&size=Long+Handle">Long Handle (LH)</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&size=Size+6">Junior Size 6</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&size=Size+5">Junior Size 5</Link></li>
+                        <li><Link href="/shop?category=cricket-bats&size=Size+6">Size 6</Link></li>
+                        <li><Link href="/shop?category=cricket-bats&size=Size+5">Size 5</Link></li>
                       </ul>
                     </div>
                     <div className="mega-promo-card">
-                      <h4>Zassports English Willow</h4>
-                      <p>Premium Grade 1 Willow engineered for boundary hitters.</p>
-                      <Link href="/shop?category=cricket-bats" className="btn btn-accent btn-sm">Shop Now</Link>
+                      <h4>English Willow Bats</h4>
+                      <p>Premium grade bats handselected for ultimate ping performance.</p>
+                      <Link href="/shop?category=cricket-bats" className="btn btn-accent btn-sm">Shop Bats</Link>
                     </div>
                   </div>
                 </div>
               </li>
 
-              {/* Category: Cricket Balls */}
+              {/* Mega-menu Cricket Balls */}
               <li className="nav-item">
                 <Link href="/shop?category=cricket-balls" className="nav-link">Cricket Balls</Link>
                 <div className="mega-menu">
@@ -258,96 +294,226 @@ const Header = () => {
                     <div>
                       <h4 className="mega-col-title">Ball Type</h4>
                       <ul className="mega-links">
-                        <li><Link href="/shop?category=cricket-balls&ballType=Leather+ball">Match Leather Balls</Link></li>
-                        <li><Link href="/shop?category=cricket-balls&ballType=Tennis+ball">Heavy Tennis Balls</Link></li>
+                        <li><Link href="/shop?category=cricket-balls&subcategory=leather-ball">Leather Balls</Link></li>
+                        <li><Link href="/shop?category=cricket-balls&subcategory=tennis-ball">Tennis Balls</Link></li>
+                        <li><Link href="/shop?category=cricket-balls&subcategory=practice-ball">Practice Balls</Link></li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="mega-col-title">Color Options</h4>
                       <ul className="mega-links">
-                        <li><Link href="/shop?category=cricket-balls&color=Red">Red Match Balls</Link></li>
-                        <li><Link href="/shop?category=cricket-balls&color=Pink">Pink Day-Night Balls</Link></li>
-                        <li><Link href="/shop?category=cricket-balls&color=Yellow">Yellow Tennis Balls</Link></li>
+                        <li><Link href="/shop?category=cricket-balls&color=Red">Red Match Ball</Link></li>
+                        <li><Link href="/shop?category=cricket-balls&color=White">White Match Ball</Link></li>
+                        <li><Link href="/shop?category=cricket-balls&color=Pink">Pink Match Ball</Link></li>
                       </ul>
                     </div>
                     <div className="mega-promo-card" style={{ gridColumn: 'span 3' }}>
-                      <h4>Seam & Swing Excellence</h4>
-                      <p>Traditional alum-tanned 4-piece leather balls hand-stitched for extreme swing.</p>
-                      <Link href="/shop?category=cricket-balls" className="btn btn-accent btn-sm">Browse Balls</Link>
+                      <h4>Seam & Bounce</h4>
+                      <p>Four-piece leather match balls stitched to perfection. Available in standard weight parameters.</p>
+                      <Link href="/shop?category=cricket-balls" className="btn btn-accent btn-sm">Shop Balls</Link>
                     </div>
                   </div>
                 </div>
               </li>
 
-              {/* Category: Cricket Kits */}
+              {/* Cricket Shoes */}
               <li className="nav-item">
-                <Link href="/shop?category=complete-cricket-kits" className="nav-link">Cricket Kits</Link>
-              </li>
-
-              {/* Category: Protective Gear Dropdown */}
-              <li className="nav-item">
-                <span className="nav-link" style={{ cursor: 'pointer' }}>Protective Gear</span>
+                <Link href="/shop?category=cricket-shoes" className="nav-link">Cricket Shoes</Link>
                 <div className="mega-menu">
                   <div className="container mega-grid">
                     <div>
-                      <h4 className="mega-col-title">Gloves & Pads</h4>
+                      <h4 className="mega-col-title">Sole Type</h4>
                       <ul className="mega-links">
-                        <li><Link href="/shop?category=batting-gloves">Batting Gloves</Link></li>
-                        <li><Link href="/shop?category=wicket-keeping-gloves">Wicket Keeping Gloves</Link></li>
-                        <li><Link href="/shop?category=batting-pads">Batting Pads</Link></li>
+                        <li><Link href="/shop?category=cricket-shoes&subcategory=rubber-shoes">Rubber Sole Studs</Link></li>
+                        <li><Link href="/shop?category=cricket-shoes&subcategory=spiked-shoes">Metal Spikes</Link></li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="mega-col-title">Head & Body</h4>
+                      <h4 className="mega-col-title">Size Options</h4>
                       <ul className="mega-links">
-                        <li><Link href="/shop?category=helmets">Helmets</Link></li>
-                        <li><Link href="/shop?category=accessories">Other Guards</Link></li>
+                        <li><Link href="/shop?category=cricket-shoes&size=US+8">US 8</Link></li>
+                        <li><Link href="/shop?category=cricket-shoes&size=US+9">US 9</Link></li>
+                        <li><Link href="/shop?category=cricket-shoes&size=US+10">US 10</Link></li>
                       </ul>
                     </div>
                     <div className="mega-promo-card" style={{ gridColumn: 'span 3' }}>
-                      <h4>Armored Defender Series</h4>
-                      <p>High impact protection compliance. Rated for professional speeds.</p>
-                      <Link href="/shop" className="btn btn-accent btn-sm">View All Gear</Link>
+                      <h4>Extreme Turf Traction</h4>
+                      <p>Run fast, bowl hard, and slide safely with rubber spikes and steel grip shoes.</p>
+                      <Link href="/shop?category=cricket-shoes" className="btn btn-accent btn-sm">Browse Shoes</Link>
                     </div>
                   </div>
                 </div>
               </li>
 
-              {/* Category: Shoes */}
-              <li className="nav-item">
-                <Link href="/shop?category=cricket-shoes" className="nav-link">Shoes</Link>
-              </li>
-
-              {/* Category: Bags */}
-              <li className="nav-item">
-                <Link href="/shop?category=kit-bags" className="nav-link">Kit Bags</Link>
-              </li>
-
-              {/* Category: Accessories */}
+              {/* Accessories */}
               <li className="nav-item">
                 <Link href="/shop?category=accessories" className="nav-link">Accessories</Link>
-              </li>
-
-              {/* Segment Filtering: Men */}
-              <li className="nav-item">
-                <Link href="/shop?ageGroup=Men" className="nav-link">Men</Link>
-              </li>
-
-              {/* Segment Filtering: Women */}
-              <li className="nav-item">
-                <Link href="/shop?ageGroup=Women" className="nav-link">Women</Link>
-              </li>
-
-              {/* Segment Filtering: Kids */}
-              <li className="nav-item">
-                <Link href="/shop?ageGroup=Kids" className="nav-link">Kids</Link>
+                <div className="mega-menu">
+                  <div className="container mega-grid">
+                    <div>
+                      <h4 className="mega-col-title">Grips & Mallets</h4>
+                      <ul className="mega-links">
+                        <li><Link href="/shop?category=accessories&subcategory=bat-grips">Bat Grips</Link></li>
+                        <li><Link href="/shop?category=accessories&subcategory=bat-mallet">Bat Mallets</Link></li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="mega-col-title">Pitch Gear</h4>
+                      <ul className="mega-links">
+                        <li><Link href="/shop?category=training-equipment&subcategory=stumps">Wooden Stumps</Link></li>
+                        <li><Link href="/shop?category=training-equipment&subcategory=grip-cone">Grip Cones</Link></li>
+                      </ul>
+                    </div>
+                    <div className="mega-promo-card" style={{ gridColumn: 'span 3' }}>
+                      <h4>Essential Training Kits</h4>
+                      <p>From bat cones to stumps and grip protection packs, keep your kit complete.</p>
+                      <Link href="/shop?category=accessories" className="btn btn-accent btn-sm">Shop Accessories</Link>
+                    </div>
+                  </div>
+                </div>
               </li>
             </ul>
           </div>
         </nav>
+
+        {/* Mobile Search Bar Toggle Dropdown */}
+        {showMobileSearch && (
+          <div className="mobile-search-dropdown animate-slide-down">
+            <div className="container">
+              <form onSubmit={handleSearchSubmit} className="search-bar-container">
+                <input
+                  type="text"
+                  placeholder="Search cricket gear..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="search-input"
+                  autoFocus
+                />
+                <button type="submit" className="search-btn" aria-label="Search">
+                  <Search size={18} />
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* 4. PINCODE CHECKER MODAL */}
+      {/* 5. MOBILE NAVIGATION CATEGORY DRAWER */}
+      {showMobileMenu && (
+        <>
+          <div className="drawer-overlay" style={{ zIndex: 199 }} onClick={() => setShowMobileMenu(false)} />
+          <div className="mobile-category-drawer animate-fade" style={{ zIndex: 200 }}>
+            <div className="drawer-header" style={{ display: 'flex', justifyContent: 'space-between', padding: '20px 20px', borderBottom: '1px solid var(--bg-light-border)' }}>
+              <span className="logo">ZAS<span>SPORTS</span></span>
+              <button type="button" onClick={() => setShowMobileMenu(false)}>
+                <X size={22} />
+              </button>
+            </div>
+            
+            <div className="drawer-body" style={{ padding: '20px 0', overflowY: 'auto', height: 'calc(100% - 70px)' }}>
+              <div className="drawer-section">
+                <h4 className="drawer-section-title">Sports Categories</h4>
+                <ul className="drawer-menu-links">
+                  <li>
+                    <Link href="/shop" onClick={() => setShowMobileMenu(false)}>
+                      All Sports Catalog
+                    </Link>
+                  </li>
+                  {activeCategories.map(cat => (
+                    <li key={cat._id}>
+                      <Link href={`/shop?category=${cat.slug}`} onClick={() => setShowMobileMenu(false)}>
+                        {cat.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="drawer-section" style={{ borderTop: '1px solid var(--bg-light-border)', paddingTop: '20px', marginTop: '20px' }}>
+                <h4 className="drawer-section-title">Shop by Segment</h4>
+                <ul className="drawer-menu-links">
+                  <li>
+                    <Link href="/shop?ageGroup=Men" onClick={() => setShowMobileMenu(false)}>
+                      Men's Section
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/shop?ageGroup=Women" onClick={() => setShowMobileMenu(false)}>
+                      Women's Section
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/shop?ageGroup=Kids" onClick={() => setShowMobileMenu(false)}>
+                      Kids' Section
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="drawer-section" style={{ borderTop: '1px solid var(--bg-light-border)', paddingTop: '20px', marginTop: '20px' }}>
+                <h4 className="drawer-section-title">Pincode Check</h4>
+                <div style={{ padding: '0 20px' }}>
+                  <div 
+                    className="pincode-checker" 
+                    onClick={() => {
+                      setShowMobileMenu(false);
+                      setPinInput(pincode);
+                      setShowPinModal(true);
+                    }}
+                    style={{ width: '100%', justifyContent: 'center' }}
+                  >
+                    <MapPin size={16} />
+                    <span>
+                      {pincode ? `Deliver to: ${pincode}` : 'Select Delivery Pincode'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="drawer-section" style={{ borderTop: '1px solid var(--bg-light-border)', paddingTop: '20px', marginTop: '20px' }}>
+                <h4 className="drawer-section-title">User Account</h4>
+                <ul className="drawer-menu-links">
+                  {user ? (
+                    <>
+                      <li>
+                        <Link href={user.role === 'admin' ? '/admin' : '/account'} onClick={() => setShowMobileMenu(false)}>
+                          {user.role === 'admin' ? 'Admin Dashboard' : 'My Profile'}
+                        </Link>
+                      </li>
+                      <li>
+                        <button 
+                          type="button" 
+                          className="text-danger" 
+                          style={{ width: '100%', textAlign: 'left', fontWeight: 'bold', padding: '12px 20px' }}
+                          onClick={() => {
+                            logoutUser();
+                            setShowMobileMenu(false);
+                          }}
+                        >
+                          Sign Out
+                        </button>
+                      </li>
+                    </>
+                  ) : (
+                    <li>
+                      <Link href="/login" onClick={() => setShowMobileMenu(false)}>
+                        Sign In / Register
+                      </Link>
+                    </li>
+                  )}
+                  <li>
+                    <Link href="/contact" onClick={() => setShowMobileMenu(false)}>
+                      Contact Support
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* 6. PINCODE CHECKER MODAL */}
       {showPinModal && (
         <div className="admin-modal-overlay" style={{ zIndex: 250 }}>
           <div className="admin-modal animate-slide-up" style={{ maxWidth: '400px' }}>
@@ -363,12 +529,12 @@ const Header = () => {
             </div>
             <form onSubmit={handlePincodeSubmit} className="admin-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-dark-muted)', lineHeight: '1.4' }}>
-                Enter your pincode to check product delivery availability and estimated shipping times.
+                Enter your pincode to check product delivery availability. Delivery is available all over India.
               </p>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input
                   type="text"
-                  placeholder="e.g. 110001, 90210"
+                  placeholder="Enter 6 digit pincode"
                   value={pinInput}
                   onChange={(e) => setPinInput(e.target.value)}
                   className="form-control"

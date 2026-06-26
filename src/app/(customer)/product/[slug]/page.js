@@ -215,7 +215,7 @@ const ProductDetailPage = () => {
 
   const isOutOfStock = product.stock <= 0;
   const whatsappMessage = `Hi, I am interested in purchasing the *${product.name}* (SKU: ${product.sku}) listed for ₹${product.price} on your store. Is it available?`;
-  const whatsappUrl = `https://wa.me/${product.whatsappNumber || '15551234567'}?text=${encodeURIComponent(whatsappMessage)}`;
+  const whatsappUrl = `https://wa.me/918860654659?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
     <div className="container animate-fade">
@@ -236,7 +236,7 @@ const ProductDetailPage = () => {
         {/* Gallery Panel */}
         <div className="detail-gallery">
           <div className="gallery-main">
-            {product.images && product.images.length > 0 && !product.images[activeImgIndex].includes('unsplash.com') ? (
+            {product.images && product.images.length > 0 ? (
               <img src={product.images[activeImgIndex]} alt={product.name} />
             ) : (
               <InlineSVG type={product.category} />

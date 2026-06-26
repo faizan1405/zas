@@ -22,6 +22,7 @@ const ShopContent = () => {
 
   // Read URL query params
   const categoryParam = searchParams.get('category') || '';
+  const subcategoryParam = searchParams.get('subcategory') || '';
   const searchParam = searchParams.get('search') || '';
   const brandParam = searchParams.get('brand') || '';
   const sizeParam = searchParams.get('size') || '';
@@ -33,17 +34,19 @@ const ShopContent = () => {
   const colorParam = searchParams.get('color') || '';
   const minPriceParam = searchParams.get('minPrice') || '';
   const maxPriceParam = searchParams.get('maxPrice') || '';
+  const discountParam = searchParams.get('minDiscount') || '';
+  const ratingParam = searchParams.get('minRating') || '';
   const sortParam = searchParams.get('sort') || 'newest';
   const outOfStockParam = searchParams.get('excludeOutOfStock') === 'true';
 
-  // 1. Fetch filtered products from API whenever query params change
+  // Fetch filtered products
   useEffect(() => {
     const fetchFilteredProducts = async () => {
       try {
         setLoading(true);
-        // Build url matching exact parameters
         let url = `/api/products?sort=${sortParam}`;
         if (categoryParam) url += `&category=${categoryParam}`;
+        if (subcategoryParam) url += `&subcategory=${subcategoryParam}`;
         if (searchParam) url += `&search=${encodeURIComponent(searchParam)}`;
         if (brandParam) url += `&brand=${brandParam}`;
         if (sizeParam) url += `&size=${sizeParam}`;
@@ -55,6 +58,8 @@ const ShopContent = () => {
         if (colorParam) url += `&color=${colorParam}`;
         if (minPriceParam) url += `&minPrice=${minPriceParam}`;
         if (maxPriceParam) url += `&maxPrice=${maxPriceParam}`;
+        if (discountParam) url += `&minDiscount=${discountParam}`;
+        if (ratingParam) url += `&minRating=${ratingParam}`;
         if (outOfStockParam) url += `&excludeOutOfStock=true`;
 
         const res = await fetch(url);
@@ -69,10 +74,10 @@ const ShopContent = () => {
         setLoading(false);
       }
     };
-
     fetchFilteredProducts();
   }, [
     categoryParam,
+    subcategoryParam,
     searchParam,
     brandParam,
     sizeParam,
@@ -84,17 +89,18 @@ const ShopContent = () => {
     colorParam,
     minPriceParam,
     maxPriceParam,
+    discountParam,
+    ratingParam,
     sortParam,
     outOfStockParam
   ]);
 
-  // Sync inputs with URL params
   useEffect(() => {
     setMinPriceInput(minPriceParam);
     setMaxPriceInput(maxPriceParam);
   }, [minPriceParam, maxPriceParam]);
 
-  // 2. URL Update Helpers
+  // URL Query updates
   const updateQuery = (updates) => {
     const params = new URLSearchParams(searchParams.toString());
     Object.entries(updates).forEach(([key, value]) => {
@@ -122,34 +128,88 @@ const ShopContent = () => {
     setMaxPriceInput('');
   };
 
-  // Static list values based on seeded data
-  const brands = ['Apex'];
-  const colors = ['Red', 'Pink', 'Yellow', 'White', 'Navy Blue', 'Black/Orange', 'Obsidian Black'];
-  const sizes = ['Short Handle', 'Long Handle', 'Harrow', 'Size 6', 'Size 5', 'Size 4', 'Size 3', 'US 8', 'US 9', 'US 10', 'US 11', 'S', 'M', 'L', 'XL'];
+  // Static list values matching Zassports catalogs
+  const brands = ['Zassports'];
+  const colors = ['Red', 'Pink', 'White', 'Yellow', 'Blue', 'Navy Blue', 'Black/Orange'];
+  const sizes = ['Short Handle', 'Long Handle', 'Size 6', 'Size 5', 'Size 4', 'Size 3', 'US 8', 'US 9', 'US 10', 'US 11', 'S', 'M', 'L', 'XL'];
   const ageGroups = ['Men', 'Women', 'Kids', 'Junior'];
   const playingLevels = ['Beginner', 'Intermediate', 'Professional'];
-  const ballTypes = ['Tennis ball', 'Leather ball'];
   const woodTypes = ['English Willow', 'Kashmir Willow', 'Poplar Wood'];
-  const handOrientations = ['Right Hand', 'Left Hand'];
+  const ratings = [
+    { label: '4★ & above', value: '4' },
+    { label: '3★ & above', value: '3' }
+  ];
+  const discounts = [
+    { label: '10% Off or more', value: '10' },
+    { label: '20% Off or more', value: '20' },
+    { label: '30% Off or more', value: '30' }
+  ];
 
+  // Dynamically listing subcategories depending on main category selections
+  const getSubcategories = () => {
+    if (categoryParam === 'cricket-bats') {
+      return [
+        { name: 'Tennis Cricket Bat', slug: 'tennis-cricket-bat' },
+        { name: 'English Willow Bat', slug: 'english-willow-bat' },
+        { name: 'Kashmir Willow Bat', slug: 'kashmir-willow-bat' },
+        { name: 'Kids Cricket Bat', slug: 'kids-cricket-bat' }
+      ];
+    }
+    if (categoryParam === 'cricket-balls') {
+      return [
+        { name: 'Tennis Ball', slug: 'tennis-ball' },
+        { name: 'Leather Ball', slug: 'leather-ball' },
+        { name: 'Practice Ball', slug: 'practice-ball' }
+      ];
+    }
+    if (categoryParam === 'cricket-shoes') {
+      return [
+        { name: 'Adult Cricket Shoes', slug: 'adult-cricket-shoes' },
+        { name: 'Kids Cricket Shoes', slug: 'kids-cricket-shoes' },
+        { name: 'Spiked Shoes', slug: 'spiked-shoes' },
+        { name: 'Rubber Shoes', slug: 'rubber-shoes' }
+      ];
+    }
+    if (categoryParam === 'cricket-clothing') {
+      return [
+        { name: 'Cricket Jersey', slug: 'cricket-jersey' },
+        { name: 'Cricket Track Pants', slug: 'cricket-track-pants' },
+        { name: 'Cricket T-Shirts', slug: 'cricket-t-shirts' },
+        { name: 'Cricket Shorts', slug: 'cricket-shorts' }
+      ];
+    }
+    if (categoryParam === 'accessories') {
+      return [
+        { name: 'Bat Grips', slug: 'bat-grips' },
+        { name: 'Stumps', slug: 'stumps' },
+        { name: 'Bails', slug: 'bails' },
+        { name: 'Bat Mallet', slug: 'bat-mallet' },
+        { name: 'Grip Cone', slug: 'grip-cone' },
+        { name: 'Kit Accessories', slug: 'kit-accessories' }
+      ];
+    }
+    return [];
+  };
+
+  const currentSubcats = getSubcategories();
   const categoryName = categoryParam 
     ? categories.find(c => c.slug === categoryParam)?.name || 'Cricket Gear'
     : 'All Cricket Gear';
 
   const filterSidebarContent = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: '1rem', textTransform: 'uppercase', fontFamily: 'Outfit' }}>Filters</h3>
+      <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h3 style={{ fontSize: '1rem', textTransform: 'uppercase', fontFamily: 'Outfit', fontWeight: 800 }}>Filters</h3>
         <button 
           type="button" 
           onClick={clearAllFilters} 
           style={{ fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-dark-muted)' }}
         >
-          <RotateCcw size={12} /> Reset All
+          <RotateCcw size={12} /> Reset
         </button>
       </div>
 
-      {/* Exclude Out of Stock toggle */}
+      {/* Stock Availability */}
       <div className="filter-group">
         <label className="filter-checkbox-item" style={{ fontWeight: 600 }}>
           <input 
@@ -157,26 +217,49 @@ const ShopContent = () => {
             checked={outOfStockParam}
             onChange={(e) => updateQuery({ excludeOutOfStock: e.target.checked ? 'true' : '' })}
           />
-          <span>Exclude Out of Stock</span>
+          <span>In Stock Only</span>
         </label>
       </div>
 
-      {/* Category Filter */}
+      {/* Sport Category Filter */}
       <div className="filter-group">
-        <h4 className="filter-section-title">Category</h4>
+        <h4 className="filter-section-title">Sports Category</h4>
         <div className="filter-checkbox-list">
           {categories.map(cat => (
             <label key={cat._id} className="filter-checkbox-item">
               <input 
                 type="checkbox" 
                 checked={categoryParam === cat.slug}
-                onChange={(e) => handleCheckboxChange('category', cat.slug, e.target.checked)}
+                onChange={(e) => {
+                  handleCheckboxChange('category', cat.slug, e.target.checked);
+                  // Wipe subcategory since parent category changes
+                  updateQuery({ subcategory: '', category: e.target.checked ? cat.slug : '' });
+                }}
               />
               <span>{cat.name}</span>
             </label>
           ))}
         </div>
       </div>
+
+      {/* Subcategory Specific (if bats, balls, clothing selected) */}
+      {currentSubcats.length > 0 && (
+        <div className="filter-group">
+          <h4 className="filter-section-title">Types of {categoryName}</h4>
+          <div className="filter-checkbox-list">
+            {currentSubcats.map(sub => (
+              <label key={sub.slug} className="filter-checkbox-item">
+                <input 
+                  type="checkbox" 
+                  checked={subcategoryParam === sub.slug}
+                  onChange={(e) => handleCheckboxChange('subcategory', sub.slug, e.target.checked)}
+                />
+                <span>{sub.name}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Price Range Filter */}
       <div className="filter-group">
@@ -199,43 +282,26 @@ const ShopContent = () => {
         </form>
       </div>
 
-      {/* Playing Level */}
+      {/* Brand (Zassports) */}
       <div className="filter-group">
-        <h4 className="filter-section-title">Playing Level</h4>
+        <h4 className="filter-section-title">Brand</h4>
         <div className="filter-checkbox-list">
-          {playingLevels.map(lvl => (
-            <label key={lvl} className="filter-checkbox-item">
+          {brands.map(brnd => (
+            <label key={brnd} className="filter-checkbox-item">
               <input 
                 type="checkbox" 
-                checked={levelParam === lvl}
-                onChange={(e) => handleCheckboxChange('playingLevel', lvl, e.target.checked)}
+                checked={brandParam === brnd}
+                onChange={(e) => handleCheckboxChange('brand', brnd, e.target.checked)}
               />
-              <span>{lvl}</span>
+              <span>{brnd}</span>
             </label>
           ))}
         </div>
       </div>
 
-      {/* Age Group */}
+      {/* Wood Type */}
       <div className="filter-group">
-        <h4 className="filter-section-title">Age Group</h4>
-        <div className="filter-checkbox-list">
-          {ageGroups.map(grp => (
-            <label key={grp} className="filter-checkbox-item">
-              <input 
-                type="checkbox" 
-                checked={ageGroupParam === grp}
-                onChange={(e) => handleCheckboxChange('ageGroup', grp, e.target.checked)}
-              />
-              <span>{grp}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* Bat Wood Type (Visible under Bats category or generally) */}
-      <div className="filter-group">
-        <h4 className="filter-section-title">Bat Wood</h4>
+        <h4 className="filter-section-title">Type of Wood</h4>
         <div className="filter-checkbox-list">
           {woodTypes.map(wood => (
             <label key={wood} className="filter-checkbox-item">
@@ -250,35 +316,69 @@ const ShopContent = () => {
         </div>
       </div>
 
-      {/* Ball Type */}
+      {/* Playing Level / Level of Practice */}
       <div className="filter-group">
-        <h4 className="filter-section-title">Ball Type</h4>
+        <h4 className="filter-section-title">Level of Practice</h4>
         <div className="filter-checkbox-list">
-          {ballTypes.map(ball => (
-            <label key={ball} className="filter-checkbox-item">
+          {playingLevels.map(lvl => (
+            <label key={lvl} className="filter-checkbox-item">
               <input 
                 type="checkbox" 
-                checked={ballParam === ball}
-                onChange={(e) => handleCheckboxChange('ballType', ball, e.target.checked)}
+                checked={levelParam === lvl}
+                onChange={(e) => handleCheckboxChange('playingLevel', lvl, e.target.checked)}
               />
-              <span>{ball}</span>
+              <span>{lvl}</span>
             </label>
           ))}
         </div>
       </div>
 
-      {/* Hand Orientation */}
+      {/* Age Group / Gender */}
       <div className="filter-group">
-        <h4 className="filter-section-title">Hand Orientation</h4>
+        <h4 className="filter-section-title">Age / Gender</h4>
         <div className="filter-checkbox-list">
-          {handOrientations.map(hand => (
-            <label key={hand} className="filter-checkbox-item">
+          {ageGroups.map(grp => (
+            <label key={grp} className="filter-checkbox-item">
               <input 
                 type="checkbox" 
-                checked={handParam === hand}
-                onChange={(e) => handleCheckboxChange('handOrientation', hand, e.target.checked)}
+                checked={ageGroupParam === grp}
+                onChange={(e) => handleCheckboxChange('ageGroup', grp, e.target.checked)}
               />
-              <span>{hand}</span>
+              <span>{grp}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Discount Options */}
+      <div className="filter-group">
+        <h4 className="filter-section-title">Discount Percentage</h4>
+        <div className="filter-checkbox-list">
+          {discounts.map(disc => (
+            <label key={disc.value} className="filter-checkbox-item">
+              <input 
+                type="checkbox" 
+                checked={discountParam === disc.value}
+                onChange={(e) => handleCheckboxChange('minDiscount', disc.value, e.target.checked)}
+              />
+              <span>{disc.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Customer Ratings */}
+      <div className="filter-group">
+        <h4 className="filter-section-title">Customer Rating</h4>
+        <div className="filter-checkbox-list">
+          {ratings.map(rtg => (
+            <label key={rtg.value} className="filter-checkbox-item">
+              <input 
+                type="checkbox" 
+                checked={ratingParam === rtg.value}
+                onChange={(e) => handleCheckboxChange('minRating', rtg.value, e.target.checked)}
+              />
+              <span>{rtg.label}</span>
             </label>
           ))}
         </div>
@@ -343,7 +443,7 @@ const ShopContent = () => {
         </div>
       </div>
 
-      {/* Mobile Filters Header */}
+      {/* Mobile Filter Button */}
       <div className="mobile-filter-bar">
         <button 
           type="button" 
@@ -364,12 +464,12 @@ const ShopContent = () => {
           {filterSidebarContent}
         </aside>
 
-        {/* Shop Main Section */}
+        {/* Catalog Main Section */}
         <main className="shop-main">
-          {/* Top Sort Header */}
+          {/* Top Sorting Header */}
           <div className="shop-sorting-row" style={{ display: showMobileFilters ? 'none' : 'flex' }}>
             <span className="product-count" style={{ display: 'block' }}>
-              We found <span>{products.length}</span> items matching your search
+              We found <span>{products.length}</span> items matching your selection
             </span>
             <div className="sort-select-box">
               <span>Sort By:</span>
@@ -386,12 +486,12 @@ const ShopContent = () => {
             </div>
           </div>
 
-          {/* Related Collection Chips */}
+          {/* Collection Chips */}
           <div className="collection-chips">
             <button 
               type="button" 
               className={`collection-chip ${!categoryParam ? 'active' : ''}`}
-              onClick={() => updateQuery({ category: '' })}
+              onClick={() => updateQuery({ category: '', subcategory: '' })}
             >
               All Items
             </button>
@@ -400,7 +500,7 @@ const ShopContent = () => {
                 key={cat._id}
                 type="button" 
                 className={`collection-chip ${categoryParam === cat.slug ? 'active' : ''}`}
-                onClick={() => updateQuery({ category: cat.slug })}
+                onClick={() => updateQuery({ category: cat.slug, subcategory: '' })}
               >
                 {cat.name}
               </button>
@@ -436,7 +536,7 @@ const ShopContent = () => {
         </main>
       </div>
 
-      {/* Mobile Filters Slide Drawer */}
+      {/* Mobile bottom filter drawer */}
       {showMobileFilters && (
         <>
           <div className="drawer-overlay" onClick={() => setShowMobileFilters(false)} />
@@ -448,7 +548,6 @@ const ShopContent = () => {
               </button>
             </div>
             
-            {/* Mobile Sort selector */}
             <div className="form-group" style={{ marginBottom: '20px', borderBottom: '1px solid var(--bg-light-border)', paddingBottom: '20px' }}>
               <label className="form-label">Sort Catalog</label>
               <select 
@@ -464,7 +563,6 @@ const ShopContent = () => {
               </select>
             </div>
 
-            {/* Sidebar contents */}
             {filterSidebarContent}
 
             <button 

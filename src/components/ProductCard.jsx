@@ -75,10 +75,9 @@ const ProductCard = ({
           </button>
 
           {/* Product Image */}
-          {hasImage && !images[0].includes('unsplash.com') ? (
+          {hasImage ? (
             <img src={images[0]} alt={name} className="product-image" loading="lazy" />
           ) : (
-            // Use local high quality SVG vectors for a cleaner sporty presentation
             <InlineSVG type={category} className="product-image" />
           )}
         </div>

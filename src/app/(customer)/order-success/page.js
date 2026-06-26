@@ -39,6 +39,15 @@ const SuccessContent = () => {
           >
             Track Order Live <MapPin size={16} />
           </Link>
+          <a 
+            href={`https://wa.me/918860654659?text=Hi%20Zassports%2C%20I%20just%20placed%20an%20order.%20My%20Order%20ID%20is%20${orderId}.%20Please%20confirm.`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-accent btn-full"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#25D366', borderColor: '#25D366', color: 'white' }}
+          >
+            WhatsApp Order Support
+          </a>
           <Link 
             href="/shop"
             className="btn btn-secondary btn-full"

@@ -76,6 +76,11 @@ export async function GET(request) {
       query['variants.handOrientations'] = handOrientation;
     }
 
+    const subcategory = searchParams.get('subcategory');
+    if (subcategory) {
+      query.subcategory = subcategory;
+    }
+
     // Price Bounds
     const minPrice = Number(searchParams.get('minPrice'));
     const maxPrice = Number(searchParams.get('maxPrice'));

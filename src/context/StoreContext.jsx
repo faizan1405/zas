@@ -14,13 +14,19 @@ export function StoreProvider({ children }) {
     contactNumber: '8860654659',
     whatsappNumber: '918860654659',
     email: 'info@zassports.com',
-    address: 'Main Road, Deepak Vihar, Near Indus Valley Public School, Khora Colony, Noida Sector 62, Uttar Pradesh – 201309',
+    address: 'Main road, Deepak Vihar, near Indus Valley Public School, Khora Colony, Noida Sec 62, Uttar Pradesh - 201309',
     shippingCharges: 100,
     freeShippingMinAmount: 999,
     codEnabled: true,
     onlinePaymentEnabled: true,
     taxPercent: 12,
     gstDetails: '09AACCZ4143L1ZY',
+    socialLinks: {
+      facebook: 'https://facebook.com',
+      instagram: 'https://www.instagram.com/zas.india?igsh=MWx2cTk1Z2g3czZlNA%3D%3D&utm_source=qr',
+      twitter: 'https://twitter.com',
+      youtube: 'https://youtube.com/@brandedmalikboss?si=z7IYvk_dR1mPFkVH'
+    }
   });
   const [pincode, setPincode] = useState('');
   const [pincodeStatus, setPincodeStatus] = useState(null); // 'deliverable' | 'undeliverable'

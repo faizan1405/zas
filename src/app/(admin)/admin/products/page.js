@@ -43,6 +43,7 @@ const ProductsManagement = () => {
   const [isBestSeller, setIsBestSeller] = useState(false);
   const [isNewArrival, setIsNewArrival] = useState(false);
   const [isActive, setIsActive] = useState(true);
+  const [subcategory, setSubcategory] = useState('');
 
   // Specification Key-Values Rows
   const [specRows, setSpecRows] = useState([{ key: '', value: '' }]);
@@ -96,6 +97,7 @@ const ProductsManagement = () => {
     setIsBestSeller(false);
     setIsNewArrival(true);
     setIsActive(true);
+    setSubcategory('');
     setSpecRows([{ key: '', value: '' }]);
     setSizesInput('');
     setColorsInput('');
@@ -121,6 +123,7 @@ const ProductsManagement = () => {
     setIsBestSeller(p.isBestSeller || false);
     setIsNewArrival(p.isNewArrival || false);
     setIsActive(p.isActive !== undefined ? p.isActive : true);
+    setSubcategory(p.subcategory || '');
     
     // Map specs object to key-value rows
     if (p.specs) {
@@ -217,6 +220,7 @@ const ProductsManagement = () => {
       name,
       brand,
       category,
+      subcategory,
       description,
       price: Number(price),
       mrp: Number(mrp),
@@ -480,6 +484,16 @@ const ProductsManagement = () => {
                         <option key={c._id} value={c.slug}>{c.name}</option>
                       ))}
                     </select>
+                  </div>
+                  <div className="admin-form-group">
+                    <label>Subcategory Slug</label>
+                    <input 
+                      type="text" 
+                      value={subcategory} 
+                      onChange={(e) => setSubcategory(e.target.value)}
+                      className="admin-form-control"
+                      placeholder="e.g. english-willow-bat"
+                    />
                   </div>
                   <div className="admin-form-group">
                     <label>Stock Quantity</label>

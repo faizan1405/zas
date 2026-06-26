@@ -122,7 +122,7 @@ const CartPage = () => {
           {cart.map((item, idx) => (
             <div key={idx} className="cart-item">
               <div className="cart-item-img">
-                {item.product.images && item.product.images.length > 0 && !item.product.images[0].includes('unsplash.com') ? (
+                {item.product.images && item.product.images.length > 0 ? (
                   <img src={item.product.images[0]} alt={item.product.name} />
                 ) : (
                   <InlineSVG type={item.product.category} />

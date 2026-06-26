@@ -30,6 +30,7 @@ const ProductSchema = new mongoose.Schema({
   isNewArrival: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
   category: { type: String, required: true }, // Slug of the category
+  subcategory: { type: String }, // Slug of the subcategory
   createdAt: { type: Date, default: Date.now }
 });
 
