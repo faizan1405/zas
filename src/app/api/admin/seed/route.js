@@ -6,7 +6,7 @@ import User from 'src/models/User';
 import Page from 'src/models/Page';
 import Setting from 'src/models/Setting';
 import Banner from 'src/models/Banner';
-import { hashPassword } from 'src/lib/auth';
+import { hashPassword, verifyAdmin } from 'src/lib/auth';
 
 const DEFAULT_CATEGORIES = [
   { name: 'Cricket Bats', slug: 'cricket-bats', image: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600', displayOrder: 1, isActive: true },
@@ -555,6 +555,20 @@ export async function GET(request) {
     // Check if ?force=true is query param to clean & re-seed
     const { searchParams } = new URL(request.url);
     const force = searchParams.get('force') === 'true';
+
+    // Protect the seed route so it cannot be publicly reused.
+    // Unauthenticated access is permitted only for first-run bootstrap
+    // (when no admin account exists yet). Once an admin exists, or for any
+    // destructive ?force=true re-seed, a valid admin session is required.
+    const adminExistsAlready = await User.exists({ role: 'admin' });
+    if (adminExistsAlready || force) {
+      if (!verifyAdmin(request)) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized. Seeding is restricted to administrators.' },
+          { status: 401 }
+        );
+      }
+    }
 
     if (force) {
       console.log('Force parameter set. Wiping database collections...');
