@@ -6,7 +6,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET || 'mock-secret',
 });
 
-export async function uploadImage(fileUri, folder = 'apex-cricket') {
+export async function uploadImage(fileUri, folder = 'zassports-cricket') {
   // If credentials are not set, return a mock URL for testing
   if (
     !process.env.CLOUDINARY_CLOUD_NAME ||
