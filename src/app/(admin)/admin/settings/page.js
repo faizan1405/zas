@@ -15,8 +15,8 @@ const SettingsManagement = () => {
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
-  const [shippingCharges, setShippingCharges] = useState(10);
-  const [freeShippingMinAmount, setFreeShippingMinAmount] = useState(100);
+  const [shippingCharges, setShippingCharges] = useState(100);
+  const [freeShippingMinAmount, setFreeShippingMinAmount] = useState(999);
   const [codEnabled, setCodEnabled] = useState(true);
   const [onlinePaymentEnabled, setOnlinePaymentEnabled] = useState(true);
   const [taxPercent, setTaxPercent] = useState(12);
@@ -206,7 +206,7 @@ const SettingsManagement = () => {
           </h3>
           <div className="grid grid-3">
             <div className="admin-form-group">
-              <label>Standard Shipping Charge ($)</label>
+              <label>Standard Shipping Charge (₹)</label>
               <input 
                 type="number" 
                 value={shippingCharges} 
@@ -216,7 +216,7 @@ const SettingsManagement = () => {
               />
             </div>
             <div className="admin-form-group">
-              <label>Free Shipping Threshold ($)</label>
+              <label>Free Shipping Threshold (₹)</label>
               <input 
                 type="number" 
                 value={freeShippingMinAmount} 

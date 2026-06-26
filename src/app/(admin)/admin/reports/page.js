@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileText, AlertTriangle, TrendingUp, BarChart } from 'lucide-react';
+import { formatINR } from 'src/lib/currency';
 
 const ReportsManagement = () => {
   const [stats, setStats] = useState(null);
@@ -99,7 +100,7 @@ const ReportsManagement = () => {
               <div className="kpi-icon-box"><FileText /></div>
               <div className="kpi-info">
                 <h4>Stock Valuation</h4>
-                <span className="kpi-value">${totalStockValuation}</span>
+                <span className="kpi-value">{formatINR(totalStockValuation)}</span>
               </div>
             </div>
             <div className="admin-card kpi-card">
@@ -142,7 +143,7 @@ const ReportsManagement = () => {
                         <td style={{ color: 'white', fontWeight: 700 }}>{p.sku}</td>
                         <td>{p.name}</td>
                         <td>{p.category.replace('-', ' ')}</td>
-                        <td>${p.price}</td>
+                        <td>{formatINR(p.price)}</td>
                         <td style={{ color: 'var(--danger)', fontWeight: 700 }}>{p.stock} units</td>
                         <td style={{ fontWeight: 600, color: 'var(--primary)' }}>Reorder stock immediately</td>
                       </tr>
@@ -175,10 +176,10 @@ const ReportsManagement = () => {
                     <tr key={p._id}>
                       <td style={{ fontWeight: 700, color: 'white' }}>{p.sku}</td>
                       <td>{p.name}</td>
-                      <td>${p.price}</td>
-                      <td>${p.mrp}</td>
+                      <td>{formatINR(p.price)}</td>
+                      <td>{formatINR(p.mrp)}</td>
                       <td>{p.stock} units</td>
-                      <td style={{ fontWeight: 700, color: 'white' }}>${p.price * p.stock}</td>
+                      <td style={{ fontWeight: 700, color: 'white' }}>{formatINR(p.price * p.stock)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -197,7 +198,7 @@ const ReportsManagement = () => {
               <div className="kpi-icon-box"><DollarSign /></div>
               <div className="kpi-info">
                 <h4>Total Revenue</h4>
-                <span className="kpi-value">${totalRevenue}</span>
+                <span className="kpi-value">{formatINR(totalRevenue)}</span>
               </div>
             </div>
             <div className="admin-card kpi-card">
@@ -236,8 +237,8 @@ const ReportsManagement = () => {
                     <tr key={item.name}>
                       <td style={{ color: 'white', fontWeight: 600 }}>{item.name}</td>
                       <td>{item.orders} orders completed</td>
-                      <td style={{ fontWeight: 700, color: 'white' }}>${item.sales}</td>
-                      <td>${Math.round(item.sales * 0.12)}</td>
+                      <td style={{ fontWeight: 700, color: 'white' }}>{formatINR(item.sales)}</td>
+                      <td>{formatINR(Math.round(item.sales * 0.12))}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -266,9 +267,9 @@ const ReportsManagement = () => {
                     <tr key={p._id}>
                       <td style={{ fontWeight: 700, color: 'white' }}>{p.sku}</td>
                       <td>{p.name}</td>
-                      <td>${p.price}</td>
+                      <td>{formatINR(p.price)}</td>
                       <td>{p.salesCount} units</td>
-                      <td style={{ fontWeight: 700, color: 'var(--primary)' }}>${p.revenue}</td>
+                      <td style={{ fontWeight: 700, color: 'var(--primary)' }}>{formatINR(p.revenue)}</td>
                     </tr>
                   ))}
                 </tbody>

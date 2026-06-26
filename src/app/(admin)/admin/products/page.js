@@ -15,6 +15,7 @@ import {
   ToggleRight
 } from 'lucide-react';
 import { useStore } from 'src/context/StoreContext';
+import { formatINR } from 'src/lib/currency';
 
 const ProductsManagement = () => {
   const { categories } = useStore();
@@ -360,7 +361,7 @@ const ProductsManagement = () => {
                     </div>
                   </td>
                   <td>{p.category.replace('-', ' ')}</td>
-                  <td style={{ fontWeight: 600, color: 'white' }}>${p.price}</td>
+                  <td style={{ fontWeight: 600, color: 'white' }}>{formatINR(p.price)}</td>
                   <td>
                     <span style={{ color: p.stock <= 5 ? 'var(--danger)' : 'inherit', fontWeight: p.stock <= 5 ? 700 : 500 }}>
                       {p.stock}
@@ -491,7 +492,7 @@ const ProductsManagement = () => {
                     />
                   </div>
                   <div className="admin-form-group">
-                    <label>Price ($)</label>
+                    <label>Price (₹)</label>
                     <input 
                       type="number" 
                       value={price} 
@@ -501,7 +502,7 @@ const ProductsManagement = () => {
                     />
                   </div>
                   <div className="admin-form-group">
-                    <label>MRP ($)</label>
+                    <label>MRP (₹)</label>
                     <input 
                       type="number" 
                       value={mrp} 

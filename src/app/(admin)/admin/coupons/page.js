@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, X, Ticket } from 'lucide-react';
+import { formatINR } from 'src/lib/currency';
 
 const CouponsManagement = () => {
   const [coupons, setCoupons] = useState([]);
@@ -173,9 +174,9 @@ const CouponsManagement = () => {
                   <td style={{ color: 'white', fontWeight: 600 }}>
                     {coupon.discountType === 'percentage' 
                       ? `${coupon.discountValue}% Off` 
-                      : `$${coupon.discountValue} Flat Discount`}
+                      : `₹${coupon.discountValue} Flat Discount`}
                   </td>
-                  <td>${coupon.minOrderValue || 0}</td>
+                  <td>{formatINR(coupon.minOrderValue || 0)}</td>
                   <td>{new Date(coupon.expiryDate).toLocaleDateString()}</td>
                   <td>{coupon.usageLimit || 100} max</td>
                   <td style={{ fontWeight: 700, color: 'white' }}>{coupon.usedCount || 0} times</td>
@@ -258,7 +259,7 @@ const CouponsManagement = () => {
                     style={{ width: '100%', padding: '12px' }}
                   >
                     <option value="percentage">Percentage discount (%)</option>
-                    <option value="fixed">Fixed Flat discount ($)</option>
+                    <option value="fixed">Fixed Flat discount (₹)</option>
                   </select>
                 </div>
 
@@ -274,7 +275,7 @@ const CouponsManagement = () => {
                 </div>
 
                 <div className="admin-form-group">
-                  <label>Minimum Purchase Required ($)</label>
+                  <label>Minimum Purchase Required (₹)</label>
                   <input 
                     type="number" 
                     value={minOrderValue} 

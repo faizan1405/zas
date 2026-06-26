@@ -20,6 +20,7 @@ import {
 import { useStore } from 'src/context/StoreContext';
 import ProductCard from 'src/components/ProductCard';
 import InlineSVG from 'src/components/InlineSVG';
+import { formatINR } from 'src/lib/currency';
 
 const ProductDetailPage = () => {
   const router = useRouter();
@@ -213,7 +214,7 @@ const ProductDetailPage = () => {
   }
 
   const isOutOfStock = product.stock <= 0;
-  const whatsappMessage = `Hi, I am interested in purchasing the *${product.name}* (SKU: ${product.sku}) listed for $${product.price} on your store. Is it available?`;
+  const whatsappMessage = `Hi, I am interested in purchasing the *${product.name}* (SKU: ${product.sku}) listed for ₹${product.price} on your store. Is it available?`;
   const whatsappUrl = `https://wa.me/${product.whatsappNumber || '15551234567'}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
@@ -286,10 +287,10 @@ const ProductDetailPage = () => {
 
           {/* Pricing Box */}
           <div className="detail-price-box">
-            <span className="detail-price">${product.price}</span>
+            <span className="detail-price">{formatINR(product.price)}</span>
             {product.mrp > product.price && (
               <>
-                <span className="detail-mrp">${product.mrp}</span>
+                <span className="detail-mrp">{formatINR(product.mrp)}</span>
                 <span className="detail-discount">{product.discount}% Off</span>
               </>
             )}

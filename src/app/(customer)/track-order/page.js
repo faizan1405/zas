@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search, MapPin, Truck, Box, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { formatINR } from 'src/lib/currency';
 
 const TrackOrderContent = () => {
   const searchParams = useSearchParams();
@@ -168,10 +169,10 @@ const TrackOrderContent = () => {
                     <div style={{ flexGrow: 1 }}>
                       <h4 style={{ fontSize: '0.85rem', fontWeight: 600 }}>{item.name}</h4>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-dark-muted)' }}>
-                        Quantity: {item.quantity} | Price: ${item.price}
+                        Quantity: {item.quantity} | Price: {formatINR(item.price)}
                       </span>
                     </div>
-                    <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>${item.price * item.quantity}</span>
+                    <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{formatINR(item.price * item.quantity)}</span>
                   </div>
                 ))}
               </div>
@@ -179,21 +180,21 @@ const TrackOrderContent = () => {
               <div style={{ borderTop: '1px solid var(--bg-light-border)', marginTop: '20px', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Subtotal</span>
-                  <span>${order.subtotal}</span>
+                  <span>{formatINR(order.subtotal)}</span>
                 </div>
                 {order.discountAmount > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--success)' }}>
                     <span>Discount</span>
-                    <span>-${order.discountAmount}</span>
+                    <span>-{formatINR(order.discountAmount)}</span>
                   </div>
                 )}
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Shipping Fees</span>
-                  <span>{order.shippingPrice === 0 ? 'FREE' : `$${order.shippingPrice}`}</span>
+                  <span>{order.shippingPrice === 0 ? 'FREE' : formatINR(order.shippingPrice)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '1rem', borderTop: '1px solid var(--bg-light-border)', paddingTop: '10px' }}>
                   <span>Total Amount</span>
-                  <span>${order.totalAmount}</span>
+                  <span>{formatINR(order.totalAmount)}</span>
                 </div>
               </div>
             </div>

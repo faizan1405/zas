@@ -52,7 +52,7 @@ export async function POST(request) {
     // Check minimum order value
     if (subtotal < coupon.minOrderValue) {
       return NextResponse.json(
-        { success: false, error: `Minimum order value of $${coupon.minOrderValue} required for this coupon` },
+        { success: false, error: `Minimum order value of ₹${coupon.minOrderValue} required for this coupon` },
         { status: 400 }
       );
     }

@@ -12,6 +12,7 @@ import {
   ChevronRight,
   ShoppingCart
 } from 'lucide-react';
+import { formatINR } from 'src/lib/currency';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -73,7 +74,7 @@ const AdminDashboard = () => {
           <div className="kpi-icon-box"><DollarSign /></div>
           <div className="kpi-info">
             <h4>Total Revenue</h4>
-            <span className="kpi-value">${totalRevenue}</span>
+            <span className="kpi-value">{formatINR(totalRevenue)}</span>
           </div>
         </div>
         <div className="admin-card kpi-card">
@@ -140,7 +141,7 @@ const AdminDashboard = () => {
                     textAnchor="middle" 
                     style={{ fontSize: '8px', fill: 'white' }}
                   >
-                    ${d.sales}
+                    {formatINR(d.sales)}
                   </text>
                   {/* Month text label */}
                   <text 
@@ -172,7 +173,7 @@ const AdminDashboard = () => {
                   <h4 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'white', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</h4>
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-light-muted)' }}>SKU: {p.sku} | sales: {p.salesCount} items</span>
                 </div>
-                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--primary)' }}>${p.revenue}</span>
+                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--primary)' }}>{formatINR(p.revenue)}</span>
               </div>
             ))}
           </div>
@@ -214,7 +215,7 @@ const AdminDashboard = () => {
                   </td>
                   <td>{order.shippingAddress.fullName}</td>
                   <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td style={{ fontWeight: 700, color: 'white' }}>${order.totalAmount}</td>
+                  <td style={{ fontWeight: 700, color: 'white' }}>{formatINR(order.totalAmount)}</td>
                   <td>{order.paymentMethod}</td>
                   <td>
                     <span className={`status-badge ${order.paymentStatus === 'Paid' ? 'success' : order.paymentStatus === 'Failed' ? 'failed' : 'pending'}`}>

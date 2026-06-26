@@ -168,7 +168,7 @@ const HomePage = () => {
           <div>
             <span className="badge badge-featured" style={{ marginBottom: '10px' }}>Coupon Code</span>
             <h3 style={{ fontSize: '1.6rem', color: 'white', fontFamily: 'Outfit', fontWeight: 800 }}>USE PROMO: APEX10</h3>
-            <p style={{ color: 'var(--text-light-muted)', fontSize: '0.85rem', marginTop: '6px' }}>Get a fixed $10 discount on any purchase over $80 store-wide.</p>
+            <p style={{ color: 'var(--text-light-muted)', fontSize: '0.85rem', marginTop: '6px' }}>Get a fixed ₹500 discount on any purchase over ₹4,000 store-wide.</p>
           </div>
           <Link href="/shop" className="btn btn-secondary btn-sm" style={{ alignSelf: 'flex-start', borderColor: 'var(--primary)', color: 'var(--primary)' }}>Shop Products</Link>
         </div>

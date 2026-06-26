@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Star, Heart, ShoppingBag } from 'lucide-react';
 import InlineSVG from './InlineSVG';
+import { formatINR } from 'src/lib/currency';
 
 const ProductCard = ({ 
   product, 
@@ -92,10 +93,10 @@ const ProductCard = ({
           </div>
 
           <div className="product-price-row">
-            <span className="price-sale">${price}</span>
+            <span className="price-sale">{formatINR(price)}</span>
             {mrp > price && (
               <>
-                <span className="price-mrp">${mrp}</span>
+                <span className="price-mrp">{formatINR(mrp)}</span>
                 <span className="price-discount">-{discount}%</span>
               </>
             )}

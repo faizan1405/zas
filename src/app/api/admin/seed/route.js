@@ -11,22 +11,21 @@ import { hashPassword, verifyAdmin } from 'src/lib/auth';
 const DEFAULT_CATEGORIES = [
   { name: 'Cricket Bats', slug: 'cricket-bats', image: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600', displayOrder: 1, isActive: true },
   { name: 'Cricket Balls', slug: 'cricket-balls', image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600', displayOrder: 2, isActive: true },
-  { name: 'Cricket Kits', slug: 'cricket-kits', image: 'https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600', displayOrder: 3, isActive: true },
-  { name: 'Protection Gear', slug: 'protection-gear', image: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600', displayOrder: 4, isActive: true },
-  { name: 'Shoes', slug: 'shoes', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600', displayOrder: 5, isActive: true },
-  { name: 'Jerseys', slug: 'jerseys', image: 'https://images.unsplash.com/photo-1578269174936-2709b5a8c0e3?q=80&w=600', displayOrder: 6, isActive: true },
-  { name: 'Bags', slug: 'bags', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600', displayOrder: 7, isActive: true },
-  { name: 'Accessories', slug: 'accessories', image: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?q=80&w=600', displayOrder: 8, isActive: true },
-  { name: 'Men', slug: 'men', image: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600', displayOrder: 9, isActive: true },
-  { name: 'Women', slug: 'women', image: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600', displayOrder: 10, isActive: true },
-  { name: 'Kids', slug: 'kids', image: 'https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600', displayOrder: 11, isActive: true }
+  { name: 'Batting Gloves', slug: 'batting-gloves', image: 'https://images.unsplash.com/photo-1588615419954-bfad0c5f2122?q=80&w=600', displayOrder: 3, isActive: true },
+  { name: 'Wicket Keeping Gloves', slug: 'wicket-keeping-gloves', image: 'https://images.unsplash.com/photo-1606902960316-353ebd6dab78?q=80&w=600', displayOrder: 4, isActive: true },
+  { name: 'Batting Pads', slug: 'batting-pads', image: 'https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600', displayOrder: 5, isActive: true },
+  { name: 'Helmets', slug: 'helmets', image: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600', displayOrder: 6, isActive: true },
+  { name: 'Cricket Shoes', slug: 'cricket-shoes', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600', displayOrder: 7, isActive: true },
+  { name: 'Kit Bags', slug: 'kit-bags', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600', displayOrder: 8, isActive: true },
+  { name: 'Complete Cricket Kits', slug: 'complete-cricket-kits', image: 'https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600', displayOrder: 9, isActive: true },
+  { name: 'Accessories', slug: 'accessories', image: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=600', displayOrder: 10, isActive: true }
 ];
 
 const DEFAULT_PRODUCTS = [
   {
-    name: 'Zassports Pro English Willow Bat',
-    brand: 'Zassports',
-    slug: 'zassports-pro-english-willow-bat',
+    name: 'Apex Pro English Willow Cricket Bat',
+    brand: 'Apex Cricket',
+    slug: 'apex-pro-english-willow-cricket-bat',
     description: 'Crafted from premium Grade 1 English Willow. Engineered for professional power hitters, featuring an optimized sweet spot, thick edges, and a lightweight balanced pickup.',
     specs: {
       'Wood Type': 'Grade 1 English Willow',
@@ -35,20 +34,20 @@ const DEFAULT_PRODUCTS = [
       'Edge Thickness': '40 mm',
       'Sweet Spot': 'Mid-to-Low'
     },
-    price: 299,
-    mrp: 399,
-    discount: 25,
-    stock: 50,
-    sku: 'ZAS-BAT-EW01',
+    price: 12999,
+    mrp: 15999,
+    discount: 18,
+    stock: 25,
+    sku: 'APX-BAT-PEW01',
     variants: {
-      sizes: ['Short Handle', 'Long Handle', 'Harrow'],
+      sizes: ['Short Handle', 'Long Handle'],
       handOrientations: ['Right Hand', 'Left Hand'],
       batWoodTypes: ['English Willow'],
       playingLevels: ['Professional'],
       ageGroups: ['Men']
     },
     images: ['https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600'],
-    ratings: { average: 4.8, count: 24 },
+    ratings: { average: 4.8, count: 42 },
     isFeatured: true,
     isBestSeller: true,
     isNewArrival: false,
@@ -56,9 +55,9 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-bats'
   },
   {
-    name: 'Zassports Club Kashmir Willow Bat',
-    brand: 'Zassports',
-    slug: 'zassports-club-kashmir-willow-bat',
+    name: 'Apex Power Kashmir Willow Bat',
+    brand: 'Apex Cricket',
+    slug: 'apex-power-kashmir-willow-bat',
     description: 'High-quality selected Kashmir Willow bat, ideal for club league matches and training. Fitted with a secure wrap-around rubber sleeve and chevron grip.',
     specs: {
       'Wood Type': 'Selected Kashmir Willow',
@@ -67,11 +66,11 @@ const DEFAULT_PRODUCTS = [
       'Edge Thickness': '38 mm',
       'Sweet Spot': 'Mid-to-High'
     },
-    price: 79,
-    mrp: 99,
-    discount: 20,
-    stock: 50,
-    sku: 'ZAS-BAT-KW02',
+    price: 4999,
+    mrp: 5999,
+    discount: 16,
+    stock: 40,
+    sku: 'APX-BAT-PKW02',
     variants: {
       sizes: ['Short Handle', 'Size 6'],
       handOrientations: ['Right Hand', 'Left Hand'],
@@ -79,8 +78,38 @@ const DEFAULT_PRODUCTS = [
       playingLevels: ['Intermediate'],
       ageGroups: ['Men', 'Junior']
     },
+    images: ['https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600'],
+    ratings: { average: 4.5, count: 28 },
+    isFeatured: false,
+    isBestSeller: true,
+    isNewArrival: false,
+    isActive: true,
+    category: 'cricket-bats'
+  },
+  {
+    name: 'Junior Strike Cricket Bat',
+    brand: 'Apex Cricket',
+    slug: 'junior-strike-cricket-bat',
+    description: 'Lightweight cricket bat designed specifically for young players. Provides comfortable pickup, sturdy profile, and robust play.',
+    specs: {
+      'Wood Type': 'Kashmir Willow',
+      'Weight': '2.2 lbs',
+      'Handle': 'Standard cane'
+    },
+    price: 1899,
+    mrp: 2499,
+    discount: 24,
+    stock: 35,
+    sku: 'APX-BAT-JS03',
+    variants: {
+      sizes: ['Size 5', 'Size 4'],
+      handOrientations: ['Right Hand', 'Left Hand'],
+      batWoodTypes: ['Kashmir Willow'],
+      playingLevels: ['Beginner'],
+      ageGroups: ['Junior', 'Kids']
+    },
     images: ['https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600'],
-    ratings: { average: 4.2, count: 18 },
+    ratings: { average: 4.2, count: 15 },
     isFeatured: false,
     isBestSeller: false,
     isNewArrival: true,
@@ -88,29 +117,29 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-bats'
   },
   {
-    name: 'Zassports Junior Poplar Street Bat',
-    brand: 'Zassports',
-    slug: 'zassports-junior-poplar-street-bat',
-    description: 'Ultra-lightweight poplar wood bat designed specifically for soft tennis balls and backyard cricket games. Recommended for young learners.',
+    name: 'Tennis Ball Power Bat',
+    brand: 'Apex Cricket',
+    slug: 'tennis-ball-power-bat',
+    description: 'Special grade bat crafted for heavy tennis ball cricket. Comes with extra thick shoulder and curved blade for high performance.',
     specs: {
-      'Wood Type': 'Lightweight Poplar Wood',
-      'Weight': '1.8 lbs',
-      'Handle': 'One-piece Solid Wood',
-      'Ball Type': 'Tennis ball / Windball'
+      'Wood Type': 'Hardwood Poplar',
+      'Weight': '2.2 lbs',
+      'Handle': 'Full cane'
     },
-    price: 25,
-    mrp: 29,
-    discount: 13,
+    price: 999,
+    mrp: 1299,
+    discount: 23,
     stock: 50,
-    sku: 'ZAS-BAT-PW03',
+    sku: 'APX-BAT-TB04',
     variants: {
-      sizes: ['Size 3', 'Size 4', 'Size 5'],
+      sizes: ['Short Handle', 'Size 5'],
+      handOrientations: ['Right Hand', 'Left Hand'],
       batWoodTypes: ['Poplar Wood'],
       playingLevels: ['Beginner'],
-      ageGroups: ['Kids', 'Junior']
+      ageGroups: ['Men', 'Kids']
     },
-    images: ['https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600'],
-    ratings: { average: 4.0, count: 12 },
+    images: ['https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600'],
+    ratings: { average: 4.0, count: 20 },
     isFeatured: false,
     isBestSeller: false,
     isNewArrival: false,
@@ -118,25 +147,26 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-bats'
   },
   {
-    name: 'Zassports Match Red Leather Ball',
-    brand: 'Zassports',
-    slug: 'zassports-match-red-leather-ball',
-    description: 'Premium four-piece alum-tanned leather ball with a high-density cork core. Hand-stitched for optimal swing, seam shape retention, and long life in 40+ over matches.',
+    name: 'Leather Match Cricket Ball Pack of 6',
+    brand: 'Apex Cricket',
+    slug: 'leather-match-cricket-ball-pack-of-6',
+    description: 'Premium four-piece alum-tanned leather balls with a high-density cork core. Hand-stitched for optimal swing, shape retention, and long life in 40+ over matches.',
     specs: {
       'Material': 'Alum-tanned English Leather',
       'Core': 'Pounded High-Density Cork',
       'Stitching': '80-84 stitches, Hand-Sewn',
       'Weight': '156 grams (5.5 oz)'
     },
-    price: 18,
-    mrp: 25,
-    discount: 28,
-    stock: 50,
-    sku: 'ZAS-BAL-RL01',
+    price: 1499,
+    mrp: 1999,
+    discount: 25,
+    stock: 30,
+    sku: 'APX-BAL-LMP05',
     variants: {
+      colors: ['Red', 'Pink', 'White'],
       ballTypes: ['Leather ball'],
-      colors: ['Red'],
-      playingLevels: ['Intermediate', 'Professional']
+      playingLevels: ['Professional'],
+      ageGroups: ['Men']
     },
     images: ['https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600'],
     ratings: { average: 4.6, count: 32 },
@@ -147,28 +177,28 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-balls'
   },
   {
-    name: 'Zassports Day-Night Pink Leather Ball',
-    brand: 'Zassports',
-    slug: 'zassports-day-night-pink-leather-ball',
-    description: 'Specially formulated pink leather ball for day-night matches. Highly visible under floodlights with premium gloss lacquer and standard icc measurements.',
+    name: 'Red Leather Cricket Ball',
+    brand: 'Apex Cricket',
+    slug: 'red-leather-cricket-ball',
+    description: 'High-quality leather ball for club practice matches and training. Waterproof coating and sturdy core.',
     specs: {
-      'Material': 'Premium English leather',
-      'Core': 'Cane-Cork Multi-layered Center',
-      'Color': 'Fluorescent Pink',
-      'Weight': '156 grams'
+      'Material': 'Leather',
+      'Core': 'Cork',
+      'Weight': '156g'
     },
-    price: 22,
-    mrp: 30,
-    discount: 26,
-    stock: 50,
-    sku: 'ZAS-BAL-PL02',
+    price: 349,
+    mrp: 499,
+    discount: 30,
+    stock: 100,
+    sku: 'APX-BAL-RLB06',
     variants: {
+      colors: ['Red'],
       ballTypes: ['Leather ball'],
-      colors: ['Pink'],
-      playingLevels: ['Professional']
+      playingLevels: ['Intermediate'],
+      ageGroups: ['Men', 'Junior']
     },
     images: ['https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600'],
-    ratings: { average: 4.5, count: 14 },
+    ratings: { average: 4.3, count: 18 },
     isFeatured: false,
     isBestSeller: false,
     isNewArrival: true,
@@ -176,289 +206,606 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-balls'
   },
   {
-    name: 'Zassports Heavy Yellow Tennis Ball (6-Pack)',
-    brand: 'Zassports',
-    slug: 'zassports-heavy-yellow-tennis-ball-6-pack',
-    description: 'Pressurized, heavy-weight tennis balls optimized for outdoor street cricket play. Provides robust bounce, durable thick felt, and wind resistance.',
+    name: 'Tennis Cricket Ball Pack of 12',
+    brand: 'Apex Cricket',
+    slug: 'tennis-cricket-ball-pack-of-12',
+    description: 'Pressurized, heavy-weight tennis balls optimized for outdoor street cricket play. Provides robust bounce and thick felt.',
     specs: {
       'Material': 'High-felt woven rubber',
       'Color': 'Fluorescent Yellow',
-      'Felt': 'Extra Duty Outer Core',
-      'Pack Size': '6 Balls per pack'
+      'Pack Size': '12 Balls'
     },
-    price: 15,
-    mrp: 19,
-    discount: 21,
-    stock: 50,
-    sku: 'ZAS-BAL-TB03',
+    price: 599,
+    mrp: 799,
+    discount: 25,
+    stock: 80,
+    sku: 'APX-BAL-TCB07',
     variants: {
+      colors: ['Yellow', 'Red'],
       ballTypes: ['Tennis ball'],
-      colors: ['Yellow'],
       playingLevels: ['Beginner', 'Intermediate'],
       ageGroups: ['Men', 'Women', 'Kids', 'Junior']
     },
     images: ['https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600'],
-    ratings: { average: 4.4, count: 48 },
+    ratings: { average: 4.1, count: 14 },
     isFeatured: false,
-    isBestSeller: true,
+    isBestSeller: false,
     isNewArrival: false,
     isActive: true,
     category: 'cricket-balls'
   },
   {
-    name: 'Zassports Pro Batting Gloves',
-    brand: 'Zassports',
-    slug: 'zassports-pro-batting-gloves',
-    description: 'Multi-flex ergonomic finger design batting gloves. Features high-density foam filling, premium sheepskin leather palm, and three-split sidebars for maximum impact protection.',
+    name: 'Pro Grip Batting Gloves',
+    brand: 'Apex Cricket',
+    slug: 'pro-grip-batting-gloves',
+    description: 'Professional batting gloves with high-density foam finger rolls and leather palm for maximum grip and shock absorption.',
     specs: {
-      'Palm Material': 'Premium Sheepskin Leather',
-      'Finger Protection': 'Fibre inserts on lead fingers',
-      'Thumb': 'Two-piece padded thumb',
-      'Wrist Tab': '50mm wide double-sided towel sweatband'
+      'Material': 'Sheepskin leather palm',
+      'Protection': 'Dual density foam',
+      'Wrist': 'Elasticated wrap'
     },
-    price: 45,
-    mrp: 59,
-    discount: 23,
-    stock: 50,
-    sku: 'ZAS-GLV-BT01',
+    price: 1799,
+    mrp: 2199,
+    discount: 18,
+    stock: 45,
+    sku: 'APX-GLV-PGB08',
     variants: {
-      sizes: ['Men', 'Youth'],
+      sizes: ['M', 'L'],
       handOrientations: ['Right Hand', 'Left Hand'],
-      playingLevels: ['Professional', 'Intermediate'],
-      ageGroups: ['Men', 'Women']
-    },
-    images: ['https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600'],
-    ratings: { average: 4.7, count: 20 },
-    isFeatured: true,
-    isBestSeller: false,
-    isNewArrival: false,
-    isActive: true,
-    category: 'protection-gear'
-  },
-  {
-    name: 'Zassports Shield Wicket Keeping Gloves',
-    brand: 'Zassports',
-    slug: 'zassports-shield-wicket-keeping-gloves',
-    description: 'Professional wicket-keeping gloves with rubber octopus grip palm, reinforced finger chambers, and extensive leather padding on the cuffs for total protection.',
-    specs: {
-      'Palm Grip': 'Octopus style rubber grip sheet',
-      'Material': 'Aniline leather outer casing',
-      'Finger Caps': 'Protective plastic caps on all fingertips',
-      'Cuff': 'Padded square cuff protector'
-    },
-    price: 65,
-    mrp: 85,
-    discount: 23,
-    stock: 50,
-    sku: 'ZAS-GLV-WK01',
-    variants: {
-      sizes: ['Men'],
       playingLevels: ['Professional'],
       ageGroups: ['Men']
     },
-    images: ['https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600'],
-    ratings: { average: 4.4, count: 11 },
+    images: ['https://images.unsplash.com/photo-1588615419954-bfad0c5f2122?q=80&w=600'],
+    ratings: { average: 4.7, count: 21 },
+    isFeatured: true,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'batting-gloves'
+  },
+  {
+    name: 'Junior Batting Gloves',
+    brand: 'Apex Cricket',
+    slug: 'junior-batting-gloves',
+    description: 'Ergonomic protective gloves for junior cricket. Breathable mesh panels and comfortable foam lining.',
+    specs: {
+      'Material': 'Synthetic palm',
+      'Protection': 'Standard density foam'
+    },
+    price: 999,
+    mrp: 1299,
+    discount: 23,
+    stock: 35,
+    sku: 'APX-GLV-JBG09',
+    variants: {
+      sizes: ['S', 'M'],
+      handOrientations: ['Right Hand', 'Left Hand'],
+      playingLevels: ['Beginner', 'Intermediate'],
+      ageGroups: ['Junior', 'Kids']
+    },
+    images: ['https://images.unsplash.com/photo-1588615419954-bfad0c5f2122?q=80&w=600'],
+    ratings: { average: 4.4, count: 12 },
     isFeatured: false,
     isBestSeller: false,
     isNewArrival: true,
     isActive: true,
-    category: 'protection-gear'
+    category: 'batting-gloves'
   },
   {
-    name: 'Zassports Carbon Fiber Batting Pads',
-    brand: 'Zassports',
-    slug: 'zassports-carbon-fiber-batting-pads',
-    description: 'Ultra-lightweight batting pads with cane insertion and carbon-reinforced bolster. Contoured knee cups and wide padded straps ensure superior comfort and runability.',
+    name: 'Wicket Keeping Gloves Pro',
+    brand: 'Apex Cricket',
+    slug: 'wicket-keeping-gloves-pro',
+    description: 'Premium keeping gloves featuring octopus-style grip rubber palm and padded cuffs for exceptional catching and thumb protection.',
     specs: {
-      'Core Material': 'High density plastazote foam',
-      'Structure': '7-cane traditional layout',
-      'Straps': '3-strap quick-release velcro',
-      'Knee Cup': 'Molded plastic knee locator'
+      'Palm': 'Octopus rubber grip',
+      'Cuff': 'Padded leather',
+      'Finger Protection': 'Fibre inserts'
     },
-    price: 89,
-    mrp: 119,
-    discount: 25,
-    stock: 50,
-    sku: 'ZAS-PAD-BT01',
+    price: 2499,
+    mrp: 2999,
+    discount: 16,
+    stock: 20,
+    sku: 'APX-GLV-WKP10',
     variants: {
-      sizes: ['Men', 'Youth'],
+      sizes: ['M', 'L'],
       handOrientations: ['Right Hand', 'Left Hand'],
-      playingLevels: ['Professional', 'Intermediate'],
-      ageGroups: ['Men', 'Women']
-    },
-    images: ['https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600'],
-    ratings: { average: 4.6, count: 19 },
-    isFeatured: true,
-    isBestSeller: true,
-    isNewArrival: false,
-    isActive: true,
-    category: 'protection-gear'
-  },
-  {
-    name: 'Zassports Defender Cricket Helmet',
-    brand: 'Zassports',
-    slug: 'zassports-defender-cricket-helmet',
-    description: 'High-impact ABS outer shell cricket helmet with a fully adjustable titanium steel visor. Internal EPS liner absorbs shock, while cooling air vents maintain airflow.',
-    specs: {
-      'Outer Shell': 'High-Impact ABS Plastic',
-      'Visor': 'Titanium alloy wire grill',
-      'Inner Padding': 'Dual-density foam with sweatband',
-      'Standards': 'Certified to BS 7928:2013'
-    },
-    price: 59,
-    mrp: 79,
-    discount: 25,
-    stock: 50,
-    sku: 'ZAS-HLM-DF01',
-    variants: {
-      sizes: ['M (56-58cm)', 'L (59-61cm)'],
-      playingLevels: ['Beginner', 'Intermediate', 'Professional'],
-      ageGroups: ['Men', 'Women', 'Junior']
-    },
-    images: ['https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600'],
-    ratings: { average: 4.7, count: 15 },
-    isFeatured: false,
-    isBestSeller: false,
-    isNewArrival: false,
-    isActive: true,
-    category: 'protection-gear'
-  },
-  {
-    name: 'Zassports Spike Cricket Shoes',
-    brand: 'Zassports',
-    slug: 'zassports-spike-cricket-shoes',
-    description: 'High-performance spikes designed for fast bowlers and batsmen alike. Built with a mesh/synthetic upper, cushioned EVA midsole, and a full steel-spike outsole plate.',
-    specs: {
-      'Outsole': 'TPU Plate with 11 metal spikes',
-      'Midsole': 'High-rebound EVA cushion',
-      'Upper': 'Synthetic leather + breathable mesh',
-      'Closure': 'Lace-up with Velcro strap'
-    },
-    price: 95,
-    mrp: 129,
-    discount: 26,
-    stock: 50,
-    sku: 'ZAS-SH-SP01',
-    variants: {
-      sizes: ['US 8', 'US 9', 'US 10', 'US 11'],
-      playingLevels: ['Intermediate', 'Professional'],
+      playingLevels: ['Professional'],
       ageGroups: ['Men']
     },
-    images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600'],
-    ratings: { average: 4.5, count: 21 },
-    isFeatured: true,
-    isBestSeller: false,
-    isNewArrival: true,
-    isActive: true,
-    category: 'shoes'
-  },
-  {
-    name: 'Zassports Dri-Fit Match Jersey',
-    brand: 'Zassports',
-    slug: 'zassports-dri-fit-match-jersey',
-    description: 'Elite cricket whites shirt. Fabricated with sweat-wicking dry-mesh technology to keep you cool and dry during hot multi-session days.',
-    specs: {
-      'Fabric': '100% Recycled Polyester Mesh',
-      'Technology': 'Dri-Fit moisture management',
-      'Fit': 'Athletic loose fit',
-      'Collar': 'Traditional dynamic collar'
-    },
-    price: 29,
-    mrp: 39,
-    discount: 25,
-    stock: 50,
-    sku: 'ZAS-JSY-MF01',
-    variants: {
-      sizes: ['S', 'M', 'L', 'XL'],
-      colors: ['White', 'Navy Blue'],
-      ageGroups: ['Men', 'Women']
-    },
-    images: ['https://images.unsplash.com/photo-1578269174936-2709b5a8c0e3?q=80&w=600'],
-    ratings: { average: 4.3, count: 28 },
-    isFeatured: false,
-    isBestSeller: true,
-    isNewArrival: false,
-    isActive: true,
-    category: 'jerseys'
-  },
-  {
-    name: 'Zassports Pro Wheelie Cricket Bag',
-    brand: 'Zassports',
-    slug: 'zassports-pro-wheelie-cricket-bag',
-    description: 'Massive storage kit bag with heavy-duty tractor wheels. Includes 3 integrated bat sleeves, separate helmet/shoe compartments, and a thermo-insulated pocket for drinks.',
-    specs: {
-      'Dimensions': '95cm x 40cm x 40cm',
-      'Material': '1680D Water-resistant Cordura',
-      'Wheels': '2 Heavy-duty offroad wheels',
-      'Handles': 'Padded carry handle + telescoping pull strap'
-    },
-    price: 110,
-    mrp: 149,
-    discount: 26,
-    stock: 50,
-    sku: 'ZAS-BAG-WH01',
-    variants: {
-      colors: ['Black/Orange', 'Obsidian Black'],
-      ageGroups: ['Men', 'Women', 'Junior']
-    },
-    images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600'],
-    ratings: { average: 4.8, count: 10 },
+    images: ['https://images.unsplash.com/photo-1606902960316-353ebd6dab78?q=80&w=600'],
+    ratings: { average: 4.8, count: 19 },
     isFeatured: true,
     isBestSeller: false,
     isNewArrival: false,
     isActive: true,
-    category: 'bags'
+    category: 'wicket-keeping-gloves'
   },
   {
-    name: 'Zassports Youth Complete Cricket Kit',
-    brand: 'Zassports',
-    slug: 'zassports-youth-complete-cricket-kit',
-    description: 'Everything a junior player needs to start cricket. Contains: 1 Kashmir Willow bat, batting pads, batting gloves, helmet, thigh guard, arm guard, abdominal guard, and a durable duffle bag.',
+    name: 'Pro Shield Batting Pads',
+    brand: 'Apex Cricket',
+    slug: 'pro-shield-batting-pads',
+    description: 'Traditional cane-construction pads featuring premium polyurethane face, dynamic knee rolls, and extra thick foam wing inserts.',
     specs: {
-      'Target Age': '9 - 14 years',
-      'Bat Size': 'Size 5 Kashmir Willow',
-      'Includes': 'Bat, Pads, Gloves, Helmet, Thigh, Arm, Abdominal guard, Gear bag',
-      'Bag Style': 'Double-strap shoulder backpack'
+      'Face Material': 'Premium PU',
+      'Structure': 'Cane rods protection',
+      'Straps': 'Triple Velcro strap system'
     },
-    price: 179,
-    mrp: 239,
-    discount: 25,
-    stock: 50,
-    sku: 'ZAS-KIT-YT01',
+    price: 2999,
+    mrp: 3499,
+    discount: 14,
+    stock: 30,
+    sku: 'APX-PAD-PSB11',
     variants: {
+      sizes: ['M', 'L'],
+      handOrientations: ['Right Hand', 'Left Hand'],
+      playingLevels: ['Professional'],
+      ageGroups: ['Men']
+    },
+    images: ['https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600'],
+    ratings: { average: 4.8, count: 25 },
+    isFeatured: true,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'batting-pads'
+  },
+  {
+    name: 'Junior Cricket Pads',
+    brand: 'Apex Cricket',
+    slug: 'junior-cricket-pads',
+    description: 'Lightweight shin guards for youth and school cricket players. Soft foam lining provides comfortable shield.',
+    specs: {
+      'Material': 'PVC outer face',
+      'Straps': 'Double Velcro strap'
+    },
+    price: 1599,
+    mrp: 1999,
+    discount: 20,
+    stock: 40,
+    sku: 'APX-PAD-JCP12',
+    variants: {
+      sizes: ['S', 'M'],
       handOrientations: ['Right Hand', 'Left Hand'],
       playingLevels: ['Beginner', 'Intermediate'],
       ageGroups: ['Junior', 'Kids']
     },
     images: ['https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600'],
-    ratings: { average: 4.7, count: 8 },
-    isFeatured: true,
+    ratings: { average: 4.3, count: 16 },
+    isFeatured: false,
     isBestSeller: false,
     isNewArrival: true,
     isActive: true,
-    category: 'cricket-kits'
+    category: 'batting-pads'
   },
   {
-    name: 'Zassports Solid Wooden Stumps (Set of 6)',
-    brand: 'Zassports',
-    slug: 'zassports-solid-wooden-stumps-set-of-6',
-    description: 'Standard English Ash wood cricket stumps with matching bails. Precision-lathed to meet official ICC specifications for match play.',
+    name: 'Lightweight Wicket Keeping Pads',
+    brand: 'Apex Cricket',
+    slug: 'lightweight-wicket-keeping-pads',
+    description: 'Specifically engineered low-profile keeping pads. Promotes fast footwork and provides compact protective barrier.',
+    specs: {
+      'Design': 'Compact low-profile',
+      'Weight': 'Lightweight foam cores'
+    },
+    price: 2199,
+    mrp: 2599,
+    discount: 15,
+    stock: 25,
+    sku: 'APX-PAD-LKP13',
+    variants: {
+      sizes: ['M', 'L'],
+      handOrientations: ['Right Hand', 'Left Hand'],
+      playingLevels: ['Intermediate', 'Professional'],
+      ageGroups: ['Men']
+    },
+    images: ['https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600'],
+    ratings: { average: 4.5, count: 10 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'batting-pads'
+  },
+  {
+    name: 'Steel Grill Cricket Helmet',
+    brand: 'Apex Cricket',
+    slug: 'steel-grill-cricket-helmet',
+    description: 'High-impact ABS outer shell cricket helmet with a fully adjustable carbon steel visor. Internal EPS liner absorbs shock.',
+    specs: {
+      'Outer Shell': 'High-Impact ABS',
+      'Visor': 'Carbon steel grill',
+      'Inner Padding': 'Dual-density foam'
+    },
+    price: 2499,
+    mrp: 2999,
+    discount: 16,
+    stock: 30,
+    sku: 'APX-HLM-SGH14',
+    variants: {
+      sizes: ['M', 'L'],
+      playingLevels: ['Intermediate', 'Professional'],
+      ageGroups: ['Men']
+    },
+    images: ['https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600'],
+    ratings: { average: 4.7, count: 22 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'helmets'
+  },
+  {
+    name: 'Junior Safety Cricket Helmet',
+    brand: 'Apex Cricket',
+    slug: 'junior-safety-cricket-helmet',
+    description: 'Impact certified helmet designed for youth players. Features sweat-wicking padding and dial adjustment fit.',
+    specs: {
+      'Visor': 'Steel grill',
+      'Shell': 'ABS shell'
+    },
+    price: 1799,
+    mrp: 2199,
+    discount: 18,
+    stock: 35,
+    sku: 'APX-HLM-JSH15',
+    variants: {
+      sizes: ['S', 'M'],
+      playingLevels: ['Beginner', 'Intermediate'],
+      ageGroups: ['Junior', 'Kids']
+    },
+    images: ['https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600'],
+    ratings: { average: 4.5, count: 14 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: true,
+    isActive: true,
+    category: 'helmets'
+  },
+  {
+    name: 'Spike Cricket Shoes',
+    brand: 'Apex Cricket',
+    slug: 'spike-cricket-shoes',
+    description: 'Professional metal spike shoes designed for match play. Offers superior turf traction for fast bowling and running.',
+    specs: {
+      'Outsole': 'Steel spikes plate',
+      'Midsole': 'Cushioned EVA foam',
+      'Upper': 'Synthetic leather + mesh'
+    },
+    price: 3499,
+    mrp: 3999,
+    discount: 12,
+    stock: 50,
+    sku: 'APX-SHS-SCS16',
+    variants: {
+      sizes: ['US 8', 'US 9', 'US 10', 'US 11'],
+      playingLevels: ['Professional'],
+      ageGroups: ['Men']
+    },
+    images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600'],
+    ratings: { average: 4.8, count: 35 },
+    isFeatured: true,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'cricket-shoes'
+  },
+  {
+    name: 'Rubber Sole Cricket Shoes',
+    brand: 'Apex Cricket',
+    slug: 'rubber-sole-cricket-shoes',
+    description: 'Versatile rubber studs shoes ideal for indoor, net training, and synthetic turf pitches. Features breathable mesh upper.',
+    specs: {
+      'Outsole': 'Multi-stud rubber sole',
+      'Midsole': 'Comfort cushion EVA'
+    },
+    price: 2199,
+    mrp: 2599,
+    discount: 15,
+    stock: 60,
+    sku: 'APX-SHS-RCS17',
+    variants: {
+      sizes: ['US 7', 'US 8', 'US 9', 'US 10'],
+      playingLevels: ['Beginner', 'Intermediate'],
+      ageGroups: ['Men', 'Women']
+    },
+    images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600'],
+    ratings: { average: 4.4, count: 28 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: true,
+    isActive: true,
+    category: 'cricket-shoes'
+  },
+  {
+    name: 'Junior Cricket Shoes',
+    brand: 'Apex Cricket',
+    slug: 'junior-cricket-shoes',
+    description: 'Comfortable sports shoes with rubber traction grips for junior cricketers. Padded ankle collar support.',
+    specs: {
+      'Sole': 'Traction rubber studs',
+      'Fit': 'Lace-up closure'
+    },
+    price: 1499,
+    mrp: 1799,
+    discount: 16,
+    stock: 40,
+    sku: 'APX-SHS-JCS18',
+    variants: {
+      sizes: ['US 4', 'US 5', 'US 6'],
+      playingLevels: ['Beginner'],
+      ageGroups: ['Junior', 'Kids']
+    },
+    images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600'],
+    ratings: { average: 4.3, count: 15 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'cricket-shoes'
+  },
+  {
+    name: 'Large Cricket Kit Bag with Wheels',
+    brand: 'Apex Cricket',
+    slug: 'large-cricket-kit-bag-with-wheels',
+    description: 'Heavy duty wheelie bag with massive storage compartment. Contains 3 external bat cavities and integrated wheels.',
+    specs: {
+      'Material': '1680D Cordura fabric',
+      'Wheels': 'Tractor heavy duty wheels',
+      'Size': '95 x 40 x 40 cm'
+    },
+    price: 3999,
+    mrp: 4999,
+    discount: 20,
+    stock: 30,
+    sku: 'APX-BAG-LKW19',
+    variants: {
+      colors: ['Black/Orange', 'Blue/Navy'],
+      ageGroups: ['Men']
+    },
+    images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600'],
+    ratings: { average: 4.8, count: 18 },
+    isFeatured: true,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'kit-bags'
+  },
+  {
+    name: 'Compact Cricket Duffle Bag',
+    brand: 'Apex Cricket',
+    slug: 'compact-cricket-duffle-bag',
+    description: 'Double strap shoulder bag with specialized internal bat sleeve. Perfect for training and carry-on use.',
+    specs: {
+      'Style': 'Duffle backpack',
+      'Pockets': '2 side accessories pockets'
+    },
+    price: 1999,
+    mrp: 2499,
+    discount: 20,
+    stock: 45,
+    sku: 'APX-BAG-CCB20',
+    variants: {
+      colors: ['Grey/Blue', 'Black/Silver'],
+      ageGroups: ['Men', 'Women', 'Junior']
+    },
+    images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600'],
+    ratings: { average: 4.5, count: 11 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'kit-bags'
+  },
+  {
+    name: 'Beginner Cricket Kit',
+    brand: 'Apex Cricket',
+    slug: 'beginner-cricket-kit',
+    description: 'An all-in-one starter bundle for kids and juniors. Contains Kashmir Willow bat, batting pads, batting gloves, helmet, and shoulder kit bag.',
+    specs: {
+      'Target Age': '9 - 13 years',
+      'Bat Wood': 'Kashmir Willow',
+      'Includes': 'Bat, Pads, Gloves, Helmet, Bag'
+    },
+    price: 6999,
+    mrp: 7999,
+    discount: 12,
+    stock: 20,
+    sku: 'APX-KIT-BCK21',
+    variants: {
+      sizes: ['Size 6', 'Size 5'],
+      handOrientations: ['Right Hand', 'Left Hand'],
+      playingLevels: ['Beginner'],
+      ageGroups: ['Junior', 'Kids']
+    },
+    images: ['https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600'],
+    ratings: { average: 4.6, count: 14 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'complete-cricket-kits'
+  },
+  {
+    name: 'Junior Complete Cricket Kit',
+    brand: 'Apex Cricket',
+    slug: 'junior-complete-cricket-kit',
+    description: 'Fully configured setup for academy trainees. Features light bats and custom molded knee pads.',
+    specs: {
+      'Includes': 'Bat, Pads, Gloves, Guards, Duffle bag',
+      'Bat Size': 'Size 5 Kashmir Willow'
+    },
+    price: 5499,
+    mrp: 6499,
+    discount: 15,
+    stock: 25,
+    sku: 'APX-KIT-JCK22',
+    variants: {
+      sizes: ['Size 5', 'Size 4'],
+      handOrientations: ['Right Hand', 'Left Hand'],
+      playingLevels: ['Beginner', 'Intermediate'],
+      ageGroups: ['Junior', 'Kids']
+    },
+    images: ['https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600'],
+    ratings: { average: 4.4, count: 10 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: true,
+    isActive: true,
+    category: 'complete-cricket-kits'
+  },
+  {
+    name: 'Professional Cricket Kit',
+    brand: 'Apex Cricket',
+    slug: 'professional-cricket-kit',
+    description: 'Complete elite gear collection. Includes grade 1 English Willow bat, professional leather pads, carbon steel helmet, and wheelie bag.',
+    specs: {
+      'Bat wood': 'Grade 1 English Willow',
+      'Protection': 'Rated for 140km/h+',
+      'Storage': 'Large wheelie bag'
+    },
+    price: 14999,
+    mrp: 17999,
+    discount: 16,
+    stock: 15,
+    sku: 'APX-KIT-PCK23',
+    variants: {
+      sizes: ['Short Handle', 'Long Handle'],
+      handOrientations: ['Right Hand', 'Left Hand'],
+      playingLevels: ['Professional'],
+      ageGroups: ['Men']
+    },
+    images: ['https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600'],
+    ratings: { average: 4.9, count: 30 },
+    isFeatured: true,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'complete-cricket-kits'
+  },
+  {
+    name: 'Wooden Cricket Stumps Set',
+    brand: 'Apex Cricket',
+    slug: 'wooden-cricket-stumps-set',
+    description: 'Traditional solid wooden stumps set. Lathed from seasoned hardwood, containing 6 stumps and 4 bails.',
     specs: {
       'Material': 'Seasoned Ash Wood',
-      'Stump Height': '28 inches (71.1 cm) above ground',
-      'Diameter': '3.81 cm',
-      'Set Includes': '6 Stumps, 4 Bails, Carry Bag'
+      'Includes': '6 stumps, 4 bails, 1 carry wrap'
     },
-    price: 49,
-    mrp: 65,
-    discount: 24,
+    price: 799,
+    mrp: 999,
+    discount: 20,
     stock: 50,
-    sku: 'ZAS-ACC-ST01',
+    sku: 'APX-ACC-WCS24',
     variants: {
       playingLevels: ['Beginner', 'Intermediate', 'Professional']
     },
+    images: ['https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=600'],
+    ratings: { average: 4.5, count: 27 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'accessories'
+  },
+  {
+    name: 'Bat Grip Pack of 3',
+    brand: 'Apex Cricket',
+    slug: 'bat-grip-pack-of-3',
+    description: 'High-quality chevron pattern rubber bat grips. Delivers shock resistance and slips-free grip feel.',
+    specs: {
+      'Material': 'Synthetic rubber',
+      'Pack Qty': '3 grips'
+    },
+    price: 299,
+    mrp: 399,
+    discount: 25,
+    stock: 100,
+    sku: 'APX-ACC-BGP25',
+    variants: {
+      colors: ['Red', 'White', 'Blue', 'Yellow']
+    },
+    images: ['https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=600'],
+    ratings: { average: 4.3, count: 32 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'accessories'
+  },
+  {
+    name: 'Abdominal Guard',
+    brand: 'Apex Cricket',
+    slug: 'abdominal-guard',
+    description: 'Ergonomic high protection cup featuring padded edges for comfortable groin shield during batting.',
+    specs: {
+      'Shell': 'High-density plastic',
+      'Edges': 'Silicone padded border'
+    },
+    price: 399,
+    mrp: 499,
+    discount: 20,
+    stock: 150,
+    sku: 'APX-ACC-ABG26',
+    variants: {
+      sizes: ['Youth', 'Adult'],
+      playingLevels: ['Beginner', 'Intermediate', 'Professional'],
+      ageGroups: ['Men', 'Junior']
+    },
+    images: ['https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600'],
+    ratings: { average: 4.6, count: 18 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'accessories'
+  },
+  {
+    name: 'Thigh Guard',
+    brand: 'Apex Cricket',
+    slug: 'thigh-guard',
+    description: 'Pre-shaped ultra-lightweight foam dual thigh pad guards. Offers adjustable elastic bands.',
+    specs: {
+      'Material': 'EVA foam liner',
+      'Straps': 'Elastic Velcro bands'
+    },
+    price: 699,
+    mrp: 899,
+    discount: 22,
+    stock: 80,
+    sku: 'APX-ACC-THG27',
+    variants: {
+      sizes: ['M', 'L'],
+      handOrientations: ['Right Hand', 'Left Hand'],
+      playingLevels: ['Intermediate', 'Professional'],
+      ageGroups: ['Men']
+    },
+    images: ['https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600'],
+    ratings: { average: 4.7, count: 24 },
+    isFeatured: false,
+    isBestSeller: false,
+    isNewArrival: false,
+    isActive: true,
+    category: 'accessories'
+  },
+  {
+    name: 'Bat Cover',
+    brand: 'Apex Cricket',
+    slug: 'bat-cover',
+    description: 'Padded nylon full length cover case. Protects willow from moisture and scratching.',
+    specs: {
+      'Material': 'Waterproof Nylon',
+      'Strap': 'Adjustable carry belt'
+    },
+    price: 499,
+    mrp: 599,
+    discount: 16,
+    stock: 120,
+    sku: 'APX-ACC-BTC28',
+    variants: {
+      colors: ['Black', 'Blue'],
+      ageGroups: ['Men', 'Women', 'Kids', 'Junior']
+    },
     images: ['https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600'],
-    ratings: { average: 4.4, count: 16 },
+    ratings: { average: 4.4, count: 15 },
     isFeatured: false,
     isBestSeller: false,
     isNewArrival: false,
@@ -644,7 +991,7 @@ export async function GET(request) {
           title: 'Gear Up For The Match',
           subtitle: 'Special 25% discount on all custom cricket kits and bundles.',
           image: 'https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=1200',
-          link: '/shop?category=cricket-kits',
+          link: '/shop?category=complete-cricket-kits',
           type: 'offer',
           isActive: true,
           displayOrder: 2

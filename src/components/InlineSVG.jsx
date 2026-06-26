@@ -181,9 +181,17 @@ const InlineSVG = ({ type, width = '100%', height = '100%', className = '' }) =>
     </svg>
   );
 
+  const resolveType = (t) => {
+    if (t === 'complete-cricket-kits') return 'cricket-kits';
+    if (t === 'batting-gloves' || t === 'wicket-keeping-gloves' || t === 'batting-pads' || t === 'helmets') return 'protection-gear';
+    if (t === 'cricket-shoes') return 'shoes';
+    if (t === 'kit-bags') return 'bags';
+    return t;
+  };
+
   return (
     <div className={`inline-svg-wrapper ${className}`} style={{ width, height, aspectRatio: '1/1' }}>
-      {svgMap[type] || defaultSvg}
+      {svgMap[resolveType(type)] || defaultSvg}
     </div>
   );
 };

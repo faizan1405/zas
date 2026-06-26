@@ -281,34 +281,33 @@ const Header = () => {
 
               {/* Category: Cricket Kits */}
               <li className="nav-item">
-                <Link href="/shop?category=cricket-kits" className="nav-link">Cricket Kits</Link>
+                <Link href="/shop?category=complete-cricket-kits" className="nav-link">Cricket Kits</Link>
               </li>
 
-              {/* Category: Protection Gear */}
+              {/* Category: Protective Gear Dropdown */}
               <li className="nav-item">
-                <Link href="/shop?category=protection-gear" className="nav-link">Protection Gear</Link>
+                <span className="nav-link" style={{ cursor: 'pointer' }}>Protective Gear</span>
                 <div className="mega-menu">
                   <div className="container mega-grid">
                     <div>
-                      <h4 className="mega-col-title">Protection</h4>
+                      <h4 className="mega-col-title">Gloves & Pads</h4>
                       <ul className="mega-links">
-                        <li><Link href="/shop?category=protection-gear&type=helmets">Helmets</Link></li>
-                        <li><Link href="/shop?category=protection-gear&type=pads">Batting Pads</Link></li>
-                        <li><Link href="/shop?category=protection-gear&type=gloves">Batting Gloves</Link></li>
+                        <li><Link href="/shop?category=batting-gloves">Batting Gloves</Link></li>
+                        <li><Link href="/shop?category=wicket-keeping-gloves">Wicket Keeping Gloves</Link></li>
+                        <li><Link href="/shop?category=batting-pads">Batting Pads</Link></li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="mega-col-title">Guards</h4>
+                      <h4 className="mega-col-title">Head & Body</h4>
                       <ul className="mega-links">
-                        <li><Link href="/shop?category=protection-gear&type=thigh">Thigh Guards</Link></li>
-                        <li><Link href="/shop?category=protection-gear&type=arm">Arm Guards</Link></li>
-                        <li><Link href="/shop?category=protection-gear&type=abdominal">Abdominal Guards</Link></li>
+                        <li><Link href="/shop?category=helmets">Helmets</Link></li>
+                        <li><Link href="/shop?category=accessories">Other Guards</Link></li>
                       </ul>
                     </div>
                     <div className="mega-promo-card" style={{ gridColumn: 'span 3' }}>
-                      <h4>Armored Defender series</h4>
-                      <p>High impact protection compliance. Rated for 140km/h speeds.</p>
-                      <Link href="/shop?category=protection-gear" className="btn btn-accent btn-sm">View Gear</Link>
+                      <h4>Armored Defender Series</h4>
+                      <p>High impact protection compliance. Rated for professional speeds.</p>
+                      <Link href="/shop" className="btn btn-accent btn-sm">View All Gear</Link>
                     </div>
                   </div>
                 </div>
@@ -316,17 +315,12 @@ const Header = () => {
 
               {/* Category: Shoes */}
               <li className="nav-item">
-                <Link href="/shop?category=shoes" className="nav-link">Shoes</Link>
-              </li>
-
-              {/* Category: Jerseys */}
-              <li className="nav-item">
-                <Link href="/shop?category=jerseys" className="nav-link">Jerseys</Link>
+                <Link href="/shop?category=cricket-shoes" className="nav-link">Shoes</Link>
               </li>
 
               {/* Category: Bags */}
               <li className="nav-item">
-                <Link href="/shop?category=bags" className="nav-link">Bags</Link>
+                <Link href="/shop?category=kit-bags" className="nav-link">Kit Bags</Link>
               </li>
 
               {/* Category: Accessories */}

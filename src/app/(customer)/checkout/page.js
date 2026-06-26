@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShieldCheck, Truck, CreditCard, Banknote, ArrowRight } from 'lucide-react';
 import { useStore } from 'src/context/StoreContext';
+import { formatINR } from 'src/lib/currency';
 
 const CheckoutContent = () => {
   const router = useRouter();
@@ -343,7 +344,7 @@ const CheckoutContent = () => {
                 <span style={{ color: 'var(--text-dark-muted)', maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {item.product.name} <strong>x{item.quantity}</strong>
                 </span>
-                <span style={{ fontWeight: 600 }}>${item.product.price * item.quantity}</span>
+                <span style={{ fontWeight: 600 }}>{formatINR(item.product.price * item.quantity)}</span>
               </div>
             ))}
           </div>
@@ -351,13 +352,13 @@ const CheckoutContent = () => {
           {/* Pricing math */}
           <div className="summary-row">
             <span>Subtotal</span>
-            <span>${subtotal}</span>
+            <span>{formatINR(subtotal)}</span>
           </div>
 
           {appliedCoupon && (
             <div className="summary-row" style={{ color: 'var(--success)' }}>
               <span>Discount ({appliedCoupon.code})</span>
-              <span>-${discountAmount}</span>
+              <span>-{formatINR(discountAmount)}</span>
             </div>
           )}
 
@@ -366,13 +367,13 @@ const CheckoutContent = () => {
             {shippingCharges === 0 ? (
               <span style={{ color: 'var(--success)', fontWeight: 600 }}>FREE</span>
             ) : (
-              <span>${shippingCharges}</span>
+              <span>{formatINR(shippingCharges)}</span>
             )}
           </div>
 
           <div className="summary-row total">
             <span>Total</span>
-            <span>${totalAmount}</span>
+            <span>{formatINR(totalAmount)}</span>
           </div>
 
           <button 

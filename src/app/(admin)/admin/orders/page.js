@@ -12,6 +12,7 @@ import {
   Clock, 
   SlidersHorizontal 
 } from 'lucide-react';
+import { formatINR } from 'src/lib/currency';
 
 const OrdersManagement = () => {
   const [orders, setOrders] = useState([]);
@@ -182,7 +183,7 @@ const OrdersManagement = () => {
                       {order.orderStatus}
                     </span>
                   </td>
-                  <td style={{ fontWeight: 700, color: 'white' }}>${order.totalAmount}</td>
+                  <td style={{ fontWeight: 700, color: 'white' }}>{formatINR(order.totalAmount)}</td>
                   <td>
                     <div className="action-btns">
                       <button 
@@ -318,12 +319,12 @@ const OrdersManagement = () => {
                       <span style={{ color: 'var(--text-light-muted)' }}>
                         {item.name} <strong>x{item.quantity}</strong>
                       </span>
-                      <span style={{ fontWeight: 700, color: 'white' }}>${item.price * item.quantity}</span>
+                      <span style={{ fontWeight: 700, color: 'white' }}>{formatINR(item.price * item.quantity)}</span>
                     </div>
                   ))}
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--bg-dark-border)', paddingTop: '10px', fontWeight: 700, color: 'var(--primary)', fontSize: '0.95rem' }}>
                     <span>Order Total</span>
-                    <span>${selectedOrder.totalAmount}</span>
+                    <span>{formatINR(selectedOrder.totalAmount)}</span>
                   </div>
                 </div>
 
@@ -404,9 +405,9 @@ const OrdersManagement = () => {
                       </span>
                     )}
                   </td>
-                  <td style={{ padding: '12px 0', textAlign: 'right' }}>${item.price}</td>
+                  <td style={{ padding: '12px 0', textAlign: 'right' }}>{formatINR(item.price)}</td>
                   <td style={{ padding: '12px 0', textAlign: 'right' }}>{item.quantity}</td>
-                  <td style={{ padding: '12px 0', textAlign: 'right', fontWeight: 700 }}>${item.price * item.quantity}</td>
+                  <td style={{ padding: '12px 0', textAlign: 'right', fontWeight: 700 }}>{formatINR(item.price * item.quantity)}</td>
                 </tr>
               ))}
             </tbody>
@@ -417,21 +418,21 @@ const OrdersManagement = () => {
             <div style={{ width: '250px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Subtotal:</span>
-                <span>${selectedPrintOrder.subtotal}</span>
+                <span>{formatINR(selectedPrintOrder.subtotal)}</span>
               </div>
               {selectedPrintOrder.discountAmount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Discount:</span>
-                  <span>-${selectedPrintOrder.discountAmount}</span>
+                  <span>-{formatINR(selectedPrintOrder.discountAmount)}</span>
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Shipping:</span>
-                <span>{selectedPrintOrder.shippingPrice === 0 ? 'FREE' : `$${selectedPrintOrder.shippingPrice}`}</span>
+                <span>{selectedPrintOrder.shippingPrice === 0 ? 'FREE' : formatINR(selectedPrintOrder.shippingPrice)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '16px', borderTop: '2px solid black', paddingTop: '10px', marginTop: '5px' }}>
                 <span>Total Due:</span>
-                <span>${selectedPrintOrder.totalAmount}</span>
+                <span>{formatINR(selectedPrintOrder.totalAmount)}</span>
               </div>
             </div>
           </div>

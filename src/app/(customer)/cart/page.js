@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ShoppingBag, Trash2, Heart, ArrowRight, ShieldCheck, Ticket } from 'lucide-react';
 import { useStore } from 'src/context/StoreContext';
 import InlineSVG from 'src/components/InlineSVG';
+import { formatINR } from 'src/lib/currency';
 
 const CartPage = () => {
   const { 
@@ -185,7 +186,7 @@ const CartPage = () => {
                         +
                       </button>
                     </div>
-                    <span className="cart-item-price">${item.product.price * item.quantity}</span>
+                    <span className="cart-item-price">{formatINR(item.product.price * item.quantity)}</span>
                   </div>
                 </div>
               </div>
@@ -229,13 +230,13 @@ const CartPage = () => {
           {/* Calculations list */}
           <div className="summary-row">
             <span>Subtotal</span>
-            <span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>${subtotal}</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>{formatINR(subtotal)}</span>
           </div>
 
           {appliedCoupon && (
             <div className="summary-row" style={{ color: 'var(--success)' }}>
               <span>Coupon Discount ({appliedCoupon.code})</span>
-              <span style={{ fontWeight: 600 }}>-${discountAmount}</span>
+              <span style={{ fontWeight: 600 }}>-{formatINR(discountAmount)}</span>
             </div>
           )}
 
@@ -244,19 +245,19 @@ const CartPage = () => {
             {shippingCharges === 0 ? (
               <span style={{ color: 'var(--success)', fontWeight: 600 }}>FREE</span>
             ) : (
-              <span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>${shippingCharges}</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>{formatINR(shippingCharges)}</span>
             )}
           </div>
           
           {subtotal < freeShippingThreshold && (
             <p style={{ fontSize: '0.75rem', color: 'var(--text-dark-muted)', marginTop: '-8px', marginBottom: '12px' }}>
-              Add <strong>${freeShippingThreshold - subtotal}</strong> more for FREE Shipping!
+              Add <strong>{formatINR(freeShippingThreshold - subtotal)}</strong> more for FREE Shipping!
             </p>
           )}
 
           <div className="summary-row total">
             <span>Total</span>
-            <span>${totalAmount}</span>
+            <span>{formatINR(totalAmount)}</span>
           </div>
 
           <Link 
