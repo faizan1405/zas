@@ -50,10 +50,10 @@ const Footer = () => {
             <ul className="footer-links">
               <li><Link href="/shop?category=cricket-bats">Cricket Bats</Link></li>
               <li><Link href="/shop?category=cricket-balls">Cricket Balls</Link></li>
-              <li><Link href="/shop?category=protection-gear">Protection Gear</Link></li>
-              <li><Link href="/shop?category=shoes">Shoes</Link></li>
-              <li><Link href="/shop?category=bags">Kit Bags</Link></li>
-              <li><Link href="/shop?category=cricket-kits">Complete Kits</Link></li>
+              <li><Link href="/shop?category=protective-gear">Protection Gear</Link></li>
+              <li><Link href="/shop?category=cricket-shoes">Shoes</Link></li>
+              <li><Link href="/shop?category=cricket-bags">Kit Bags</Link></li>
+              <li><Link href="/shop?category=cricket-clothing">Cricket Clothing</Link></li>
             </ul>
           </div>
 

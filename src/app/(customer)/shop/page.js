@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SlidersHorizontal, X, RotateCcw } from 'lucide-react';
 import { useStore } from 'src/context/StoreContext';
