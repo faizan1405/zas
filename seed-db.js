@@ -126,17 +126,17 @@ const UserSchema = new mongoose.Schema({
 }, { collection: 'users' });
 
 const CATEGORIES = [
-  { name: 'Cricket Bats', slug: 'cricket-bats', image: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600', displayOrder: 1, isActive: true },
-  { name: 'Cricket Balls', slug: 'cricket-balls', image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600', displayOrder: 2, isActive: true },
-  { name: 'Batting Gloves', slug: 'batting-gloves', image: 'https://images.unsplash.com/photo-1588615419954-bfad0c5f2122?q=80&w=600', displayOrder: 3, isActive: true },
-  { name: 'Batting Pads', slug: 'batting-pads', image: 'https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600', displayOrder: 4, isActive: true },
-  { name: 'Cricket Helmets', slug: 'cricket-helmets', image: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600', displayOrder: 5, isActive: true },
-  { name: 'Cricket Shoes', slug: 'cricket-shoes', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600', displayOrder: 6, isActive: true },
-  { name: 'Cricket Bags', slug: 'cricket-bags', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600', displayOrder: 7, isActive: true },
-  { name: 'Cricket Clothing', slug: 'cricket-clothing', image: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=600', displayOrder: 8, isActive: true },
-  { name: 'Protective Gear', slug: 'protective-gear', image: 'https://images.unsplash.com/photo-1540747737956-37872404a82f?q=80&w=600', displayOrder: 9, isActive: true },
-  { name: 'Training Equipment', slug: 'training-equipment', image: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=600', displayOrder: 10, isActive: true },
-  { name: 'Accessories', slug: 'accessories', image: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=600', displayOrder: 11, isActive: true }
+  { name: 'Cricket Bats', slug: 'cricket-bats', image: '/images/categories/cricket-bats.svg', displayOrder: 1, isActive: true },
+  { name: 'Cricket Balls', slug: 'cricket-balls', image: '/images/categories/cricket-balls.svg', displayOrder: 2, isActive: true },
+  { name: 'Batting Gloves', slug: 'batting-gloves', image: '/images/categories/batting-gloves.svg', displayOrder: 3, isActive: true },
+  { name: 'Batting Pads', slug: 'batting-pads', image: '/images/categories/batting-pads.svg', displayOrder: 4, isActive: true },
+  { name: 'Cricket Helmets', slug: 'cricket-helmets', image: '/images/categories/cricket-helmets.svg', displayOrder: 5, isActive: true },
+  { name: 'Cricket Shoes', slug: 'cricket-shoes', image: '/images/categories/cricket-shoes.svg', displayOrder: 6, isActive: true },
+  { name: 'Cricket Bags', slug: 'cricket-bags', image: '/images/categories/cricket-bags.svg', displayOrder: 7, isActive: true },
+  { name: 'Cricket Clothing', slug: 'cricket-clothing', image: '/images/categories/cricket-clothing.svg', displayOrder: 8, isActive: true },
+  { name: 'Protective Gear', slug: 'protective-gear', image: '/images/categories/protective-gear.svg', displayOrder: 9, isActive: true },
+  { name: 'Training Equipment', slug: 'training-equipment', image: '/images/categories/training-equipment.svg', displayOrder: 10, isActive: true },
+  { name: 'Accessories', slug: 'accessories', image: '/images/categories/accessories.svg', displayOrder: 11, isActive: true }
 ];
 
 const PRODUCTS = [

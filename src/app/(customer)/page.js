@@ -87,14 +87,14 @@ const HomePage = () => {
   }, []);
 
   const checklistItems = [
-    { name: 'Bat', icon: <Zap size={28} />, link: '/shop?category=cricket-bats' },
-    { name: 'Ball', icon: <Target size={28} />, link: '/shop?category=cricket-balls' },
-    { name: 'Gloves', icon: <Shield size={28} />, link: '/shop?category=batting-gloves' },
-    { name: 'Pads', icon: <ShieldCheck size={28} />, link: '/shop?category=batting-pads' },
-    { name: 'Helmet', icon: <ShieldAlert size={28} />, link: '/shop?category=cricket-helmets' },
-    { name: 'Shoes', icon: <Footprints size={28} />, link: '/shop?category=cricket-shoes' },
-    { name: 'Bag', icon: <ShoppingBag size={28} />, link: '/shop?category=cricket-bags' },
-    { name: 'Jersey', icon: <Shirt size={28} />, link: '/shop?category=cricket-clothing&subcategory=cricket-jersey' }
+    { name: 'Bat', image: '/images/checklist/bat.svg', link: '/shop?category=cricket-bats' },
+    { name: 'Ball', image: '/images/checklist/ball.svg', link: '/shop?category=cricket-balls' },
+    { name: 'Gloves', image: '/images/checklist/gloves.svg', link: '/shop?category=batting-gloves' },
+    { name: 'Pads', image: '/images/checklist/pads.svg', link: '/shop?category=batting-pads' },
+    { name: 'Helmet', image: '/images/checklist/helmet.svg', link: '/shop?category=cricket-helmets' },
+    { name: 'Shoes', image: '/images/checklist/shoes.svg', link: '/shop?category=cricket-shoes' },
+    { name: 'Bag', image: '/images/checklist/bag.svg', link: '/shop?category=cricket-bags' },
+    { name: 'Jersey', image: '/images/checklist/jersey.svg', link: '/shop?category=cricket-clothing&subcategory=cricket-jersey' }
   ];
 
   if (loading) {
@@ -151,8 +151,13 @@ const HomePage = () => {
         <div className="category-row">
           {categories.map((cat) => (
             <Link href={`/shop?category=${cat.slug}`} key={cat._id} className="category-card">
-              <div className="category-img-box">
-                <img src={cat.image} alt={cat.name} />
+              <div className="category-img-box" style={{ overflow: 'hidden' }}>
+                <img 
+                  src={cat.image || `/images/categories/${cat.slug}.svg`} 
+                  alt="" 
+                  onError={(e) => { e.target.src = '/images/categories/accessories.svg'; }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
               </div>
               <span className="category-name">{cat.name}</span>
             </Link>
@@ -171,8 +176,13 @@ const HomePage = () => {
         <div className="checklist-grid">
           {checklistItems.map((item, idx) => (
             <Link href={item.link} key={idx} className="checklist-card">
-              <div className="checklist-icon-wrapper">
-                {item.icon}
+              <div className="checklist-icon-wrapper" style={{ overflow: 'hidden', padding: 0 }}>
+                <img 
+                  src={item.image} 
+                  alt="" 
+                  onError={(e) => { e.target.src = '/images/checklist/bat.svg'; }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                />
               </div>
               <span className="checklist-label">{item.name}</span>
             </Link>
@@ -249,14 +259,17 @@ const HomePage = () => {
           <h2>Our Cricket Collections</h2>
         </div>
         <div className="grid grid-3">
-          {categories.map((cat) => (
-            <Link href={`/shop?category=${cat.slug}`} key={cat._id} className="collection-banner-card" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${cat.image})` }}>
-              <div className="collection-content">
-                <h3>{cat.name}</h3>
-                <span className="collection-btn">Explore Collection <ArrowRight size={14} /></span>
-              </div>
-            </Link>
-          ))}
+          {categories.map((cat) => {
+            const bgImage = cat.image || `/images/collections/${cat.slug}.svg`;
+            return (
+              <Link href={`/shop?category=${cat.slug}`} key={cat._id} className="collection-banner-card" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${bgImage})` }}>
+                <div className="collection-content">
+                  <h3>{cat.name}</h3>
+                  <span className="collection-btn">Explore Collection <ArrowRight size={14} /></span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
