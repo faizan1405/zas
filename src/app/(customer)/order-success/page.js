@@ -7,7 +7,7 @@ import { CheckCircle, ArrowRight, ShieldCheck, MapPin } from 'lucide-react';
 
 const SuccessContent = () => {
   const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId') || 'APX-XXXXX-IND';
+  const orderId = searchParams.get('orderId') || 'ZAS-XXXXX-IND';
 
   return (
     <div className="container animate-fade" style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center' }}>
@@ -18,7 +18,7 @@ const SuccessContent = () => {
           Order Confirmed!
         </h1>
         <p style={{ color: 'var(--text-dark-muted)', fontSize: '0.95rem', lineHeight: '1.5' }}>
-          Thank you for choosing Apex Cricket. We have received your order. Our team is already preparing to pack your gear!
+          Thank you for choosing Zassports. We have received your order. Our team is already preparing to pack your gear!
         </p>
 
         {/* Order ID display box */}

@@ -145,9 +145,9 @@ export async function POST(request) {
     const shippingPrice = subtotal >= settings.freeShippingMinAmount ? 0 : settings.shippingCharges;
     const totalAmount = subtotal - discountAmount + shippingPrice;
 
-    // Generate readable order ID: APX-#####-IND
+    // Generate readable order ID: ZAS-#####-IND
     const randomNum = Math.floor(10000 + Math.random() * 90000);
-    const orderId = `APX-${randomNum}-IND`;
+    const orderId = `ZAS-${randomNum}-IND`;
 
     // Create the order entry
     const newOrder = await Order.create({

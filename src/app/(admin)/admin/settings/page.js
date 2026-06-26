@@ -20,6 +20,7 @@ const SettingsManagement = () => {
   const [codEnabled, setCodEnabled] = useState(true);
   const [onlinePaymentEnabled, setOnlinePaymentEnabled] = useState(true);
   const [taxPercent, setTaxPercent] = useState(12);
+  const [gstDetails, setGstDetails] = useState('');
 
   // Social Links
   const [facebook, setFacebook] = useState('');
@@ -50,6 +51,7 @@ const SettingsManagement = () => {
         setCodEnabled(setObj.codEnabled !== undefined ? setObj.codEnabled : true);
         setOnlinePaymentEnabled(setObj.onlinePaymentEnabled !== undefined ? setObj.onlinePaymentEnabled : true);
         setTaxPercent(setObj.taxPercent || 0);
+        setGstDetails(setObj.gstDetails || '');
 
         setFacebook(setObj.socialLinks?.facebook || '');
         setInstagram(setObj.socialLinks?.instagram || '');
@@ -80,6 +82,7 @@ const SettingsManagement = () => {
         codEnabled,
         onlinePaymentEnabled,
         taxPercent: Number(taxPercent),
+        gstDetails,
         socialLinks: {
           facebook,
           instagram,
@@ -230,6 +233,16 @@ const SettingsManagement = () => {
                 onChange={(e) => setTaxPercent(e.target.value)}
                 className="admin-form-control"
                 required
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>GST Registration Number</label>
+              <input 
+                type="text" 
+                value={gstDetails} 
+                onChange={(e) => setGstDetails(e.target.value)}
+                className="admin-form-control"
+                placeholder="e.g. 09AACCZ4143L1ZY"
               />
             </div>
           </div>

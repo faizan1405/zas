@@ -24,9 +24,9 @@ const DEFAULT_CATEGORIES = [
 
 const DEFAULT_PRODUCTS = [
   {
-    name: 'Apex Pro English Willow Bat',
-    brand: 'Apex',
-    slug: 'apex-pro-english-willow-bat',
+    name: 'Zassports Pro English Willow Bat',
+    brand: 'Zassports',
+    slug: 'zassports-pro-english-willow-bat',
     description: 'Crafted from premium Grade 1 English Willow. Engineered for professional power hitters, featuring an optimized sweet spot, thick edges, and a lightweight balanced pickup.',
     specs: {
       'Wood Type': 'Grade 1 English Willow',
@@ -38,8 +38,8 @@ const DEFAULT_PRODUCTS = [
     price: 299,
     mrp: 399,
     discount: 25,
-    stock: 15,
-    sku: 'APX-BAT-EW01',
+    stock: 50,
+    sku: 'ZAS-BAT-EW01',
     variants: {
       sizes: ['Short Handle', 'Long Handle', 'Harrow'],
       handOrientations: ['Right Hand', 'Left Hand'],
@@ -56,9 +56,9 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-bats'
   },
   {
-    name: 'Apex Club Kashmir Willow Bat',
-    brand: 'Apex',
-    slug: 'apex-club-kashmir-willow-bat',
+    name: 'Zassports Club Kashmir Willow Bat',
+    brand: 'Zassports',
+    slug: 'zassports-club-kashmir-willow-bat',
     description: 'High-quality selected Kashmir Willow bat, ideal for club league matches and training. Fitted with a secure wrap-around rubber sleeve and chevron grip.',
     specs: {
       'Wood Type': 'Selected Kashmir Willow',
@@ -70,8 +70,8 @@ const DEFAULT_PRODUCTS = [
     price: 79,
     mrp: 99,
     discount: 20,
-    stock: 25,
-    sku: 'APX-BAT-KW02',
+    stock: 50,
+    sku: 'ZAS-BAT-KW02',
     variants: {
       sizes: ['Short Handle', 'Size 6'],
       handOrientations: ['Right Hand', 'Left Hand'],
@@ -88,9 +88,9 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-bats'
   },
   {
-    name: 'Apex Junior Poplar Street Bat',
-    brand: 'Apex',
-    slug: 'apex-junior-poplar-street-bat',
+    name: 'Zassports Junior Poplar Street Bat',
+    brand: 'Zassports',
+    slug: 'zassports-junior-poplar-street-bat',
     description: 'Ultra-lightweight poplar wood bat designed specifically for soft tennis balls and backyard cricket games. Recommended for young learners.',
     specs: {
       'Wood Type': 'Lightweight Poplar Wood',
@@ -102,7 +102,7 @@ const DEFAULT_PRODUCTS = [
     mrp: 29,
     discount: 13,
     stock: 50,
-    sku: 'APX-BAT-PW03',
+    sku: 'ZAS-BAT-PW03',
     variants: {
       sizes: ['Size 3', 'Size 4', 'Size 5'],
       batWoodTypes: ['Poplar Wood'],
@@ -118,9 +118,9 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-bats'
   },
   {
-    name: 'Apex Match Red Leather Ball',
-    brand: 'Apex',
-    slug: 'apex-match-red-leather-ball',
+    name: 'Zassports Match Red Leather Ball',
+    brand: 'Zassports',
+    slug: 'zassports-match-red-leather-ball',
     description: 'Premium four-piece alum-tanned leather ball with a high-density cork core. Hand-stitched for optimal swing, seam shape retention, and long life in 40+ over matches.',
     specs: {
       'Material': 'Alum-tanned English Leather',
@@ -131,8 +131,8 @@ const DEFAULT_PRODUCTS = [
     price: 18,
     mrp: 25,
     discount: 28,
-    stock: 100,
-    sku: 'APX-BAL-RL01',
+    stock: 50,
+    sku: 'ZAS-BAL-RL01',
     variants: {
       ballTypes: ['Leather ball'],
       colors: ['Red'],
@@ -147,9 +147,9 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-balls'
   },
   {
-    name: 'Apex Day-Night Pink Leather Ball',
-    brand: 'Apex',
-    slug: 'apex-day-night-pink-leather-ball',
+    name: 'Zassports Day-Night Pink Leather Ball',
+    brand: 'Zassports',
+    slug: 'zassports-day-night-pink-leather-ball',
     description: 'Specially formulated pink leather ball for day-night matches. Highly visible under floodlights with premium gloss lacquer and standard icc measurements.',
     specs: {
       'Material': 'Premium English leather',
@@ -160,8 +160,8 @@ const DEFAULT_PRODUCTS = [
     price: 22,
     mrp: 30,
     discount: 26,
-    stock: 80,
-    sku: 'APX-BAL-PL02',
+    stock: 50,
+    sku: 'ZAS-BAL-PL02',
     variants: {
       ballTypes: ['Leather ball'],
       colors: ['Pink'],
@@ -176,9 +176,9 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-balls'
   },
   {
-    name: 'Apex Heavy Yellow Tennis Ball (6-Pack)',
-    brand: 'Apex',
-    slug: 'apex-heavy-yellow-tennis-ball-6-pack',
+    name: 'Zassports Heavy Yellow Tennis Ball (6-Pack)',
+    brand: 'Zassports',
+    slug: 'zassports-heavy-yellow-tennis-ball-6-pack',
     description: 'Pressurized, heavy-weight tennis balls optimized for outdoor street cricket play. Provides robust bounce, durable thick felt, and wind resistance.',
     specs: {
       'Material': 'High-felt woven rubber',
@@ -189,8 +189,8 @@ const DEFAULT_PRODUCTS = [
     price: 15,
     mrp: 19,
     discount: 21,
-    stock: 150,
-    sku: 'APX-BAL-TB03',
+    stock: 50,
+    sku: 'ZAS-BAL-TB03',
     variants: {
       ballTypes: ['Tennis ball'],
       colors: ['Yellow'],
@@ -206,9 +206,9 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-balls'
   },
   {
-    name: 'Apex Pro Batting Gloves',
-    brand: 'Apex',
-    slug: 'apex-pro-batting-gloves',
+    name: 'Zassports Pro Batting Gloves',
+    brand: 'Zassports',
+    slug: 'zassports-pro-batting-gloves',
     description: 'Multi-flex ergonomic finger design batting gloves. Features high-density foam filling, premium sheepskin leather palm, and three-split sidebars for maximum impact protection.',
     specs: {
       'Palm Material': 'Premium Sheepskin Leather',
@@ -219,8 +219,8 @@ const DEFAULT_PRODUCTS = [
     price: 45,
     mrp: 59,
     discount: 23,
-    stock: 40,
-    sku: 'APX-GLV-BT01',
+    stock: 50,
+    sku: 'ZAS-GLV-BT01',
     variants: {
       sizes: ['Men', 'Youth'],
       handOrientations: ['Right Hand', 'Left Hand'],
@@ -236,9 +236,9 @@ const DEFAULT_PRODUCTS = [
     category: 'protection-gear'
   },
   {
-    name: 'Apex Shield Wicket Keeping Gloves',
-    brand: 'Apex',
-    slug: 'apex-shield-wicket-keeping-gloves',
+    name: 'Zassports Shield Wicket Keeping Gloves',
+    brand: 'Zassports',
+    slug: 'zassports-shield-wicket-keeping-gloves',
     description: 'Professional wicket-keeping gloves with rubber octopus grip palm, reinforced finger chambers, and extensive leather padding on the cuffs for total protection.',
     specs: {
       'Palm Grip': 'Octopus style rubber grip sheet',
@@ -249,8 +249,8 @@ const DEFAULT_PRODUCTS = [
     price: 65,
     mrp: 85,
     discount: 23,
-    stock: 20,
-    sku: 'APX-GLV-WK01',
+    stock: 50,
+    sku: 'ZAS-GLV-WK01',
     variants: {
       sizes: ['Men'],
       playingLevels: ['Professional'],
@@ -265,9 +265,9 @@ const DEFAULT_PRODUCTS = [
     category: 'protection-gear'
   },
   {
-    name: 'Apex Carbon Fiber Batting Pads',
-    brand: 'Apex',
-    slug: 'apex-carbon-fiber-batting-pads',
+    name: 'Zassports Carbon Fiber Batting Pads',
+    brand: 'Zassports',
+    slug: 'zassports-carbon-fiber-batting-pads',
     description: 'Ultra-lightweight batting pads with cane insertion and carbon-reinforced bolster. Contoured knee cups and wide padded straps ensure superior comfort and runability.',
     specs: {
       'Core Material': 'High density plastazote foam',
@@ -278,8 +278,8 @@ const DEFAULT_PRODUCTS = [
     price: 89,
     mrp: 119,
     discount: 25,
-    stock: 30,
-    sku: 'APX-PAD-BT01',
+    stock: 50,
+    sku: 'ZAS-PAD-BT01',
     variants: {
       sizes: ['Men', 'Youth'],
       handOrientations: ['Right Hand', 'Left Hand'],
@@ -295,9 +295,9 @@ const DEFAULT_PRODUCTS = [
     category: 'protection-gear'
   },
   {
-    name: 'Apex Defender Cricket Helmet',
-    brand: 'Apex',
-    slug: 'apex-defender-cricket-helmet',
+    name: 'Zassports Defender Cricket Helmet',
+    brand: 'Zassports',
+    slug: 'zassports-defender-cricket-helmet',
     description: 'High-impact ABS outer shell cricket helmet with a fully adjustable titanium steel visor. Internal EPS liner absorbs shock, while cooling air vents maintain airflow.',
     specs: {
       'Outer Shell': 'High-Impact ABS Plastic',
@@ -308,8 +308,8 @@ const DEFAULT_PRODUCTS = [
     price: 59,
     mrp: 79,
     discount: 25,
-    stock: 25,
-    sku: 'APX-HLM-DF01',
+    stock: 50,
+    sku: 'ZAS-HLM-DF01',
     variants: {
       sizes: ['M (56-58cm)', 'L (59-61cm)'],
       playingLevels: ['Beginner', 'Intermediate', 'Professional'],
@@ -324,9 +324,9 @@ const DEFAULT_PRODUCTS = [
     category: 'protection-gear'
   },
   {
-    name: 'Apex Spike Cricket Shoes',
-    brand: 'Apex',
-    slug: 'apex-spike-cricket-shoes',
+    name: 'Zassports Spike Cricket Shoes',
+    brand: 'Zassports',
+    slug: 'zassports-spike-cricket-shoes',
     description: 'High-performance spikes designed for fast bowlers and batsmen alike. Built with a mesh/synthetic upper, cushioned EVA midsole, and a full steel-spike outsole plate.',
     specs: {
       'Outsole': 'TPU Plate with 11 metal spikes',
@@ -337,8 +337,8 @@ const DEFAULT_PRODUCTS = [
     price: 95,
     mrp: 129,
     discount: 26,
-    stock: 35,
-    sku: 'APX-SH-SP01',
+    stock: 50,
+    sku: 'ZAS-SH-SP01',
     variants: {
       sizes: ['US 8', 'US 9', 'US 10', 'US 11'],
       playingLevels: ['Intermediate', 'Professional'],
@@ -353,9 +353,9 @@ const DEFAULT_PRODUCTS = [
     category: 'shoes'
   },
   {
-    name: 'Apex Dri-Fit Match Jersey',
-    brand: 'Apex',
-    slug: 'apex-dri-fit-match-jersey',
+    name: 'Zassports Dri-Fit Match Jersey',
+    brand: 'Zassports',
+    slug: 'zassports-dri-fit-match-jersey',
     description: 'Elite cricket whites shirt. Fabricated with sweat-wicking dry-mesh technology to keep you cool and dry during hot multi-session days.',
     specs: {
       'Fabric': '100% Recycled Polyester Mesh',
@@ -366,8 +366,8 @@ const DEFAULT_PRODUCTS = [
     price: 29,
     mrp: 39,
     discount: 25,
-    stock: 60,
-    sku: 'APX-JSY-MF01',
+    stock: 50,
+    sku: 'ZAS-JSY-MF01',
     variants: {
       sizes: ['S', 'M', 'L', 'XL'],
       colors: ['White', 'Navy Blue'],
@@ -382,9 +382,9 @@ const DEFAULT_PRODUCTS = [
     category: 'jerseys'
   },
   {
-    name: 'Apex Pro Wheelie Cricket Bag',
-    brand: 'Apex',
-    slug: 'apex-pro-wheelie-cricket-bag',
+    name: 'Zassports Pro Wheelie Cricket Bag',
+    brand: 'Zassports',
+    slug: 'zassports-pro-wheelie-cricket-bag',
     description: 'Massive storage kit bag with heavy-duty tractor wheels. Includes 3 integrated bat sleeves, separate helmet/shoe compartments, and a thermo-insulated pocket for drinks.',
     specs: {
       'Dimensions': '95cm x 40cm x 40cm',
@@ -395,8 +395,8 @@ const DEFAULT_PRODUCTS = [
     price: 110,
     mrp: 149,
     discount: 26,
-    stock: 15,
-    sku: 'APX-BAG-WH01',
+    stock: 50,
+    sku: 'ZAS-BAG-WH01',
     variants: {
       colors: ['Black/Orange', 'Obsidian Black'],
       ageGroups: ['Men', 'Women', 'Junior']
@@ -410,9 +410,9 @@ const DEFAULT_PRODUCTS = [
     category: 'bags'
   },
   {
-    name: 'Apex Youth Complete Cricket Kit',
-    brand: 'Apex',
-    slug: 'apex-youth-complete-cricket-kit',
+    name: 'Zassports Youth Complete Cricket Kit',
+    brand: 'Zassports',
+    slug: 'zassports-youth-complete-cricket-kit',
     description: 'Everything a junior player needs to start cricket. Contains: 1 Kashmir Willow bat, batting pads, batting gloves, helmet, thigh guard, arm guard, abdominal guard, and a durable duffle bag.',
     specs: {
       'Target Age': '9 - 14 years',
@@ -423,8 +423,8 @@ const DEFAULT_PRODUCTS = [
     price: 179,
     mrp: 239,
     discount: 25,
-    stock: 12,
-    sku: 'APX-KIT-YT01',
+    stock: 50,
+    sku: 'ZAS-KIT-YT01',
     variants: {
       handOrientations: ['Right Hand', 'Left Hand'],
       playingLevels: ['Beginner', 'Intermediate'],
@@ -439,9 +439,9 @@ const DEFAULT_PRODUCTS = [
     category: 'cricket-kits'
   },
   {
-    name: 'Apex Solid Wooden Stumps (Set of 6)',
-    brand: 'Apex',
-    slug: 'apex-solid-wooden-stumps-set-of-6',
+    name: 'Zassports Solid Wooden Stumps (Set of 6)',
+    brand: 'Zassports',
+    slug: 'zassports-solid-wooden-stumps-set-of-6',
     description: 'Standard English Ash wood cricket stumps with matching bails. Precision-lathed to meet official ICC specifications for match play.',
     specs: {
       'Material': 'Seasoned Ash Wood',
@@ -452,8 +452,8 @@ const DEFAULT_PRODUCTS = [
     price: 49,
     mrp: 65,
     discount: 24,
-    stock: 40,
-    sku: 'APX-ACC-ST01',
+    stock: 50,
+    sku: 'ZAS-ACC-ST01',
     variants: {
       playingLevels: ['Beginner', 'Intermediate', 'Professional']
     },
@@ -472,12 +472,14 @@ const DEFAULT_PAGES = [
     title: 'Shipping Policy',
     slug: 'shipping-policy',
     content: `## Shipping Information
-We offer free shipping on all orders over $100. Standard shipping charges of $10 apply to orders below $100.
+We ship our premium cricket gear all over India. Shipping charges are extra and calculated based on weight and destination at the time of dispatch/checkout.
+
+### Delivery Areas
+- We deliver to all pincodes across India.
 
 ### Delivery Times
 - **Metro Cities:** 3-5 business days.
 - **Other Regions:** 5-7 business days.
-- **Express Shipping:** 1-2 business days (additional fees apply).
 
 ### Order Tracking
 Once your order has been packed and shipped, you will receive an email and WhatsApp message with your tracking ID and the name of the courier partner. You can track your order live using our [Track Order](/track-order) tool.`
@@ -486,7 +488,7 @@ Once your order has been packed and shipped, you will receive an email and Whats
     title: 'Return & Exchange Policy',
     slug: 'return-policy',
     content: `## Returns and Exchanges
-We stand behind the quality of our sports equipment. If you are not 100% satisfied, you can return or exchange your product within 30 days of delivery.
+We stand behind the quality of our sports equipment. If you are not 100% satisfied, you can return or exchange your product within 7 days of delivery.
 
 ### Conditions for Returns
 - Items must be unused, with original tags intact and in their original packaging.
@@ -502,7 +504,7 @@ We stand behind the quality of our sports equipment. If you are not 100% satisfi
     title: 'Privacy Policy',
     slug: 'privacy-policy',
     content: `## Privacy Policy
-Your privacy is important to us. This policy describes how we collect, use, and protect your personal information when you use the Apex Cricket store.
+Your privacy is important to us. This policy describes how we collect, use, and protect your personal information when you use the Zassports store.
 
 ### Information We Collect
 - Contact details (name, email, phone number, address).
@@ -515,7 +517,7 @@ We do not sell, trade, or otherwise transfer your personally identifiable inform
     title: 'Terms & Conditions',
     slug: 'terms-and-conditions',
     content: `## Terms & Conditions
-Welcome to Apex Cricket. By browsing or purchasing from our website, you agree to comply with the following terms.
+Welcome to Zassports. By browsing or purchasing from our website, you agree to comply with the following terms.
 
 ### Pricing & Availabilty
 We make every effort to display accurate pricing and stock status. In the event of an out-of-stock item being purchased, we will cancel the item and issue a full refund.
@@ -527,10 +529,10 @@ You are responsible for keeping your login credentials secure. Unauthorized usag
     title: 'About Us',
     slug: 'about-us',
     content: `## Our Story
-Founded in 2026, **Apex Cricket** was born out of a passion for the sport. Inspired by the premium athletic experience of large-scale sports hubs, we set out to build a professional-grade cricket shopping destination.
+Founded in 2026, **Zassports** was born out of a passion for the sport. Inspired by the premium athletic experience of large-scale sports hubs, we set out to build a professional-grade cricket shopping destination.
 
 ### Our Mission
-To provide cricketers of all levels—from backyard beginners to professional county players—with the highest quality cricket gear at competitive prices. We believe proper equipment is the foundation of outstanding athletic performance.`
+- To provide cricketers of all levels—from backyard beginners to professional county players—with the highest quality cricket gear at competitive prices. We believe proper equipment is the foundation of outstanding athletic performance.`
   },
   {
     title: 'Contact Us',
@@ -539,10 +541,10 @@ To provide cricketers of all levels—from backyard beginners to professional co
 If you have questions about bat grains, size fittings, or order shipping times, our support team is ready to assist.
 
 ### Contact Channels
-- **WhatsApp Support:** +15551234567
-- **Direct Phone:** +1 (555) 123-4567
-- **Email:** support@apexcricket.com
-- **HQ Office:** 123 Cricket Stadium Road, Sports City`
+- **WhatsApp Support:** 918860654659
+- **Direct Phone:** 8860654659
+- **Email:** info@zassports.com
+- **HQ Office:** Main Road, Deepak Vihar, Near Indus Valley Public School, Khora Colony, Noida Sector 62, Uttar Pradesh – 201309`
   }
 ];
 
@@ -596,14 +598,14 @@ export async function GET(request) {
     }
 
     // 5. Seed Admin Account if doesn't exist
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@apexcricket.com';
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@zassports.com';
     const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@123';
     const adminExists = await User.findOne({ email: adminEmail });
 
     if (!adminExists) {
       const hashedPassword = await hashPassword(adminPassword);
       await User.create({
-        name: 'Apex Admin',
+        name: 'Zassports Admin',
         email: adminEmail,
         password: hashedPassword,
         role: 'admin'

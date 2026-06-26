@@ -76,7 +76,7 @@ const Footer = () => {
               <li><Link href="/account">My Account</Link></li>
               <li><Link href="/wishlist">My Wishlist</Link></li>
               <li><Link href="/contact">Contact Support</Link></li>
-              <li><Link href="/about">About Apex Cricket</Link></li>
+              <li><Link href="/about">About Zassports</Link></li>
             </ul>
           </div>
 
@@ -100,6 +100,11 @@ const Footer = () => {
                 <Mail size={16} style={{ flexShrink: 0 }} />
                 <span>{settings.email}</span>
               </div>
+              {settings.gstDetails && (
+                <div className="footer-contact-item">
+                  <span style={{ fontSize: '0.8rem', opacity: 0.8, fontWeight: 'bold' }}>GST: {settings.gstDetails}</span>
+                </div>
+              )}
             </div>
 
             {/* Social Media Links */}
@@ -147,7 +152,7 @@ const Footer = () => {
 
         {/* Footer Bottom copyright row */}
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Apex Cricket Sports. All Rights Reserved. Built for Cricket Enthusiasts.</p>
+          <p>&copy; {new Date().getFullYear()} Zassports. All Rights Reserved. Built for Cricket Enthusiasts.</p>
           <div style={{ display: 'flex', gap: '15px' }}>
             <Link href="/policies/privacy-policy">Privacy</Link>
             <span>&bull;</span>

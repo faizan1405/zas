@@ -83,13 +83,13 @@ const TrackOrderContent = () => {
           Track Your Order
         </h1>
         <p style={{ color: 'var(--text-dark-muted)', fontSize: '0.85rem', marginBottom: '20px' }}>
-          Enter your unique order tracking reference (e.g. APX-98317-IND) below to check delivery status.
+          Enter your unique order tracking reference (e.g. ZAS-98317-IND) below to check delivery status.
         </p>
 
         <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '8px', maxWidth: '500px', margin: '0 auto' }}>
           <input 
             type="text" 
-            placeholder="e.g. APX-16728-IND" 
+            placeholder="e.g. ZAS-16728-IND" 
             value={orderId}
             onChange={(e) => setOrderId(e.target.value)}
             className="form-control"

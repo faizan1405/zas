@@ -49,7 +49,7 @@ export async function POST(request) {
     }
 
     const reviewerName = user ? user.name : (userName || 'Anonymous');
-    const reviewerEmail = user ? user.email : (userEmail || 'guest@apexcricket.com');
+    const reviewerEmail = user ? user.email : (userEmail || 'guest@zassports.com');
 
     // Check if product exists
     const product = await Product.findById(productId);

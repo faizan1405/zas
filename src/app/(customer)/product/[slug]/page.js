@@ -474,7 +474,7 @@ const ProductDetailPage = () => {
             <div className="info-block">
               <RotateCcw size={20} />
               <h5>Easy Returns</h5>
-              <span>30 Days returns</span>
+              <span>7 Days Return/Exchange</span>
             </div>
           </div>
         </div>

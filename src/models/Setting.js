@@ -1,16 +1,17 @@
 import mongoose from 'mongoose';
 
 const SettingSchema = new mongoose.Schema({
-  storeName: { type: String, default: 'Apex Cricket' },
-  contactNumber: { type: String, default: '+1 (555) 123-4567' },
-  whatsappNumber: { type: String, default: '+15551234567' },
-  email: { type: String, default: 'support@apexcricket.com' },
-  address: { type: String, default: '123 Cricket Stadium Road, Sports City' },
-  shippingCharges: { type: Number, default: 10 },
-  freeShippingMinAmount: { type: Number, default: 100 },
+  storeName: { type: String, default: 'Zassports' },
+  contactNumber: { type: String, default: '8860654659' },
+  whatsappNumber: { type: String, default: '918860654659' },
+  email: { type: String, default: 'info@zassports.com' },
+  address: { type: String, default: 'Main Road, Deepak Vihar, Near Indus Valley Public School, Khora Colony, Noida Sector 62, Uttar Pradesh – 201309' },
+  shippingCharges: { type: Number, default: 15 },
+  freeShippingMinAmount: { type: Number, default: 150 },
   codEnabled: { type: Boolean, default: true },
   onlinePaymentEnabled: { type: Boolean, default: true },
   taxPercent: { type: Number, default: 12 },
+  gstDetails: { type: String, default: '09AACCZ4143L1ZY' },
   logoUrl: { type: String, default: '' },
   socialLinks: {
     facebook: { type: String, default: '' },

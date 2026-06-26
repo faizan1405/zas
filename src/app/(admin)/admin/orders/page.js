@@ -300,7 +300,7 @@ const OrdersManagement = () => {
                         type="text" 
                         value={trackingId} 
                         onChange={(e) => setTrackingId(e.target.value)}
-                        placeholder="e.g. APX-9812-IN"
+                        placeholder="e.g. ZAS-9812-IN"
                         className="admin-form-control"
                         style={{ padding: '10px' }}
                       />

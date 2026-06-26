@@ -10,16 +10,17 @@ export function StoreProvider({ children }) {
   const [wishlist, setWishlist] = useState([]);
   const [categories, setCategories] = useState([]);
   const [settings, setSettings] = useState({
-    storeName: 'Apex Cricket',
-    contactNumber: '+1 (555) 123-4567',
-    whatsappNumber: '+15551234567',
-    email: 'support@apexcricket.com',
-    address: '123 Cricket Stadium Road, Sports City',
-    shippingCharges: 10,
-    freeShippingMinAmount: 100,
+    storeName: 'Zassports',
+    contactNumber: '8860654659',
+    whatsappNumber: '918860654659',
+    email: 'info@zassports.com',
+    address: 'Main Road, Deepak Vihar, Near Indus Valley Public School, Khora Colony, Noida Sector 62, Uttar Pradesh – 201309',
+    shippingCharges: 15,
+    freeShippingMinAmount: 150,
     codEnabled: true,
     onlinePaymentEnabled: true,
     taxPercent: 12,
+    gstDetails: '09AACCZ4143L1ZY',
   });
   const [pincode, setPincode] = useState('');
   const [pincodeStatus, setPincodeStatus] = useState(null); // 'deliverable' | 'undeliverable'
@@ -28,17 +29,17 @@ export function StoreProvider({ children }) {
   // 1. Initial mounting checks
   useEffect(() => {
     // Read local storage for guest session backups
-    const localCart = localStorage.getItem('apex_cart');
+    const localCart = localStorage.getItem('zas_cart');
     if (localCart) {
       try { setCart(JSON.parse(localCart)); } catch (e) {}
     }
     
-    const localWishlist = localStorage.getItem('apex_wishlist');
+    const localWishlist = localStorage.getItem('zas_wishlist');
     if (localWishlist) {
       try { setWishlist(JSON.parse(localWishlist)); } catch (e) {}
     }
 
-    const localPincode = localStorage.getItem('apex_pincode');
+    const localPincode = localStorage.getItem('zas_pincode');
     if (localPincode) {
       setPincode(localPincode);
       setPincodeStatus('deliverable'); // default mock check
@@ -52,12 +53,12 @@ export function StoreProvider({ children }) {
 
   // 2. Local storage syncing for Cart
   useEffect(() => {
-    localStorage.setItem('apex_cart', JSON.stringify(cart));
+    localStorage.setItem('zas_cart', JSON.stringify(cart));
   }, [cart]);
 
   // 3. Local storage syncing for Wishlist
   useEffect(() => {
-    localStorage.setItem('apex_wishlist', JSON.stringify(wishlist));
+    localStorage.setItem('zas_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
   // Core API fetches
@@ -180,32 +181,22 @@ export function StoreProvider({ children }) {
 
   // Pincode validation helper (Decathlon style checker)
   const verifyPincode = async (code) => {
-    if (!code || code.length < 5) {
+    if (!code || !/^[1-9][0-9]{5}$/.test(code)) {
       setPincodeStatus('undeliverable');
       return false;
     }
     
-    // Simulate pincode checker
-    // In India/US: standard regex match. Let's make digits 1-8 deliverable, 9/0 undeliverable
-    const firstDigit = code.charAt(0);
-    const isValid = ['1', '2', '3', '4', '5', '6', '7', '8'].includes(firstDigit);
-    
+    // Delivery to all over India is enabled for any valid 6-digit pincode
     setPincode(code);
-    localStorage.setItem('apex_pincode', code);
-
-    if (isValid) {
-      setPincodeStatus('deliverable');
-      return true;
-    } else {
-      setPincodeStatus('undeliverable');
-      return false;
-    }
+    localStorage.setItem('zas_pincode', code);
+    setPincodeStatus('deliverable');
+    return true;
   };
 
   const clearPincode = () => {
     setPincode('');
     setPincodeStatus(null);
-    localStorage.removeItem('apex_pincode');
+    localStorage.removeItem('zas_pincode');
   };
 
   // Authentication controllers
@@ -221,7 +212,7 @@ export function StoreProvider({ children }) {
       await fetch('/api/auth/logout', { method: 'POST' });
       setUser(null);
       setWishlist([]);
-      localStorage.removeItem('apex_wishlist');
+      localStorage.removeItem('zas_wishlist');
     } catch (err) {
       console.log('Error logging out:', err);
     }

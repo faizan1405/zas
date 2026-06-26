@@ -5,7 +5,7 @@ import '../styles/customer.css';
 import '../styles/admin.css';
 
 export const metadata = {
-  title: 'Apex Cricket - Premium Cricket Gear E-Commerce',
+  title: 'Zassports - Premium Cricket Gear E-Commerce',
   description: 'Shop cricket bats, balls, kits, and protective gears online. Decathlon-inspired sports shopping experience.',
 };
 

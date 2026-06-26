@@ -83,13 +83,13 @@ const ProductsManagement = () => {
   const handleOpenAddModal = () => {
     setEditingId(null);
     setName('');
-    setBrand('Apex');
+    setBrand('Zassports');
     setCategory(categories[0]?.slug || 'cricket-bats');
     setDescription('');
     setPrice(0);
     setMrp(0);
     setStock(10);
-    setSku('APX-' + Math.floor(1000 + Math.random() * 9000));
+    setSku('ZAS-' + Math.floor(1000 + Math.random() * 9000));
     setImages([]);
     setIsFeatured(false);
     setIsBestSeller(false);

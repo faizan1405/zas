@@ -238,8 +238,8 @@ const HomePage = () => {
         <div className="badge-item">
           <Truck size={32} className="badge-icon" />
           <div className="badge-info">
-            <h4>Free Shipping</h4>
-            <p>On all orders above $100</p>
+            <h4>Pan India Delivery</h4>
+            <p>Deliveries all over India</p>
           </div>
         </div>
         <div className="badge-item">
@@ -253,7 +253,7 @@ const HomePage = () => {
           <RefreshCw size={32} className="badge-icon" />
           <div className="badge-info">
             <h4>Easy Returns</h4>
-            <p>30 days hassle-free policies</p>
+            <p>7 days return or exchange</p>
           </div>
         </div>
         <div className="badge-item">

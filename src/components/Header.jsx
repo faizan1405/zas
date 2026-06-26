@@ -60,7 +60,7 @@ const Header = () => {
     <>
       {/* 1. TOP OFFER BAR */}
       <div className="offer-bar">
-        🏏 GET READY FOR THE SEASON: FREE SHIPPING ON ALL CRICKET ORDERS OVER $100! COD AVAILABLE 🏏
+        🏏 SHIPPED ALL OVER INDIA | CASH ON DELIVERY AVAILABLE | 7 DAYS EASY RETURN & EXCHANGE 🏏
       </div>
 
       <header className="main-header">
@@ -69,7 +69,7 @@ const Header = () => {
           <div className="header-top">
             {/* Logo */}
             <Link href="/" className="logo">
-              APEX<span>CRICKET</span>
+              ZAS<span>SPORTS</span>
             </Link>
 
             {/* Large Search Bar */}
@@ -242,7 +242,7 @@ const Header = () => {
                       </ul>
                     </div>
                     <div className="mega-promo-card">
-                      <h4>Apex English Willow</h4>
+                      <h4>Zassports English Willow</h4>
                       <p>Premium Grade 1 Willow engineered for boundary hitters.</p>
                       <Link href="/shop?category=cricket-bats" className="btn btn-accent btn-sm">Shop Now</Link>
                     </div>

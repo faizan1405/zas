@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const OrderSchema = new mongoose.Schema({
-  orderId: { type: String, required: true, unique: true }, // E.g., APX-29381-IND
+  orderId: { type: String, required: true, unique: true }, // E.g., ZAS-29381-IND
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }, // Null for guest checkouts
   guestDetails: {
     name: { type: String },

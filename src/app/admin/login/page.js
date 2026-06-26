@@ -69,7 +69,7 @@ const AdminLoginPage = () => {
             <ShieldAlert size={28} />
           </div>
           <h1 style={{ fontSize: '1.5rem', fontFamily: 'Outfit', textTransform: 'uppercase', color: 'white' }}>
-            Apex Admin Panel
+            Zassports Admin Panel
           </h1>
           <p style={{ color: 'var(--text-light-muted)', fontSize: '0.8rem', marginTop: '4px' }}>
             Authorization is required for store management credentials.
@@ -88,7 +88,7 @@ const AdminLoginPage = () => {
             <div style={{ position: 'relative' }}>
               <input 
                 type="email" 
-                placeholder="admin@apexcricket.com"
+                placeholder="admin@zassports.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="form-control"
