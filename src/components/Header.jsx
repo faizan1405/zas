@@ -204,146 +204,64 @@ const Header = () => {
           <div className="container">
             <ul className="nav-links">
               <li className="nav-item">
-                <Link href="/shop" className="nav-link">All Sports</Link>
-              </li>
-              <li className="nav-item">
-                <Link href="/shop?ageGroup=Men" className="nav-link">Men</Link>
-              </li>
-              <li className="nav-item">
-                <Link href="/shop?ageGroup=Women" className="nav-link">Women</Link>
-              </li>
-              <li className="nav-item">
-                <Link href="/shop?ageGroup=Kids" className="nav-link">Kids</Link>
-              </li>
-              <li className="nav-item">
-                <Link href="/shop" className="nav-link">Cricket Gear</Link>
-              </li>
-
-              {/* Mega-menu Cricket Bats */}
-              <li className="nav-item">
                 <Link href="/shop?category=cricket-bats" className="nav-link">Cricket Bats</Link>
-                <div className="mega-menu">
-                  <div className="container mega-grid">
-                    <div>
-                      <h4 className="mega-col-title">Wood Profile</h4>
-                      <ul className="mega-links">
-                        <li><Link href="/shop?category=cricket-bats&woodType=English+Willow">English Willow Bats</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&woodType=Kashmir+Willow">Kashmir Willow Bats</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&woodType=Poplar+Wood">Poplar Wood Bats</Link></li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="mega-col-title">Wood Subcategories</h4>
-                      <ul className="mega-links">
-                        <li><Link href="/shop?category=cricket-bats&subcategory=english-willow-bat">English Willow</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&subcategory=kashmir-willow-bat">Kashmir Willow</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&subcategory=tennis-cricket-bat">Tennis Cricket</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&subcategory=kids-cricket-bat">Kids Bats</Link></li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="mega-col-title">Bat Sizes</h4>
-                      <ul className="mega-links">
-                        <li><Link href="/shop?category=cricket-bats&size=Short+Handle">Short Handle (SH)</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&size=Long+Handle">Long Handle (LH)</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&size=Size+6">Size 6</Link></li>
-                        <li><Link href="/shop?category=cricket-bats&size=Size+5">Size 5</Link></li>
-                      </ul>
-                    </div>
-                    <div className="mega-promo-card">
-                      <h4>English Willow Bats</h4>
-                      <p>Premium grade bats handselected for ultimate ping performance.</p>
-                      <Link href="/shop?category=cricket-bats" className="btn btn-accent btn-sm">Shop Bats</Link>
-                    </div>
-                  </div>
-                </div>
               </li>
-
-              {/* Mega-menu Cricket Balls */}
               <li className="nav-item">
                 <Link href="/shop?category=cricket-balls" className="nav-link">Cricket Balls</Link>
-                <div className="mega-menu">
-                  <div className="container mega-grid">
-                    <div>
-                      <h4 className="mega-col-title">Ball Type</h4>
-                      <ul className="mega-links">
-                        <li><Link href="/shop?category=cricket-balls&subcategory=leather-ball">Leather Balls</Link></li>
-                        <li><Link href="/shop?category=cricket-balls&subcategory=tennis-ball">Tennis Balls</Link></li>
-                        <li><Link href="/shop?category=cricket-balls&subcategory=practice-ball">Practice Balls</Link></li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="mega-col-title">Color Options</h4>
-                      <ul className="mega-links">
-                        <li><Link href="/shop?category=cricket-balls&color=Red">Red Match Ball</Link></li>
-                        <li><Link href="/shop?category=cricket-balls&color=White">White Match Ball</Link></li>
-                        <li><Link href="/shop?category=cricket-balls&color=Pink">Pink Match Ball</Link></li>
-                      </ul>
-                    </div>
-                    <div className="mega-promo-card" style={{ gridColumn: 'span 3' }}>
-                      <h4>Seam & Bounce</h4>
-                      <p>Four-piece leather match balls stitched to perfection. Available in standard weight parameters.</p>
-                      <Link href="/shop?category=cricket-balls" className="btn btn-accent btn-sm">Shop Balls</Link>
-                    </div>
-                  </div>
-                </div>
               </li>
-
-              {/* Cricket Shoes */}
+              <li className="nav-item">
+                <Link href="/shop?category=cricket-gloves" className="nav-link">Cricket Gloves</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=cricket-pads" className="nav-link">Cricket Pads</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=cricket-helmets" className="nav-link">Cricket Helmets</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=running-shoes" className="nav-link">Running Shoes</Link>
+              </li>
               <li className="nav-item">
                 <Link href="/shop?category=cricket-shoes" className="nav-link">Cricket Shoes</Link>
-                <div className="mega-menu">
-                  <div className="container mega-grid">
-                    <div>
-                      <h4 className="mega-col-title">Sole Type</h4>
-                      <ul className="mega-links">
-                        <li><Link href="/shop?category=cricket-shoes&subcategory=rubber-shoes">Rubber Sole Studs</Link></li>
-                        <li><Link href="/shop?category=cricket-shoes&subcategory=spiked-shoes">Metal Spikes</Link></li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="mega-col-title">Size Options</h4>
-                      <ul className="mega-links">
-                        <li><Link href="/shop?category=cricket-shoes&size=US+8">US 8</Link></li>
-                        <li><Link href="/shop?category=cricket-shoes&size=US+9">US 9</Link></li>
-                        <li><Link href="/shop?category=cricket-shoes&size=US+10">US 10</Link></li>
-                      </ul>
-                    </div>
-                    <div className="mega-promo-card" style={{ gridColumn: 'span 3' }}>
-                      <h4>Extreme Turf Traction</h4>
-                      <p>Run fast, bowl hard, and slide safely with rubber spikes and steel grip shoes.</p>
-                      <Link href="/shop?category=cricket-shoes" className="btn btn-accent btn-sm">Browse Shoes</Link>
-                    </div>
-                  </div>
-                </div>
               </li>
-
-              {/* Accessories */}
               <li className="nav-item">
-                <Link href="/shop?category=accessories" className="nav-link">Accessories</Link>
-                <div className="mega-menu">
-                  <div className="container mega-grid">
-                    <div>
-                      <h4 className="mega-col-title">Grips & Mallets</h4>
-                      <ul className="mega-links">
-                        <li><Link href="/shop?category=accessories&subcategory=bat-grips">Bat Grips</Link></li>
-                        <li><Link href="/shop?category=accessories&subcategory=bat-mallet">Bat Mallets</Link></li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="mega-col-title">Pitch Gear</h4>
-                      <ul className="mega-links">
-                        <li><Link href="/shop?category=training-equipment&subcategory=stumps">Wooden Stumps</Link></li>
-                        <li><Link href="/shop?category=training-equipment&subcategory=grip-cone">Grip Cones</Link></li>
-                      </ul>
-                    </div>
-                    <div className="mega-promo-card" style={{ gridColumn: 'span 3' }}>
-                      <h4>Essential Training Kits</h4>
-                      <p>From bat cones to stumps and grip protection packs, keep your kit complete.</p>
-                      <Link href="/shop?category=accessories" className="btn btn-accent btn-sm">Shop Accessories</Link>
-                    </div>
-                  </div>
-                </div>
+                <Link href="/shop?category=dry-fit-t-shirts" className="nav-link">Dry-Fit T-Shirts</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=track-pants" className="nav-link">Track Pants</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=sports-socks" className="nav-link">Sports Socks</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=badminton-rackets" className="nav-link">Badminton Rackets</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=shuttlecocks" className="nav-link">Shuttlecocks</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=footballs" className="nav-link">Footballs</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=football-shoes" className="nav-link">Football Shoes</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=yoga-mats" className="nav-link">Yoga Mats</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=skipping-ropes" className="nav-link">Skipping Ropes</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=resistance-bands" className="nav-link">Resistance Bands</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=dumbbells" className="nav-link">Dumbbells</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=gym-gloves" className="nav-link">Gym Gloves</Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/shop?category=kit-bags" className="nav-link">Kit Bags</Link>
               </li>
             </ul>
           </div>
