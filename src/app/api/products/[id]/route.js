@@ -4,6 +4,10 @@ import dbConnect from 'src/lib/mongodb';
 import Product from 'src/models/Product';
 import { verifyAdmin } from 'src/lib/auth';
 
+// Always run at request time so product detail reflects the latest edits.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // GET: Fetch product by ID or by Slug
 export async function GET(request, { params }) {
   try {

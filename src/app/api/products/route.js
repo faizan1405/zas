@@ -3,6 +3,10 @@ import dbConnect from 'src/lib/mongodb';
 import Product from 'src/models/Product';
 import { verifyAdmin } from 'src/lib/auth';
 
+// Always run at request time so newly added/updated products appear immediately.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // 1. GET: Fetch products with comprehensive dynamic search filters and sorting
 export async function GET(request) {
   try {

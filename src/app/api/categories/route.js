@@ -3,6 +3,10 @@ import dbConnect from 'src/lib/mongodb';
 import Category from 'src/models/Category';
 import { verifyAdmin } from 'src/lib/auth';
 
+// Always run at request time so newly added/edited categories appear immediately.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // 1. GET: Fetch all active categories sorted by displayOrder
 export async function GET(request) {
   try {

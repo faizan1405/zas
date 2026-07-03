@@ -26,6 +26,7 @@ import ProductCard from 'src/components/ProductCard';
 const HomePage = () => {
   const { cart, wishlist, toggleWishlist, addToCart, categories } = useStore();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [allProducts, setAllProducts] = useState([]);
   const [bestSellers, setBestSellers] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
   const [popularProducts, setPopularProducts] = useState([]);
@@ -52,16 +53,19 @@ const HomePage = () => {
     const fetchHomeProducts = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/products');
+        // no-store: always show freshly added admin products, never a cached list
+        const res = await fetch('/api/products', { cache: 'no-store' });
         const data = await res.json();
-        
+
         if (data.success) {
-          const allProducts = data.products;
-          // Categorize products for homepage grids
-          setBestSellers(allProducts.filter(p => p.isBestSeller).slice(0, 4));
-          setNewArrivals(allProducts.filter(p => p.isNewArrival).slice(0, 4));
+          const products = data.products;
+          // Keep the full active catalog so every product surfaces under its category row
+          setAllProducts(products);
+          // Curated marketing grids (flag driven — may be empty for brand new products)
+          setBestSellers(products.filter(p => p.isBestSeller).slice(0, 4));
+          setNewArrivals(products.filter(p => p.isNewArrival).slice(0, 4));
           // Popular is represented by featured/top rated products
-          setPopularProducts(allProducts.filter(p => p.ratings.average >= 4.5).slice(0, 4));
+          setPopularProducts(products.filter(p => p.ratings?.average >= 4.5).slice(0, 4));
         }
         setLoading(false);
       } catch (err) {
@@ -252,6 +256,36 @@ const HomePage = () => {
           </div>
         </section>
       )}
+
+      {/* 6b. SHOP BY CATEGORY — dynamic rows built from active admin categories.
+           Every active product (including newly added ones) appears under its own
+           category row, matched by category slug. No hardcoded category slugs, no
+           dependence on marketing flags. */}
+      {categories.map((cat) => {
+        const catProducts = allProducts
+          .filter((p) => p.category === cat.slug)
+          .slice(0, 4);
+        if (catProducts.length === 0) return null;
+        return (
+          <section key={cat._id} style={{ marginBottom: '60px' }}>
+            <div className="section-header">
+              <h2>{cat.name}</h2>
+              <Link href={`/shop?category=${cat.slug}`} className="guide-link">View All <ArrowRight size={14} /></Link>
+            </div>
+            <div className="grid grid-4">
+              {catProducts.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  isWishlisted={wishlist.includes(product._id)}
+                  onWishlistToggle={toggleWishlist}
+                  onAddToCart={addToCart}
+                />
+              ))}
+            </div>
+          </section>
+        );
+      })}
 
       {/* 7. OUR CRICKET COLLECTIONS */}
       <section style={{ marginBottom: '60px' }}>

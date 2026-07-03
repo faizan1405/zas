@@ -82,7 +82,7 @@ export function StoreProvider({ children }) {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('/api/categories');
+      const res = await fetch('/api/categories', { cache: 'no-store' });
       const data = await res.json();
       if (data.success && data.categories) {
         setCategories(data.categories.filter(c => c.isActive));

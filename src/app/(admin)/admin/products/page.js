@@ -70,7 +70,7 @@ const ProductsManagement = () => {
       if (search) url += `&search=${encodeURIComponent(search)}`;
       if (catFilter) url += `&category=${catFilter}`;
       
-      const res = await fetch(url);
+      const res = await fetch(url, { cache: 'no-store' });
       const data = await res.json();
       if (data.success) {
         setProducts(data.products);

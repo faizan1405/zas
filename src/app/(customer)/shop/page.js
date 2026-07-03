@@ -63,7 +63,7 @@ const ShopContent = () => {
         if (ratingParam) url += `&minRating=${ratingParam}`;
         if (outOfStockParam) url += `&excludeOutOfStock=true`;
 
-        const res = await fetch(url);
+        const res = await fetch(url, { cache: 'no-store' });
         const data = await res.json();
 
         if (data.success) {
