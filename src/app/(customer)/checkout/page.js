@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShieldCheck, Truck, CreditCard, Banknote, ArrowRight } from 'lucide-react';
 import { useStore } from 'src/context/StoreContext';
@@ -30,11 +30,19 @@ const CheckoutContent = () => {
   const [placingOrder, setPlacingOrder] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Set once an order succeeds. Stops the empty-cart effect from racing a
+  // /cart redirect against the /order-success navigation after clearCart().
+  const orderCompletedRef = useRef(false);
+
   // Coupon calculations
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   // 1. Initial mounting checks
   useEffect(() => {
+    // Order just completed: cart was cleared on purpose. Do not redirect to
+    // /cart — the success navigation owns the transition now.
+    if (orderCompletedRef.current) return;
+
     if (cart.length === 0) {
       router.push('/cart');
       return;
@@ -148,8 +156,13 @@ const CheckoutContent = () => {
       const data = await res.json();
 
       if (data.success && data.order) {
+        // Flag completion BEFORE clearing the cart so the empty-cart effect
+        // skips its /cart redirect. Keep placingOrder true so the button stays
+        // locked and no duplicate order can be submitted mid-navigation.
+        orderCompletedRef.current = true;
         clearCart();
-        router.push(`/order-success?orderId=${data.order.orderId}`);
+        // replace() so back button cannot return to checkout and resubmit.
+        router.replace(`/order-success?orderId=${data.order.orderId}`);
       } else {
         setErrorMessage(data.error || 'Failed to place order. Check stock availability.');
         setPlacingOrder(false);
