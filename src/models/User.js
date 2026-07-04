@@ -3,7 +3,12 @@ import mongoose from 'mongoose';
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  // Optional: Google sign-in accounts have no password. Admin (seeded) still uses one.
+  password: { type: String },
+  // Sign-in source. Customers authenticate via Google; admin via credentials.
+  provider: { type: String, enum: ['credentials', 'google'], default: 'credentials' },
+  googleId: { type: String, index: true, sparse: true },
+  avatar: { type: String },
   role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
   addresses: [{
     fullName: { type: String },

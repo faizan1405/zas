@@ -13,7 +13,8 @@ import {
   Truck, 
   LogOut,
   Mail,
-  Phone
+  Phone,
+  ShieldCheck
 } from 'lucide-react';
 import { useStore } from 'src/context/StoreContext';
 

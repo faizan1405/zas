@@ -1,6 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import Toast from 'src/components/Toast';
 
 const StoreContext = createContext();
 
@@ -31,6 +32,11 @@ export function StoreProvider({ children }) {
   const [pincode, setPincode] = useState('');
   const [pincodeStatus, setPincodeStatus] = useState(null); // 'deliverable' | 'undeliverable'
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Toast / snackbar notifications (used by cart actions)
+  const [toasts, setToasts] = useState([]);
+  const toastTimers = useRef({});
+  const toastSeq = useRef(0);
 
   // 1. Initial mounting checks
   useEffect(() => {
@@ -108,24 +114,123 @@ export function StoreProvider({ children }) {
     }
   };
 
+  // Toast notification helpers ------------------------------------------------
+  const dismissToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+    if (toastTimers.current[id]) {
+      clearTimeout(toastTimers.current[id]);
+      delete toastTimers.current[id];
+    }
+  };
+
+  const showToast = (toast) => {
+    const duration = toast.duration || 3500;
+    // A dedupeKey gives a stable id so repeated clicks refresh the same toast
+    // instead of stacking a new one each time.
+    const id = toast.dedupeKey ? `k:${toast.dedupeKey}` : `t:${++toastSeq.current}`;
+
+    setToasts((prev) => {
+      let next = toast.dedupeKey
+        ? prev.filter((t) => t.dedupeKey !== toast.dedupeKey)
+        : prev.slice();
+      next.push({ ...toast, id });
+      // Never let more than 3 notifications stack up at once.
+      const MAX_VISIBLE = 3;
+      if (next.length > MAX_VISIBLE) {
+        next = next.slice(next.length - MAX_VISIBLE);
+      }
+      return next;
+    });
+
+    // Reset the auto-dismiss timer (covers the refreshed-toast case too).
+    if (toastTimers.current[id]) clearTimeout(toastTimers.current[id]);
+    toastTimers.current[id] = setTimeout(() => dismissToast(id), duration);
+  };
+
+  const showCartToast = (product, alreadyInCart) => {
+    const image =
+      Array.isArray(product.images) && product.images.length > 0
+        ? product.images[0]
+        : null;
+
+    showToast({
+      type: alreadyInCart ? 'info' : 'success',
+      title: alreadyInCart
+        ? 'Quantity updated in your cart'
+        : 'Product added to cart successfully',
+      name: product.name,
+      image,
+      dedupeKey: `cart-${product._id}`,
+      duration: 3500,
+      action: { label: 'View Cart', href: '/cart' },
+    });
+  };
+
+  // Clear any pending timers when the provider unmounts.
+  useEffect(() => {
+    return () => {
+      Object.values(toastTimers.current).forEach(clearTimeout);
+      toastTimers.current = {};
+    };
+  }, []);
+
   // Cart operations
-  const addToCart = (product, selectedVariant = {}, quantity = 1) => {
-    setCart((prevCart) => {
-      // Find matching item index by ID and variant parameters
-      const existingIndex = prevCart.findIndex(
-        (item) => 
-          item.product._id === product._id && 
+  const addToCart = (product, selectedVariant = {}, quantity = 1, options = {}) => {
+    const { silent = false } = options;
+    try {
+      if (!product || !product._id) {
+        if (!silent) {
+          showToast({
+            type: 'error',
+            title: "Couldn't add to cart",
+            message: 'Something went wrong. Please try again.',
+            duration: 4000,
+          });
+        }
+        return { success: false, alreadyInCart: false };
+      }
+
+      // Was this exact product + variant already in the cart? (drives the message)
+      const alreadyInCart = cart.some(
+        (item) =>
+          item.product._id === product._id &&
           JSON.stringify(item.selectedVariant) === JSON.stringify(selectedVariant)
       );
 
-      if (existingIndex > -1) {
-        const newCart = [...prevCart];
-        newCart[existingIndex].quantity += quantity;
-        return newCart;
-      } else {
-        return [...prevCart, { product, selectedVariant, quantity }];
+      setCart((prevCart) => {
+        // Find matching item index by ID and variant parameters
+        const existingIndex = prevCart.findIndex(
+          (item) =>
+            item.product._id === product._id &&
+            JSON.stringify(item.selectedVariant) === JSON.stringify(selectedVariant)
+        );
+
+        if (existingIndex > -1) {
+          const newCart = [...prevCart];
+          newCart[existingIndex] = {
+            ...newCart[existingIndex],
+            quantity: newCart[existingIndex].quantity + quantity,
+          };
+          return newCart;
+        } else {
+          return [...prevCart, { product, selectedVariant, quantity }];
+        }
+      });
+
+      if (!silent) showCartToast(product, alreadyInCart);
+      return { success: true, alreadyInCart };
+    } catch (err) {
+      console.log('Error adding to cart:', err);
+      if (!silent) {
+        showToast({
+          type: 'error',
+          title: "Couldn't add to cart",
+          message: 'Something went wrong. Please try again.',
+          duration: 4000,
+        });
       }
-    });
+      return { success: false, alreadyInCart: false };
+    }
   };
 
   const removeFromCart = (productId, selectedVariant = {}) => {
@@ -244,9 +349,12 @@ export function StoreProvider({ children }) {
       clearPincode,
       loginUser,
       logoutUser,
-      refreshUser: checkCurrentUser
+      refreshUser: checkCurrentUser,
+      showToast,
+      dismissToast
     }}>
       {children}
+      <Toast toasts={toasts} onDismiss={dismissToast} />
     </StoreContext.Provider>
   );
 }

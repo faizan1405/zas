@@ -370,7 +370,7 @@ const Header = () => {
                   ) : (
                     <li>
                       <Link href="/login" onClick={() => setShowMobileMenu(false)}>
-                        Sign In / Register
+                        Sign In
                       </Link>
                     </li>
                   )}

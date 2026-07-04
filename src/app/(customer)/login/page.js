@@ -2,25 +2,39 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ShieldCheck, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { useStore } from 'src/context/StoreContext';
 
-const LoginRegisterPage = () => {
-  const router = useRouter();
-  const { user, loginUser, cart } = useStore();
+// Human-readable messages for the ?error= codes the Google OAuth routes redirect
+// back with when something goes wrong.
+const ERROR_MESSAGES = {
+  access_denied: 'Google sign-in was cancelled. Please try again.',
+  oauth_state: 'Your sign-in session expired. Please try again.',
+  oauth_config: 'Google sign-in is not configured. Please contact support.',
+  oauth_token: 'Could not complete Google sign-in. Please try again.',
+  oauth_profile: 'Could not read your Google profile. Please try again.',
+  email_unverified: 'Your Google email is not verified. Please verify it and try again.',
+  blocked: 'Your account has been suspended. Please contact support.',
+  oauth_failed: 'Something went wrong during sign-in. Please try again.'
+};
 
-  const [isLoginView, setIsLoginView] = useState(true);
-  const [loading, setLoading] = useState(false);
+// Official Google "G" mark (inline so it needs no external asset).
+const GoogleIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+  </svg>
+);
+
+const LoginPage = () => {
+  const router = useRouter();
+  const { user, cart } = useStore();
+
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Form Fields
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  // Redirect if already logged in
+  // Redirect if already logged in.
   useEffect(() => {
     if (user) {
       if (cart.length > 0) {
@@ -31,74 +45,24 @@ const LoginRegisterPage = () => {
     }
   }, [user, cart]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (loading) return;
-
-    setErrorMessage('');
-    
-    // Client-side validations
-    if (!email || !password) {
-      setErrorMessage('Please fill in all required fields.');
-      return;
+  // Surface any ?error= code returned by the OAuth callback.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('error');
+    if (code) {
+      setErrorMessage(ERROR_MESSAGES[code] || 'Sign-in failed. Please try again.');
     }
-
-    if (!isLoginView) {
-      if (!name) {
-        setErrorMessage('Name is required.');
-        return;
-      }
-      if (password !== confirmPassword) {
-        setErrorMessage('Passwords do not match.');
-        return;
-      }
-      if (password.length < 6) {
-        setErrorMessage('Password must be at least 6 characters.');
-        return;
-      }
-    }
-
-    try {
-      setLoading(true);
-      const url = isLoginView ? '/api/auth/login' : '/api/auth/register';
-      const bodyPayload = isLoginView ? { email, password } : { name, email, password };
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyPayload)
-      });
-      const data = await res.json();
-
-      if (data.success && data.user) {
-        loginUser(data.user);
-        // Redirect logic
-        if (cart.length > 0) {
-          router.push('/cart');
-        } else {
-          router.push('/account');
-        }
-      } else {
-        setErrorMessage(data.error || 'Authentication failed. Please try again.');
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error('Authentication submission error:', err);
-      setErrorMessage('Network error submitting credentials.');
-      setLoading(false);
-    }
-  };
+  }, []);
 
   return (
     <div className="container animate-fade" style={{ maxWidth: '450px', margin: '60px auto' }}>
       <div style={{ backgroundColor: 'white', border: '1px solid var(--bg-light-border)', borderRadius: 'var(--border-radius-lg)', padding: '40px', boxShadow: 'var(--shadow-lg)' }}>
-        
-        {/* Toggle Title */}
+
         <h1 style={{ fontSize: '1.8rem', fontFamily: 'Outfit', textTransform: 'uppercase', textAlign: 'center', marginBottom: '10px' }}>
-          {isLoginView ? 'Sign In' : 'Create Account'}
+          Sign In
         </h1>
         <p style={{ color: 'var(--text-dark-muted)', fontSize: '0.85rem', textAlign: 'center', marginBottom: '30px' }}>
-          {isLoginView ? 'Welcome back! Sign in to access your orders.' : 'Join the Apex Club to save your profile address.'}
+          Sign in with Google to access your orders, wishlist, and saved addresses.
         </p>
 
         {errorMessage && (
@@ -107,100 +71,14 @@ const LoginRegisterPage = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          {/* Name Field (Register Only) */}
-          {!isLoginView && (
-            <div className="form-group">
-              <label className="form-label">Full Name</label>
-              <div style={{ position: 'relative' }}>
-                <input 
-                  type="text" 
-                  placeholder="Robin Smith"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="form-control"
-                  style={{ paddingLeft: '35px' }}
-                  required
-                />
-                <User size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dark-muted)' }} />
-              </div>
-            </div>
-          )}
-
-          {/* Email Field */}
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
-            <div style={{ position: 'relative' }}>
-              <input 
-                type="email" 
-                placeholder="robin@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="form-control"
-                style={{ paddingLeft: '35px' }}
-                required
-              />
-              <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dark-muted)' }} />
-            </div>
-          </div>
-
-          {/* Password Field */}
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <div style={{ position: 'relative' }}>
-              <input 
-                type="password" 
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="form-control"
-                style={{ paddingLeft: '35px' }}
-                required
-              />
-              <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dark-muted)' }} />
-            </div>
-          </div>
-
-          {/* Confirm Password Field (Register Only) */}
-          {!isLoginView && (
-            <div className="form-group">
-              <label className="form-label">Confirm Password</label>
-              <div style={{ position: 'relative' }}>
-                <input 
-                  type="password" 
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="form-control"
-                  style={{ paddingLeft: '35px' }}
-                  required
-                />
-                <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dark-muted)' }} />
-              </div>
-            </div>
-          )}
-
-          <button 
-            type="submit" 
-            className="btn btn-primary btn-full"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}
-            disabled={loading}
-          >
-            {loading ? 'Processing...' : isLoginView ? 'Sign In' : 'Create Account'} <ArrowRight size={16} />
-          </button>
-
-          {/* Toggle Button */}
-          <button 
-            type="button" 
-            onClick={() => {
-              setIsLoginView(!isLoginView);
-              setErrorMessage('');
-            }}
-            style={{ fontSize: '0.85rem', color: 'var(--text-dark-muted)', fontWeight: 600, textAlign: 'center', marginTop: '10px', textDecoration: 'underline' }}
-          >
-            {isLoginView ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
-          </button>
-        </form>
+        {/* Full page navigation to the OAuth start route (not client-side Link). */}
+        <a
+          href="/api/auth/google"
+          className="btn btn-full"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: 'white', color: 'var(--text-dark)', border: '1px solid var(--bg-light-border)', fontWeight: 600, padding: '12px' }}
+        >
+          <GoogleIcon /> Continue with Google
+        </a>
 
         <div style={{ borderTop: '1px solid var(--bg-light-border)', marginTop: '30px', paddingTop: '20px', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-dark-muted)', fontSize: '0.75rem', justifyContent: 'center' }}>
           <ShieldCheck size={18} className="text-success" />
@@ -211,4 +89,4 @@ const LoginRegisterPage = () => {
   );
 };
 
-export default LoginRegisterPage;
+export default LoginPage;

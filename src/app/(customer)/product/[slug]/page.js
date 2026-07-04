@@ -147,12 +147,12 @@ const ProductDetailPage = () => {
   const handleAddToCart = () => {
     if (product.stock <= 0) return;
     addToCart(product, getSelectedVariants(), quantity);
-    alert(`${product.name} added to cart!`);
   };
 
   const handleBuyNow = () => {
     if (product.stock <= 0) return;
-    addToCart(product, getSelectedVariants(), quantity);
+    // Skip the toast — we navigate straight to the cart page.
+    addToCart(product, getSelectedVariants(), quantity, { silent: true });
     router.push('/cart');
   };
 

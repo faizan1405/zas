@@ -32,6 +32,24 @@ export async function POST(request) {
       );
     }
 
+    // Credential login is reserved for administrators. Customers sign in with
+    // Google only (see /api/auth/google). Reject non-admin accounts here so the
+    // password path cannot be used as a customer login.
+    if (user.role !== 'admin') {
+      return NextResponse.json(
+        { success: false, error: 'Please sign in with Google.' },
+        { status: 403 }
+      );
+    }
+
+    // Google-provisioned accounts have no password to compare against.
+    if (!user.password) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+
     // Compare password
     const isPasswordMatch = await comparePassword(password, user.password);
     if (!isPasswordMatch) {
