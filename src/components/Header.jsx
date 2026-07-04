@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
@@ -33,7 +33,10 @@ const Header = () => {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   // Cart total quantities
-  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const cartCount = useMemo(
+    () => cart.reduce((total, item) => total + item.quantity, 0),
+    [cart]
+  );
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -47,7 +50,10 @@ const Header = () => {
 
 
 
-  const activeCategories = categories.filter(c => c.isActive);
+  const activeCategories = useMemo(
+    () => categories.filter(c => c.isActive),
+    [categories]
+  );
 
   return (
     <>

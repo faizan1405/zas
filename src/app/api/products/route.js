@@ -1,154 +1,87 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import dbConnect from 'src/lib/mongodb';
 import Product from 'src/models/Product';
 import { verifyAdmin } from 'src/lib/auth';
+import {
+  getPublicProducts,
+  buildProductQuery,
+  buildProductSort,
+  CACHE_TAGS,
+} from 'src/lib/storeData';
 
-// Always run at request time so newly added/updated products appear immediately.
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// Collect the public listing params into a plain, serializable object. Keeping
+// this shape stable is what lets the cached query key correctly.
+function readParams(searchParams) {
+  return {
+    search: searchParams.get('search') || '',
+    category: searchParams.get('category') || '',
+    brand: searchParams.get('brand') || '',
+    size: searchParams.get('size') || '',
+    color: searchParams.get('color') || '',
+    ageGroup: searchParams.get('ageGroup') || '',
+    playingLevel: searchParams.get('playingLevel') || '',
+    ballType: searchParams.get('ballType') || '',
+    woodType: searchParams.get('woodType') || '',
+    handOrientation: searchParams.get('handOrientation') || '',
+    subcategory: searchParams.get('subcategory') || '',
+    minPrice: searchParams.get('minPrice') || '',
+    maxPrice: searchParams.get('maxPrice') || '',
+    minDiscount: searchParams.get('minDiscount') || '',
+    minRating: searchParams.get('minRating') || '',
+    excludeOutOfStock: searchParams.get('excludeOutOfStock') === 'true',
+    isFeatured: searchParams.get('isFeatured') === 'true',
+    isBestSeller: searchParams.get('isBestSeller') === 'true',
+    isNewArrival: searchParams.get('isNewArrival') === 'true',
+    sort: searchParams.get('sort') || 'newest',
+    page: searchParams.get('page') || '1',
+    limit: searchParams.get('limit') || '0',
+  };
+}
 
-// 1. GET: Fetch products with comprehensive dynamic search filters and sorting
+// 1. GET: Fetch products with search filters, sorting and optional pagination.
 export async function GET(request) {
   try {
-    await dbConnect();
     const { searchParams } = new URL(request.url);
+    const params = readParams(searchParams);
 
-    // Build Mongoose Query Filters
-    const query = {};
-    
-    // Customer search vs Admin search (Admin can fetch disabled products as well)
+    // Admin view can see inactive products and always reads fresh (never cached),
+    // returning full documents for the management screens.
     const isAdminView = searchParams.get('adminView') === 'true';
-    if (!isAdminView) {
-      query.isActive = true;
+    if (isAdminView) {
+      await dbConnect();
+      const query = buildProductQuery(params, { includeInactive: true });
+      const sort = buildProductSort(params.sort);
+      const products = await Product.find(query).sort(sort).lean();
+      const json = JSON.parse(JSON.stringify(products));
+      return NextResponse.json({
+        success: true,
+        count: json.length,
+        total: json.length,
+        page: 1,
+        products: json,
+      });
     }
 
-    // Text Search Matcher (Name, brand, description)
-    const search = searchParams.get('search');
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { brand: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    // Direct Category Filter
-    const category = searchParams.get('category');
-    if (category) {
-      query.category = category;
-    }
-
-    // Brand exact (case-insensitive) Matcher
-    const brand = searchParams.get('brand');
-    if (brand) {
-      query.brand = { $regex: new RegExp(`^${brand}$`, 'i') };
-    }
-
-    // Variant Level Filters
-    const size = searchParams.get('size');
-    if (size) {
-      query['variants.sizes'] = size;
-    }
-
-    const color = searchParams.get('color');
-    if (color) {
-      query['variants.colors'] = { $regex: new RegExp(`^${color}$`, 'i') };
-    }
-
-    const ageGroup = searchParams.get('ageGroup');
-    if (ageGroup) {
-      query['variants.ageGroups'] = ageGroup;
-    }
-
-    const playingLevel = searchParams.get('playingLevel');
-    if (playingLevel) {
-      query['variants.playingLevels'] = playingLevel;
-    }
-
-    const ballType = searchParams.get('ballType');
-    if (ballType) {
-      query['variants.ballTypes'] = ballType;
-    }
-
-    const woodType = searchParams.get('woodType');
-    if (woodType) {
-      query['variants.batWoodTypes'] = woodType;
-    }
-
-    const handOrientation = searchParams.get('handOrientation');
-    if (handOrientation) {
-      query['variants.handOrientations'] = handOrientation;
-    }
-
-    const subcategory = searchParams.get('subcategory');
-    if (subcategory) {
-      query.subcategory = subcategory;
-    }
-
-    // Price Bounds
-    const minPrice = Number(searchParams.get('minPrice'));
-    const maxPrice = Number(searchParams.get('maxPrice'));
-    if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) query.price.$gte = minPrice;
-      if (maxPrice) query.price.$lte = maxPrice;
-    }
-
-    // Discount Filter
-    const minDiscount = Number(searchParams.get('minDiscount'));
-    if (minDiscount) {
-      query.discount = { $gte: minDiscount };
-    }
-
-    // Rating Filter
-    const minRating = Number(searchParams.get('minRating'));
-    if (minRating) {
-      query['ratings.average'] = { $gte: minRating };
-    }
-
-    // Stock Exclusion
-    const excludeOutOfStock = searchParams.get('excludeOutOfStock') === 'true';
-    if (excludeOutOfStock) {
-      query.stock = { $gt: 0 };
-    }
-
-    // Featured Flags
-    const isFeatured = searchParams.get('isFeatured');
-    if (isFeatured === 'true') {
-      query.isFeatured = true;
-    }
-    
-    const isBestSeller = searchParams.get('isBestSeller');
-    if (isBestSeller === 'true') {
-      query.isBestSeller = true;
-    }
-
-    const isNewArrival = searchParams.get('isNewArrival');
-    if (isNewArrival === 'true') {
-      query.isNewArrival = true;
-    }
-
-    // Execute sorting
-    const sortParam = searchParams.get('sort');
-    let sortQuery = { createdAt: -1 }; // default newest
-
-    if (sortParam === 'price-asc') sortQuery = { price: 1 };
-    else if (sortParam === 'price-desc') sortQuery = { price: -1 };
-    else if (sortParam === 'rating-desc') sortQuery = { 'ratings.average': -1 };
-    else if (sortParam === 'discount-desc') sortQuery = { discount: -1 };
-
-    const products = await Product.find(query).sort(sortQuery);
+    // Public view: cached, compact card fields, optional pagination.
+    const { products, total, page, limit } = await getPublicProducts(params);
+    const totalPages = limit > 0 ? Math.max(1, Math.ceil(total / limit)) : 1;
 
     return NextResponse.json({
       success: true,
       count: products.length,
-      products
+      total,
+      page,
+      limit,
+      totalPages,
+      hasMore: limit > 0 ? page < totalPages : false,
+      products,
     });
 
   } catch (error) {
     console.error('Products fetch error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: 'Failed to fetch products' },
       { status: 500 }
     );
   }
@@ -202,6 +135,9 @@ export async function POST(request) {
     };
 
     const newProduct = await Product.create(productData);
+
+    // Drop the cached public listings so the new product appears immediately.
+    revalidateTag(CACHE_TAGS.products);
 
     return NextResponse.json({
       success: true,

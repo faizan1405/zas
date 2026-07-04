@@ -9,4 +9,7 @@ const CategorySchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// Public category listing filters on isActive and sorts by displayOrder.
+CategorySchema.index({ isActive: 1, displayOrder: 1 });
+
 export default mongoose.models.Category || mongoose.model('Category', CategorySchema);

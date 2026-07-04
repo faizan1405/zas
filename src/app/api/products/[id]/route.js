@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
+import { revalidateTag } from 'next/cache';
 import dbConnect from 'src/lib/mongodb';
 import Product from 'src/models/Product';
 import { verifyAdmin } from 'src/lib/auth';
+import { CACHE_TAGS } from 'src/lib/storeData';
 
 // Always run at request time so product detail reflects the latest edits.
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// GET: Fetch product by ID or by Slug
+// GET: Fetch product by ID or by Slug (full document — detail page needs everything)
 export async function GET(request, { params }) {
   try {
     await dbConnect();
@@ -17,7 +19,7 @@ export async function GET(request, { params }) {
     const isObjectId = mongoose.Types.ObjectId.isValid(id);
     const query = isObjectId ? { _id: id } : { slug: id };
 
-    const product = await Product.findOne(query);
+    const product = await Product.findOne(query).lean();
     if (!product) {
       return NextResponse.json(
         { success: false, error: 'Product not found' },
@@ -33,7 +35,7 @@ export async function GET(request, { params }) {
   } catch (error) {
     console.error('Product fetch details error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: 'Failed to fetch product' },
       { status: 500 }
     );
   }
@@ -92,6 +94,9 @@ export async function PUT(request, { params }) {
       );
     }
 
+    // Refresh cached public listings so the edit shows up right away.
+    revalidateTag(CACHE_TAGS.products);
+
     return NextResponse.json({
       success: true,
       message: 'Product updated successfully',
@@ -137,6 +142,9 @@ export async function DELETE(request, { params }) {
         { status: 404 }
       );
     }
+
+    // Refresh cached public listings so the deletion is reflected right away.
+    revalidateTag(CACHE_TAGS.products);
 
     return NextResponse.json({
       success: true,

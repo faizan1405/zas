@@ -1,36 +1,37 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import dbConnect from 'src/lib/mongodb';
 import Category from 'src/models/Category';
 import { verifyAdmin } from 'src/lib/auth';
+import { getPublicCategories, CACHE_TAGS } from 'src/lib/storeData';
 
-// Always run at request time so newly added/edited categories appear immediately.
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-// 1. GET: Fetch all active categories sorted by displayOrder
+// 1. GET: Fetch categories sorted by displayOrder
 export async function GET(request) {
   try {
-    await dbConnect();
     const { searchParams } = new URL(request.url);
-
-    // Build query filters
-    const query = {};
     const isAdminView = searchParams.get('adminView') === 'true';
-    if (!isAdminView) {
-      query.isActive = true;
+
+    // Admin view needs inactive categories too and always reads fresh.
+    if (isAdminView) {
+      await dbConnect();
+      const categories = await Category.find({}).sort({ displayOrder: 1 }).lean();
+      return NextResponse.json({
+        success: true,
+        categories: JSON.parse(JSON.stringify(categories)),
+      });
     }
 
-    const categories = await Category.find(query).sort({ displayOrder: 1 });
-
+    // Public: cached active categories, invalidated on admin category mutations.
+    const categories = await getPublicCategories();
     return NextResponse.json({
       success: true,
-      categories
+      categories,
     });
 
   } catch (error) {
     console.error('Categories fetch error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: 'Failed to fetch categories' },
       { status: 500 }
     );
   }
@@ -76,6 +77,8 @@ export async function POST(request) {
       displayOrder: displayOrder || 0,
       isActive: isActive !== undefined ? isActive : true
     });
+
+    revalidateTag(CACHE_TAGS.categories);
 
     return NextResponse.json({
       success: true,

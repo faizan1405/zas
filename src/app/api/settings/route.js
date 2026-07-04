@@ -1,17 +1,21 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import dbConnect from 'src/lib/mongodb';
 import Setting from 'src/models/Setting';
 import { verifyAdmin } from 'src/lib/auth';
+import { getPublicSettings, CACHE_TAGS } from 'src/lib/storeData';
 
-// GET: Fetch store configurations (Open to everyone)
+// GET: Fetch store configurations (Open to everyone) — cached, revalidated on save.
 export async function GET() {
   try {
-    await dbConnect();
-    let settings = await Setting.findOne();
-    
-    // Create default settings if not exists
+    let settings = await getPublicSettings();
+
+    // Create default settings if none exist yet, then refresh the cache.
     if (!settings) {
-      settings = await Setting.create({});
+      await dbConnect();
+      const created = await Setting.create({});
+      settings = JSON.parse(JSON.stringify(created.toObject()));
+      revalidateTag(CACHE_TAGS.settings);
     }
 
     return NextResponse.json({
@@ -22,7 +26,7 @@ export async function GET() {
   } catch (error) {
     console.error('Settings fetch error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: 'Failed to fetch settings' },
       { status: 500 }
     );
   }
@@ -53,6 +57,8 @@ export async function PUT(request) {
         { new: true, runValidators: true }
       );
     }
+
+    revalidateTag(CACHE_TAGS.settings);
 
     return NextResponse.json({
       success: true,

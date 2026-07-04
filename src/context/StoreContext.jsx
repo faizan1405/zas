@@ -1,6 +1,14 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
 import Toast from 'src/components/Toast';
 
 const StoreContext = createContext();
@@ -38,43 +46,22 @@ export function StoreProvider({ children }) {
   const toastTimers = useRef({});
   const toastSeq = useRef(0);
 
-  // 1. Initial mounting checks
-  useEffect(() => {
-    // Read local storage for guest session backups
-    const localCart = localStorage.getItem('zas_cart');
-    if (localCart) {
-      try { setCart(JSON.parse(localCart)); } catch (e) {}
-    }
-    
-    const localWishlist = localStorage.getItem('zas_wishlist');
-    if (localWishlist) {
-      try { setWishlist(JSON.parse(localWishlist)); } catch (e) {}
-    }
+  // Refs mirror the latest cart/wishlist/user so callbacks can read current
+  // values without depending on them — keeping the callback identities stable
+  // so memoized consumers (ProductCard, grids) don't re-render on every change.
+  const cartRef = useRef(cart);
+  const wishlistRef = useRef(wishlist);
+  const userRef = useRef(user);
+  useEffect(() => { cartRef.current = cart; }, [cart]);
+  useEffect(() => { wishlistRef.current = wishlist; }, [wishlist]);
+  useEffect(() => { userRef.current = user; }, [user]);
 
-    const localPincode = localStorage.getItem('zas_pincode');
-    if (localPincode) {
-      setPincode(localPincode);
-      setPincodeStatus('deliverable'); // default mock check
-    }
-
-    // Load store settings, user details, and categories from APIs
-    fetchSettings();
-    fetchCategories();
-    checkCurrentUser();
-  }, []);
-
-  // 2. Local storage syncing for Cart
-  useEffect(() => {
-    localStorage.setItem('zas_cart', JSON.stringify(cart));
-  }, [cart]);
-
-  // 3. Local storage syncing for Wishlist
-  useEffect(() => {
-    localStorage.setItem('zas_wishlist', JSON.stringify(wishlist));
-  }, [wishlist]);
+  // Gates the localStorage-sync effects until after the initial read, so the
+  // empty starting state can't clobber a returning guest's saved cart/wishlist.
+  const hydratedRef = useRef(false);
 
   // Core API fetches
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       const res = await fetch('/api/settings');
       const data = await res.json();
@@ -84,11 +71,11 @@ export function StoreProvider({ children }) {
     } catch (err) {
       console.log('Error fetching store settings:', err);
     }
-  };
+  }, []);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
-      const res = await fetch('/api/categories', { cache: 'no-store' });
+      const res = await fetch('/api/categories');
       const data = await res.json();
       if (data.success && data.categories) {
         setCategories(data.categories.filter(c => c.isActive));
@@ -96,9 +83,9 @@ export function StoreProvider({ children }) {
     } catch (err) {
       console.log('Error fetching categories:', err);
     }
-  };
+  }, []);
 
-  const checkCurrentUser = async () => {
+  const checkCurrentUser = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/me');
       const data = await res.json();
@@ -112,18 +99,58 @@ export function StoreProvider({ children }) {
     } catch (err) {
       console.log('User session not logged in.');
     }
-  };
+  }, []);
+
+  // 1. Initial mounting checks
+  useEffect(() => {
+    // Read local storage for guest session backups
+    const localCart = localStorage.getItem('zas_cart');
+    if (localCart) {
+      try { setCart(JSON.parse(localCart)); } catch (e) {}
+    }
+
+    const localWishlist = localStorage.getItem('zas_wishlist');
+    if (localWishlist) {
+      try { setWishlist(JSON.parse(localWishlist)); } catch (e) {}
+    }
+
+    const localPincode = localStorage.getItem('zas_pincode');
+    if (localPincode) {
+      setPincode(localPincode);
+      setPincodeStatus('deliverable'); // default mock check
+    }
+
+    // Only now is it safe to let the sync effects persist state back.
+    hydratedRef.current = true;
+
+    // Load store settings, user details, and categories from APIs
+    fetchSettings();
+    fetchCategories();
+    checkCurrentUser();
+  }, [fetchSettings, fetchCategories, checkCurrentUser]);
+
+  // 2. Local storage syncing for Cart (skipped until after hydration)
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    localStorage.setItem('zas_cart', JSON.stringify(cart));
+  }, [cart]);
+
+  // 3. Local storage syncing for Wishlist (skipped until after hydration)
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    localStorage.setItem('zas_wishlist', JSON.stringify(wishlist));
+  }, [wishlist]);
 
   // Toast notification helpers ------------------------------------------------
-  const dismissToast = (id) => {
+  const dismissToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
     if (toastTimers.current[id]) {
       clearTimeout(toastTimers.current[id]);
       delete toastTimers.current[id];
     }
-  };
+  }, []);
 
-  const showToast = (toast) => {
+  const showToast = useCallback((toast) => {
     const duration = toast.duration || 3500;
     // A dedupeKey gives a stable id so repeated clicks refresh the same toast
     // instead of stacking a new one each time.
@@ -145,9 +172,9 @@ export function StoreProvider({ children }) {
     // Reset the auto-dismiss timer (covers the refreshed-toast case too).
     if (toastTimers.current[id]) clearTimeout(toastTimers.current[id]);
     toastTimers.current[id] = setTimeout(() => dismissToast(id), duration);
-  };
+  }, [dismissToast]);
 
-  const showCartToast = (product, alreadyInCart) => {
+  const showCartToast = useCallback((product, alreadyInCart) => {
     const image =
       Array.isArray(product.images) && product.images.length > 0
         ? product.images[0]
@@ -164,7 +191,7 @@ export function StoreProvider({ children }) {
       duration: 3500,
       action: { label: 'View Cart', href: '/cart' },
     });
-  };
+  }, [showToast]);
 
   // Clear any pending timers when the provider unmounts.
   useEffect(() => {
@@ -175,7 +202,7 @@ export function StoreProvider({ children }) {
   }, []);
 
   // Cart operations
-  const addToCart = (product, selectedVariant = {}, quantity = 1, options = {}) => {
+  const addToCart = useCallback((product, selectedVariant = {}, quantity = 1, options = {}) => {
     const { silent = false } = options;
     try {
       if (!product || !product._id) {
@@ -191,7 +218,8 @@ export function StoreProvider({ children }) {
       }
 
       // Was this exact product + variant already in the cart? (drives the message)
-      const alreadyInCart = cart.some(
+      // Read from the ref so this callback stays stable across cart changes.
+      const alreadyInCart = cartRef.current.some(
         (item) =>
           item.product._id === product._id &&
           JSON.stringify(item.selectedVariant) === JSON.stringify(selectedVariant)
@@ -231,19 +259,19 @@ export function StoreProvider({ children }) {
       }
       return { success: false, alreadyInCart: false };
     }
-  };
+  }, [showToast, showCartToast]);
 
-  const removeFromCart = (productId, selectedVariant = {}) => {
-    setCart((prevCart) => 
+  const removeFromCart = useCallback((productId, selectedVariant = {}) => {
+    setCart((prevCart) =>
       prevCart.filter(
-        (item) => 
-          !(item.product._id === productId && 
+        (item) =>
+          !(item.product._id === productId &&
             JSON.stringify(item.selectedVariant) === JSON.stringify(selectedVariant))
       )
     );
-  };
+  }, []);
 
-  const updateCartQty = (productId, selectedVariant = {}, qty) => {
+  const updateCartQty = useCallback((productId, selectedVariant = {}, qty) => {
     if (qty <= 0) {
       removeFromCart(productId, selectedVariant);
       return;
@@ -251,7 +279,7 @@ export function StoreProvider({ children }) {
     setCart((prevCart) => {
       return prevCart.map((item) => {
         if (
-          item.product._id === productId && 
+          item.product._id === productId &&
           JSON.stringify(item.selectedVariant) === JSON.stringify(selectedVariant)
         ) {
           return { ...item, quantity: qty };
@@ -259,25 +287,24 @@ export function StoreProvider({ children }) {
         return item;
       });
     });
-  };
+  }, [removeFromCart]);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+  }, []);
 
   // Wishlist operations
-  const toggleWishlist = async (productId) => {
-    // If not logged in, just toggle in local state
-    let updatedWishlist = [];
-    if (wishlist.includes(productId)) {
-      updatedWishlist = wishlist.filter(id => id !== productId);
-    } else {
-      updatedWishlist = [...wishlist, productId];
-    }
-    setWishlist(updatedWishlist);
+  const toggleWishlist = useCallback(async (productId) => {
+    // Toggle in local state using the functional updater + latest ref value.
+    const currentlyWishlisted = wishlistRef.current.includes(productId);
+    setWishlist((prev) =>
+      currentlyWishlisted
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
 
     // If logged in, update remote database
-    if (user) {
+    if (userRef.current) {
       try {
         await fetch('/api/wishlist', {
           method: 'POST',
@@ -288,37 +315,37 @@ export function StoreProvider({ children }) {
         console.log('Error syncing wishlist to DB:', err);
       }
     }
-  };
+  }, []);
 
   // Pincode validation helper (Decathlon style checker)
-  const verifyPincode = async (code) => {
+  const verifyPincode = useCallback(async (code) => {
     if (!code || !/^[1-9][0-9]{5}$/.test(code)) {
       setPincodeStatus('undeliverable');
       return false;
     }
-    
+
     // Delivery to all over India is enabled for any valid 6-digit pincode
     setPincode(code);
     localStorage.setItem('zas_pincode', code);
     setPincodeStatus('deliverable');
     return true;
-  };
+  }, []);
 
-  const clearPincode = () => {
+  const clearPincode = useCallback(() => {
     setPincode('');
     setPincodeStatus(null);
     localStorage.removeItem('zas_pincode');
-  };
+  }, []);
 
   // Authentication controllers
-  const loginUser = (userData) => {
+  const loginUser = useCallback((userData) => {
     setUser(userData);
     if (userData.wishlist) {
       setWishlist(userData.wishlist);
     }
-  };
+  }, []);
 
-  const logoutUser = async () => {
+  const logoutUser = useCallback(async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       setUser(null);
@@ -327,32 +354,57 @@ export function StoreProvider({ children }) {
     } catch (err) {
       console.log('Error logging out:', err);
     }
-  };
+  }, []);
+
+  // Single memoized context value — only changes when actual state changes, not
+  // on every provider render, and all callbacks above are stable references.
+  const value = useMemo(() => ({
+    user,
+    cart,
+    wishlist,
+    categories,
+    settings,
+    pincode,
+    pincodeStatus,
+    searchQuery,
+    setSearchQuery,
+    addToCart,
+    removeFromCart,
+    updateCartQty,
+    clearCart,
+    toggleWishlist,
+    verifyPincode,
+    clearPincode,
+    loginUser,
+    logoutUser,
+    refreshUser: checkCurrentUser,
+    showToast,
+    dismissToast,
+  }), [
+    user,
+    cart,
+    wishlist,
+    categories,
+    settings,
+    pincode,
+    pincodeStatus,
+    searchQuery,
+    addToCart,
+    removeFromCart,
+    updateCartQty,
+    clearCart,
+    toggleWishlist,
+    verifyPincode,
+    clearPincode,
+    loginUser,
+    logoutUser,
+    checkCurrentUser,
+    showToast,
+    dismissToast,
+  ]);
 
   return (
-    <StoreContext.Provider value={{
-      user,
-      cart,
-      wishlist,
-      categories,
-      settings,
-      pincode,
-      pincodeStatus,
-      searchQuery,
-      setSearchQuery,
-      addToCart,
-      removeFromCart,
-      updateCartQty,
-      clearCart,
-      toggleWishlist,
-      verifyPincode,
-      clearPincode,
-      loginUser,
-      logoutUser,
-      refreshUser: checkCurrentUser,
-      showToast,
-      dismissToast
-    }}>
+    <StoreContext.Provider value={value}>
       {children}
       <Toast toasts={toasts} onDismiss={dismissToast} />
     </StoreContext.Provider>

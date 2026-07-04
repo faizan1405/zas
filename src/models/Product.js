@@ -34,4 +34,17 @@ const ProductSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// Indexes matching the public listing filters + sort options. The public query
+// always constrains isActive, so each index leads with it and covers one common
+// sort/filter dimension (category, price, rating, discount, newest, and the
+// marketing flags). slug + sku already have unique indexes from the schema.
+ProductSchema.index({ isActive: 1, category: 1, createdAt: -1 });
+ProductSchema.index({ isActive: 1, subcategory: 1 });
+ProductSchema.index({ isActive: 1, price: 1 });
+ProductSchema.index({ isActive: 1, 'ratings.average': -1 });
+ProductSchema.index({ isActive: 1, discount: -1 });
+ProductSchema.index({ isActive: 1, isFeatured: 1 });
+ProductSchema.index({ isActive: 1, isBestSeller: 1 });
+ProductSchema.index({ isActive: 1, isNewArrival: 1 });
+
 export default mongoose.models.Product || mongoose.model('Product', ProductSchema);

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminSidebar from 'src/components/AdminSidebar';
 import { useStore } from 'src/context/StoreContext';
+import 'src/styles/admin.css';
 
 export default function AdminLayout({ children }) {
   const router = useRouter();

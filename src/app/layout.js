@@ -1,8 +1,9 @@
 import { StoreProvider } from 'src/context/StoreContext';
+// Only truly shared CSS lives in the root layout. Customer- and admin-specific
+// stylesheets are loaded from their respective group layouts so customer pages
+// no longer ship the admin CSS (and vice versa).
 import '../styles/global.css';
 import '../styles/components.css';
-import '../styles/customer.css';
-import '../styles/admin.css';
 
 export const metadata = {
   title: 'Zassports - Premium Cricket Gear E-Commerce',

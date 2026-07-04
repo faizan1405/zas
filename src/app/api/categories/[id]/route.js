@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
+import { revalidateTag } from 'next/cache';
 import dbConnect from 'src/lib/mongodb';
 import Category from 'src/models/Category';
 import { verifyAdmin } from 'src/lib/auth';
+import { CACHE_TAGS } from 'src/lib/storeData';
 
 // PUT: Update category details (Protected: Admin Only)
 export async function PUT(request, { params }) {
@@ -44,6 +46,8 @@ export async function PUT(request, { params }) {
         { status: 404 }
       );
     }
+
+    revalidateTag(CACHE_TAGS.categories);
 
     return NextResponse.json({
       success: true,
@@ -90,6 +94,8 @@ export async function DELETE(request, { params }) {
         { status: 404 }
       );
     }
+
+    revalidateTag(CACHE_TAGS.categories);
 
     return NextResponse.json({
       success: true,

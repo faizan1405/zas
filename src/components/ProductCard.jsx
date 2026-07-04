@@ -1,10 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Star, Heart, ShoppingBag } from 'lucide-react';
 import InlineSVG from './InlineSVG';
 import { formatINR } from 'src/lib/currency';
 
-const ProductCard = ({ 
+const ProductCard = ({
   product, 
   isWishlisted = false, 
   onWishlistToggle = () => {}, 
@@ -74,9 +75,16 @@ const ProductCard = ({
             <Heart size={18} fill={isWishlisted ? '#EF4444' : 'transparent'} stroke={isWishlisted ? '#EF4444' : 'currentColor'} />
           </button>
 
-          {/* Product Image */}
+          {/* Product Image — fill the fixed-aspect wrapper so there's no layout
+              shift; sizes matches the 2/3/4-up responsive grids. */}
           {hasImage ? (
-            <img src={images[0]} alt={name} className="product-image" loading="lazy" />
+            <Image
+              src={images[0]}
+              alt={name}
+              className="product-image"
+              fill
+              sizes="(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            />
           ) : (
             <InlineSVG type={category} className="product-image" />
           )}
@@ -126,4 +134,6 @@ const ProductCard = ({
   );
 };
 
-export default ProductCard;
+// Memoized: with stable callback props from the store, cards in a grid don't
+// re-render when unrelated state (cart count, search input, etc.) changes.
+export default React.memo(ProductCard);

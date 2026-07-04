@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SlidersHorizontal, X, RotateCcw } from 'lucide-react';
 import { useStore } from 'src/context/StoreContext';
 import ProductCard from 'src/components/ProductCard';
+
+const PAGE_SIZE = 24;
 
 const ShopContent = () => {
   const router = useRouter();
@@ -14,8 +16,18 @@ const ShopContent = () => {
 
   // State
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loading, setLoading] = useState(true);        // first load / filter change
+  const [loadingMore, setLoadingMore] = useState(false); // "Load more" append
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  // Abort the in-flight request when filters change quickly, and ignore any
+  // response that arrives out of order so an older result can't overwrite a
+  // newer one.
+  const abortRef = useRef(null);
+  const reqIdRef = useRef(0);
 
   // Price input state
   const [minPriceInput, setMinPriceInput] = useState('');
@@ -40,61 +52,86 @@ const ShopContent = () => {
   const sortParam = searchParams.get('sort') || 'newest';
   const outOfStockParam = searchParams.get('excludeOutOfStock') === 'true';
 
-  // Fetch filtered products
+  // Build the API URL for a given page from the current filter params.
+  const buildUrl = useCallback((pageNum) => {
+    let url = `/api/products?limit=${PAGE_SIZE}&page=${pageNum}&sort=${sortParam}`;
+    if (categoryParam) url += `&category=${categoryParam}`;
+    if (subcategoryParam) url += `&subcategory=${subcategoryParam}`;
+    if (searchParam) url += `&search=${encodeURIComponent(searchParam)}`;
+    if (brandParam) url += `&brand=${brandParam}`;
+    if (sizeParam) url += `&size=${sizeParam}`;
+    if (ageGroupParam) url += `&ageGroup=${ageGroupParam}`;
+    if (levelParam) url += `&playingLevel=${levelParam}`;
+    if (ballParam) url += `&ballType=${ballParam}`;
+    if (woodParam) url += `&woodType=${woodParam}`;
+    if (handParam) url += `&handOrientation=${handParam}`;
+    if (colorParam) url += `&color=${colorParam}`;
+    if (minPriceParam) url += `&minPrice=${minPriceParam}`;
+    if (maxPriceParam) url += `&maxPrice=${maxPriceParam}`;
+    if (discountParam) url += `&minDiscount=${discountParam}`;
+    if (ratingParam) url += `&minRating=${ratingParam}`;
+    if (outOfStockParam) url += `&excludeOutOfStock=true`;
+    return url;
+  }, [
+    sortParam, categoryParam, subcategoryParam, searchParam, brandParam,
+    sizeParam, ageGroupParam, levelParam, ballParam, woodParam, handParam,
+    colorParam, minPriceParam, maxPriceParam, discountParam, ratingParam,
+    outOfStockParam,
+  ]);
+
+  // Fetch page 1 whenever the filter/sort signature changes. Previous results
+  // stay on screen (a lightweight "refreshing" state) instead of blanking the
+  // whole page; only the very first load shows the full skeleton.
   useEffect(() => {
-    const fetchFilteredProducts = async () => {
+    const reqId = ++reqIdRef.current;
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    setLoading(true);
+    (async () => {
       try {
-        setLoading(true);
-        let url = `/api/products?sort=${sortParam}`;
-        if (categoryParam) url += `&category=${categoryParam}`;
-        if (subcategoryParam) url += `&subcategory=${subcategoryParam}`;
-        if (searchParam) url += `&search=${encodeURIComponent(searchParam)}`;
-        if (brandParam) url += `&brand=${brandParam}`;
-        if (sizeParam) url += `&size=${sizeParam}`;
-        if (ageGroupParam) url += `&ageGroup=${ageGroupParam}`;
-        if (levelParam) url += `&playingLevel=${levelParam}`;
-        if (ballParam) url += `&ballType=${ballParam}`;
-        if (woodParam) url += `&woodType=${woodParam}`;
-        if (handParam) url += `&handOrientation=${handParam}`;
-        if (colorParam) url += `&color=${colorParam}`;
-        if (minPriceParam) url += `&minPrice=${minPriceParam}`;
-        if (maxPriceParam) url += `&maxPrice=${maxPriceParam}`;
-        if (discountParam) url += `&minDiscount=${discountParam}`;
-        if (ratingParam) url += `&minRating=${ratingParam}`;
-        if (outOfStockParam) url += `&excludeOutOfStock=true`;
-
-        const res = await fetch(url, { cache: 'no-store' });
+        const res = await fetch(buildUrl(1), { signal: controller.signal });
         const data = await res.json();
-
+        if (reqId !== reqIdRef.current) return; // a newer request superseded this one
         if (data.success) {
           setProducts(data.products);
+          setTotal(data.total ?? data.products.length);
+          setPage(1);
+          setHasMore(Boolean(data.hasMore));
         }
         setLoading(false);
       } catch (err) {
+        if (err.name === 'AbortError') return;
         console.error('Error fetching filtered products:', err);
         setLoading(false);
       }
-    };
-    fetchFilteredProducts();
-  }, [
-    categoryParam,
-    subcategoryParam,
-    searchParam,
-    brandParam,
-    sizeParam,
-    ageGroupParam,
-    levelParam,
-    ballParam,
-    woodParam,
-    handParam,
-    colorParam,
-    minPriceParam,
-    maxPriceParam,
-    discountParam,
-    ratingParam,
-    sortParam,
-    outOfStockParam
-  ]);
+    })();
+
+    return () => controller.abort();
+  }, [buildUrl]);
+
+  // Append the next page of results ("Load more").
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    const nextPage = page + 1;
+    const reqId = reqIdRef.current; // tie to the current filter generation
+    setLoadingMore(true);
+    try {
+      const res = await fetch(buildUrl(nextPage));
+      const data = await res.json();
+      if (reqId !== reqIdRef.current) return; // filters changed mid-flight
+      if (data.success) {
+        setProducts((prev) => [...prev, ...data.products]);
+        setPage(nextPage);
+        setHasMore(Boolean(data.hasMore));
+      }
+    } catch (err) {
+      console.error('Error loading more products:', err);
+    } finally {
+      if (reqId === reqIdRef.current) setLoadingMore(false);
+    }
+  }, [loadingMore, hasMore, page, buildUrl]);
 
   useEffect(() => {
     setMinPriceInput(minPriceParam);
@@ -455,7 +492,7 @@ const ShopContent = () => {
           <SlidersHorizontal size={14} /> Filter & Sort
         </button>
         <span className="product-count">
-          Showing <span>{products.length}</span> Products
+          Showing <span>{total}</span> Products
         </span>
       </div>
 
@@ -470,7 +507,7 @@ const ShopContent = () => {
           {/* Top Sorting Header */}
           <div className="shop-sorting-row" style={{ display: showMobileFilters ? 'none' : 'flex' }}>
             <span className="product-count" style={{ display: 'block' }}>
-              We found <span>{products.length}</span> items matching your selection
+              We found <span>{total}</span> items matching your selection
             </span>
             <div className="sort-select-box">
               <span>Sort By:</span>
@@ -509,10 +546,20 @@ const ShopContent = () => {
           </div>
 
           {/* Product Grid */}
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '80px 0' }}>
-              <div style={{ display: 'inline-block', width: '32px', height: '32px', border: '3px solid var(--bg-light-border)', borderTopColor: 'var(--text-dark)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              <p style={{ marginTop: '10px', color: 'var(--text-dark-muted)' }}>Refreshing stock catalog...</p>
+          {loading && products.length === 0 ? (
+            // First load: skeleton grid that reserves the card dimensions so
+            // there's no layout shift when products arrive.
+            <div className="grid grid-3">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} className="product-card" aria-hidden="true">
+                  <div className="product-image-wrapper" style={{ backgroundColor: 'var(--bg-light-border)' }} />
+                  <div className="product-info">
+                    <div style={{ height: '12px', width: '40%', background: 'var(--bg-light-border)', borderRadius: '4px', marginBottom: '10px' }} />
+                    <div style={{ height: '16px', width: '80%', background: 'var(--bg-light-border)', borderRadius: '4px', marginBottom: '10px' }} />
+                    <div style={{ height: '14px', width: '50%', background: 'var(--bg-light-border)', borderRadius: '4px' }} />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : products.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '80px 20px', backgroundColor: 'white', border: '1px solid var(--bg-light-border)', borderRadius: 'var(--border-radius-md)' }}>
@@ -522,17 +569,37 @@ const ShopContent = () => {
               <button type="button" className="btn btn-primary btn-sm" style={{ marginTop: '20px' }} onClick={clearAllFilters}>Reset Filters</button>
             </div>
           ) : (
-            <div className="grid grid-3 animate-fade">
-              {products.map((product) => (
-                <ProductCard 
-                  key={product._id} 
-                  product={product} 
-                  isWishlisted={wishlist.includes(product._id)}
-                  onWishlistToggle={toggleWishlist}
-                  onAddToCart={addToCart}
-                />
-              ))}
-            </div>
+            <>
+              {/* Keep the current results visible while the next filter loads;
+                  a subtle dim signals the refresh instead of blanking the page. */}
+              <div
+                className="grid grid-3 animate-fade"
+                style={{ opacity: loading ? 0.55 : 1, transition: 'opacity 0.2s ease', pointerEvents: loading ? 'none' : 'auto' }}
+              >
+                {products.map((product) => (
+                  <ProductCard
+                    key={product._id}
+                    product={product}
+                    isWishlisted={wishlist.includes(product._id)}
+                    onWishlistToggle={toggleWishlist}
+                    onAddToCart={addToCart}
+                  />
+                ))}
+              </div>
+
+              {hasMore && (
+                <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                  >
+                    {loadingMore ? 'Loading…' : 'Load More Products'}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>
