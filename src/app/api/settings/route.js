@@ -15,7 +15,7 @@ export async function GET() {
       await dbConnect();
       const created = await Setting.create({});
       settings = JSON.parse(JSON.stringify(created.toObject()));
-      revalidateTag(CACHE_TAGS.settings);
+      revalidateTag(CACHE_TAGS.settings, { expire: 0 });
     }
 
     return NextResponse.json({
@@ -58,7 +58,7 @@ export async function PUT(request) {
       );
     }
 
-    revalidateTag(CACHE_TAGS.settings);
+    revalidateTag(CACHE_TAGS.settings, { expire: 0 });
 
     return NextResponse.json({
       success: true,

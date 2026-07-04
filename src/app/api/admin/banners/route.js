@@ -11,7 +11,15 @@ export async function GET(request) {
 
     const query = {};
     const isAdminView = searchParams.get('adminView') === 'true';
-    if (!isAdminView) {
+    if (isAdminView) {
+      // Inactive banners are admin-only — require a verified admin token.
+      if (!verifyAdmin(request)) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized. Admin access required' },
+          { status: 401 }
+        );
+      }
+    } else {
       query.isActive = true;
     }
 

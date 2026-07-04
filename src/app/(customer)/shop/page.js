@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SlidersHorizontal, X, RotateCcw } from 'lucide-react';
-import { useStore } from 'src/context/StoreContext';
+import { useCommerce, useConfig } from 'src/context/StoreContext';
 import ProductCard from 'src/components/ProductCard';
 
 const PAGE_SIZE = 24;
@@ -12,7 +12,8 @@ const PAGE_SIZE = 24;
 const ShopContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { cart, wishlist, toggleWishlist, addToCart, categories } = useStore();
+  const { wishlist, toggleWishlist, addToCart } = useCommerce();
+  const { categories } = useConfig();
 
   // State
   const [products, setProducts] = useState([]);

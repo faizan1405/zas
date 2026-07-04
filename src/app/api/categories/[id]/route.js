@@ -47,7 +47,7 @@ export async function PUT(request, { params }) {
       );
     }
 
-    revalidateTag(CACHE_TAGS.categories);
+    revalidateTag(CACHE_TAGS.categories, { expire: 0 });
 
     return NextResponse.json({
       success: true,
@@ -95,7 +95,7 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    revalidateTag(CACHE_TAGS.categories);
+    revalidateTag(CACHE_TAGS.categories, { expire: 0 });
 
     return NextResponse.json({
       success: true,

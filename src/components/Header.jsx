@@ -13,19 +13,16 @@ import {
   ChevronDown,
   Menu
 } from 'lucide-react';
-import { useStore } from 'src/context/StoreContext';
+import { useAuth, useCommerce, useConfig, useSearch } from 'src/context/StoreContext';
 
 const Header = () => {
   const router = useRouter();
-  const { 
-    user, 
-    cart, 
-    wishlist, 
-    logoutUser,
-    searchQuery,
-    setSearchQuery,
-    categories
-  } = useStore();
+  // Subscribe narrowly: only the search context re-renders the header on every
+  // keystroke; cart/wishlist/auth/categories update it only when they change.
+  const { user, logoutUser } = useAuth();
+  const { cart, wishlist } = useCommerce();
+  const { categories } = useConfig();
+  const { searchQuery, setSearchQuery } = useSearch();
 
 
   const [showUserDropdown, setShowUserDropdown] = useState(false);

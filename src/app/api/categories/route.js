@@ -11,8 +11,15 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const isAdminView = searchParams.get('adminView') === 'true';
 
-    // Admin view needs inactive categories too and always reads fresh.
+    // Admin view needs inactive categories too — gate it behind a verified admin
+    // token so ?adminView=true can't leak inactive documents to the public.
     if (isAdminView) {
+      if (!verifyAdmin(request)) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized. Admin access required' },
+          { status: 401 }
+        );
+      }
       await dbConnect();
       const categories = await Category.find({}).sort({ displayOrder: 1 }).lean();
       return NextResponse.json({
@@ -78,7 +85,7 @@ export async function POST(request) {
       isActive: isActive !== undefined ? isActive : true
     });
 
-    revalidateTag(CACHE_TAGS.categories);
+    revalidateTag(CACHE_TAGS.categories, { expire: 0 });
 
     return NextResponse.json({
       success: true,

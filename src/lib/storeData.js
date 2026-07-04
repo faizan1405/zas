@@ -17,6 +17,31 @@ export const CACHE_TAGS = {
 export const PRODUCT_CARD_FIELDS =
   'name brand slug price mrp discount stock ratings category subcategory images isBestSeller isNewArrival isFeatured createdAt';
 
+// Same field set as an aggregation $project stage (for the homepage sections query).
+const PRODUCT_CARD_PROJECTION = {
+  name: 1, brand: 1, slug: 1, price: 1, mrp: 1, discount: 1, stock: 1,
+  ratings: 1, category: 1, subcategory: 1, images: 1,
+  isBestSeller: 1, isNewArrival: 1, isFeatured: 1, createdAt: 1,
+};
+
+// Hard cap on how many products a single public paginated request may return.
+export const MAX_PUBLIC_LIMIT = 48;
+// Number of products shown per homepage marketing grid / category row.
+const HOME_SECTION_SIZE = 4;
+
+// Normalize/clamp untrusted pagination input. page -> integer >= 1 (default 1);
+// limit -> 0 means "no pagination" (legacy full list), otherwise an integer
+// clamped to [1, MAX_PUBLIC_LIMIT]. Negative / non-numeric values fall back safely.
+export function normalizePagination(rawPage, rawLimit) {
+  const p = Number(rawPage);
+  const page = Number.isFinite(p) && p >= 1 ? Math.floor(p) : 1;
+
+  const l = Number(rawLimit);
+  const limit = Number.isFinite(l) && l > 0 ? Math.min(MAX_PUBLIC_LIMIT, Math.floor(l)) : 0;
+
+  return { page, limit };
+}
+
 // Escape user-provided text before using it inside a RegExp so a value like
 // "a.*b" or "(" can't blow up or alter the query.
 export function escapeRegex(str) {
@@ -83,8 +108,7 @@ export const getPublicProducts = unstable_cache(
     await dbConnect();
     const query = buildProductQuery(params);
     const sort = buildProductSort(params.sort);
-    const page = Math.max(1, Number(params.page) || 1);
-    const limit = Math.max(0, Number(params.limit) || 0);
+    const { page, limit } = normalizePagination(params.page, params.limit);
 
     let cursor = Product.find(query).select(PRODUCT_CARD_FIELDS).sort(sort).lean();
     let total;
@@ -103,11 +127,57 @@ export const getPublicProducts = unstable_cache(
   { tags: [CACHE_TAGS.products], revalidate: 60 }
 );
 
-// Convenience for server components that need the full active catalog (homepage).
+// Convenience for server components that need the full active catalog.
 export async function getHomeProducts() {
   const { products } = await getPublicProducts({});
   return products;
 }
+
+// Prepare ONLY the products the homepage actually renders — up to 4 per marketing
+// grid and up to 4 per active category row — instead of shipping the whole
+// catalogue to the browser. A handful of bounded parallel queries + one grouping
+// aggregation keep this cheap; cached and invalidated on product/category changes.
+export const getHomeSections = unstable_cache(
+  async () => {
+    await dbConnect();
+
+    const [bestSellers, newArrivals, popularProducts, grouped, categories] =
+      await Promise.all([
+        Product.find({ isActive: true, isBestSeller: true })
+          .select(PRODUCT_CARD_FIELDS).sort({ createdAt: -1 }).limit(HOME_SECTION_SIZE).lean(),
+        Product.find({ isActive: true, isNewArrival: true })
+          .select(PRODUCT_CARD_FIELDS).sort({ createdAt: -1 }).limit(HOME_SECTION_SIZE).lean(),
+        Product.find({ isActive: true, 'ratings.average': { $gte: 4.5 } })
+          .select(PRODUCT_CARD_FIELDS).sort({ createdAt: -1 }).limit(HOME_SECTION_SIZE).lean(),
+        // Newest 4 active products per category, in one pass.
+        Product.aggregate([
+          { $match: { isActive: true } },
+          { $sort: { createdAt: -1 } },
+          { $project: PRODUCT_CARD_PROJECTION },
+          { $group: { _id: '$category', products: { $push: '$$ROOT' } } },
+          { $project: { products: { $slice: ['$products', HOME_SECTION_SIZE] } } },
+        ]),
+        Category.find({ isActive: true }).sort({ displayOrder: 1 }).lean(),
+      ]);
+
+    // Map category slug -> its (already bounded) products.
+    const byCategory = new Map(grouped.map((g) => [g._id, g.products]));
+
+    // Build rows in displayOrder, keeping only categories that actually have products.
+    const categoryRows = [];
+    for (const cat of categories) {
+      const products = byCategory.get(cat.slug);
+      if (products && products.length > 0) {
+        categoryRows.push({ _id: cat._id, name: cat.name, slug: cat.slug, products });
+      }
+    }
+
+    const sections = { popularProducts, newArrivals, bestSellers, categoryRows };
+    return JSON.parse(JSON.stringify(sections));
+  },
+  ['home-sections-v1'],
+  { tags: [CACHE_TAGS.products, CACHE_TAGS.categories], revalidate: 60 }
+);
 
 // Cached active categories, ordered by displayOrder.
 export const getPublicCategories = unstable_cache(

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ChevronLeft,
@@ -12,15 +12,22 @@ import {
   ArrowRight,
   MessagesSquare
 } from 'lucide-react';
-import { useStore } from 'src/context/StoreContext';
+import { useCommerce } from 'src/context/StoreContext';
 import ProductCard from 'src/components/ProductCard';
 
-// Interactive homepage shell. Product data + categories are fetched on the
-// server and passed in as props, so there's no client-side no-store fetch and
-// no hydration-wait spinner. Only genuinely interactive pieces (banner carousel,
-// wishlist/add-to-cart via context) live here.
-const HomeClient = ({ products = [], categories = [] }) => {
-  const { wishlist, toggleWishlist, addToCart } = useStore();
+// Interactive homepage shell. The server prepares ONLY the products actually
+// shown (up to 4 per grid / category row) and passes them in as `sections`, plus
+// the active `categories` for the icon grid and collection banners — so the
+// browser never receives the full catalogue. Only genuinely interactive pieces
+// (banner carousel, wishlist/add-to-cart via context) live here.
+const HomeClient = ({ sections = {}, categories = [] }) => {
+  const {
+    popularProducts = [],
+    newArrivals = [],
+    bestSellers = [],
+    categoryRows = [],
+  } = sections;
+  const { wishlist, toggleWishlist, addToCart } = useCommerce();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Hard-locked cricket banners
@@ -38,20 +45,6 @@ const HomeClient = ({ products = [], categories = [] }) => {
       link: '/shop?category=cricket-balls'
     }
   ];
-
-  // Curated marketing grids, derived from the server-provided catalog.
-  const bestSellers = useMemo(
-    () => products.filter(p => p.isBestSeller).slice(0, 4),
-    [products]
-  );
-  const newArrivals = useMemo(
-    () => products.filter(p => p.isNewArrival).slice(0, 4),
-    [products]
-  );
-  const popularProducts = useMemo(
-    () => products.filter(p => p.ratings?.average >= 4.5).slice(0, 4),
-    [products]
-  );
 
   // Slide controls
   const nextSlide = () => {
@@ -222,35 +215,30 @@ const HomeClient = ({ products = [], categories = [] }) => {
         </section>
       )}
 
-      {/* 6b. SHOP BY CATEGORY — dynamic rows built from active admin categories.
-           Every active product (including newly added ones) appears under its own
-           category row, matched by category slug. No hardcoded category slugs, no
-           dependence on marketing flags. */}
-      {categories.map((cat) => {
-        const catProducts = products
-          .filter((p) => p.category === cat.slug)
-          .slice(0, 4);
-        if (catProducts.length === 0) return null;
-        return (
-          <section key={cat._id} style={{ marginBottom: '60px' }}>
-            <div className="section-header">
-              <h2>{cat.name}</h2>
-              <Link href={`/shop?category=${cat.slug}`} className="guide-link">View All <ArrowRight size={14} /></Link>
-            </div>
-            <div className="grid grid-4">
-              {catProducts.map((product) => (
-                <ProductCard
-                  key={product._id}
-                  product={product}
-                  isWishlisted={wishlist.includes(product._id)}
-                  onWishlistToggle={toggleWishlist}
-                  onAddToCart={addToCart}
-                />
-              ))}
-            </div>
-          </section>
-        );
-      })}
+      {/* 6b. SHOP BY CATEGORY — dynamic rows prepared on the server, one per
+           active category that has products (in displayOrder). Every active
+           product (including newly added ones) surfaces under its category row,
+           matched by category slug — no hardcoded slugs, no marketing-flag
+           dependence. */}
+      {categoryRows.map((cat) => (
+        <section key={cat._id} style={{ marginBottom: '60px' }}>
+          <div className="section-header">
+            <h2>{cat.name}</h2>
+            <Link href={`/shop?category=${cat.slug}`} className="guide-link">View All <ArrowRight size={14} /></Link>
+          </div>
+          <div className="grid grid-4">
+            {cat.products.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                isWishlisted={wishlist.includes(product._id)}
+                onWishlistToggle={toggleWishlist}
+                onAddToCart={addToCart}
+              />
+            ))}
+          </div>
+        </section>
+      ))}
 
       {/* 7. OUR CRICKET COLLECTIONS */}
       <section style={{ marginBottom: '60px' }}>

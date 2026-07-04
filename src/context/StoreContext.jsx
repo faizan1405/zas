@@ -11,7 +11,14 @@ import React, {
 } from 'react';
 import Toast from 'src/components/Toast';
 
-const StoreContext = createContext();
+// Split into focused contexts so a change in one area only re-renders the
+// components that actually subscribe to it. In particular, search state lives in
+// its own context so typing in the header no longer notifies cart, wishlist,
+// settings or product-grid consumers.
+const AuthContext = createContext();      // user + auth operations
+const ConfigContext = createContext();    // categories, settings, pincode
+const CommerceContext = createContext();  // cart + wishlist operations, toasts
+const SearchContext = createContext();    // search query only
 
 export function StoreProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -56,9 +63,11 @@ export function StoreProvider({ children }) {
   useEffect(() => { wishlistRef.current = wishlist; }, [wishlist]);
   useEffect(() => { userRef.current = user; }, [user]);
 
-  // Gates the localStorage-sync effects until after the initial read, so the
-  // empty starting state can't clobber a returning guest's saved cart/wishlist.
-  const hydratedRef = useRef(false);
+  // Hydration is tracked as STATE (not a ref) so flipping it triggers a later
+  // render in which the persistence effects run for the first time. Until then
+  // they bail out, so the empty initial state can never overwrite a returning
+  // guest's saved cart/wishlist.
+  const [hydrated, setHydrated] = useState(false);
 
   // Core API fetches
   const fetchSettings = useCallback(async () => {
@@ -101,9 +110,10 @@ export function StoreProvider({ children }) {
     }
   }, []);
 
-  // 1. Initial mounting checks
+  // 1. Initial mounting checks: read localStorage first, then mark hydration
+  //    complete via a state update.
   useEffect(() => {
-    // Read local storage for guest session backups
+    // Read local storage for guest session backups (parse defensively)
     const localCart = localStorage.getItem('zas_cart');
     if (localCart) {
       try { setCart(JSON.parse(localCart)); } catch (e) {}
@@ -120,8 +130,9 @@ export function StoreProvider({ children }) {
       setPincodeStatus('deliverable'); // default mock check
     }
 
-    // Only now is it safe to let the sync effects persist state back.
-    hydratedRef.current = true;
+    // Marks storage hydration complete — schedules a render in which the
+    // persistence effects below are allowed to run.
+    setHydrated(true);
 
     // Load store settings, user details, and categories from APIs
     fetchSettings();
@@ -129,17 +140,17 @@ export function StoreProvider({ children }) {
     checkCurrentUser();
   }, [fetchSettings, fetchCategories, checkCurrentUser]);
 
-  // 2. Local storage syncing for Cart (skipped until after hydration)
+  // 2. Local storage syncing for Cart (only after hydration completes)
   useEffect(() => {
-    if (!hydratedRef.current) return;
+    if (!hydrated) return;
     localStorage.setItem('zas_cart', JSON.stringify(cart));
-  }, [cart]);
+  }, [cart, hydrated]);
 
-  // 3. Local storage syncing for Wishlist (skipped until after hydration)
+  // 3. Local storage syncing for Wishlist (only after hydration completes)
   useEffect(() => {
-    if (!hydratedRef.current) return;
+    if (!hydrated) return;
     localStorage.setItem('zas_wishlist', JSON.stringify(wishlist));
-  }, [wishlist]);
+  }, [wishlist, hydrated]);
 
   // Toast notification helpers ------------------------------------------------
   const dismissToast = useCallback((id) => {
@@ -356,61 +367,79 @@ export function StoreProvider({ children }) {
     }
   }, []);
 
-  // Single memoized context value — only changes when actual state changes, not
-  // on every provider render, and all callbacks above are stable references.
-  const value = useMemo(() => ({
+  // --- Per-context memoized values -----------------------------------------
+  // Each only changes when its own slice of state changes; all callbacks above
+  // are stable references.
+  const authValue = useMemo(() => ({
     user,
-    cart,
-    wishlist,
-    categories,
-    settings,
-    pincode,
-    pincodeStatus,
-    searchQuery,
-    setSearchQuery,
-    addToCart,
-    removeFromCart,
-    updateCartQty,
-    clearCart,
-    toggleWishlist,
-    verifyPincode,
-    clearPincode,
     loginUser,
     logoutUser,
     refreshUser: checkCurrentUser,
-    showToast,
-    dismissToast,
-  }), [
-    user,
-    cart,
-    wishlist,
+  }), [user, loginUser, logoutUser, checkCurrentUser]);
+
+  const configValue = useMemo(() => ({
     categories,
     settings,
     pincode,
     pincodeStatus,
-    searchQuery,
+    verifyPincode,
+    clearPincode,
+  }), [categories, settings, pincode, pincodeStatus, verifyPincode, clearPincode]);
+
+  const commerceValue = useMemo(() => ({
+    cart,
+    wishlist,
     addToCart,
     removeFromCart,
     updateCartQty,
     clearCart,
     toggleWishlist,
-    verifyPincode,
-    clearPincode,
-    loginUser,
-    logoutUser,
-    checkCurrentUser,
     showToast,
     dismissToast,
-  ]);
+  }), [cart, wishlist, addToCart, removeFromCart, updateCartQty, clearCart, toggleWishlist, showToast, dismissToast]);
+
+  const searchValue = useMemo(() => ({
+    searchQuery,
+    setSearchQuery,
+  }), [searchQuery]);
 
   return (
-    <StoreContext.Provider value={value}>
-      {children}
-      <Toast toasts={toasts} onDismiss={dismissToast} />
-    </StoreContext.Provider>
+    <AuthContext.Provider value={authValue}>
+      <ConfigContext.Provider value={configValue}>
+        <CommerceContext.Provider value={commerceValue}>
+          <SearchContext.Provider value={searchValue}>
+            {children}
+            <Toast toasts={toasts} onDismiss={dismissToast} />
+          </SearchContext.Provider>
+        </CommerceContext.Provider>
+      </ConfigContext.Provider>
+    </AuthContext.Provider>
   );
 }
 
+// --- Narrow hooks: subscribe only to the slice you use --------------------
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+export function useConfig() {
+  return useContext(ConfigContext);
+}
+
+export function useCommerce() {
+  return useContext(CommerceContext);
+}
+
+export function useSearch() {
+  return useContext(SearchContext);
+}
+
+// Backward-compatible aggregate hook. Intentionally does NOT subscribe to the
+// search context, so typing in the header never re-renders `useStore()`
+// consumers. Prefer the narrow hooks above in performance-critical components.
 export function useStore() {
-  return useContext(StoreContext);
+  const auth = useContext(AuthContext);
+  const config = useContext(ConfigContext);
+  const commerce = useContext(CommerceContext);
+  return { ...auth, ...config, ...commerce };
 }

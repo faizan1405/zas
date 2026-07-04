@@ -45,10 +45,17 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const params = readParams(searchParams);
 
-    // Admin view can see inactive products and always reads fresh (never cached),
-    // returning full documents for the management screens.
+    // Admin view can see inactive products and full documents — gate it behind a
+    // verified admin token so the public can't reach inactive/complete data by
+    // simply appending ?adminView=true.
     const isAdminView = searchParams.get('adminView') === 'true';
     if (isAdminView) {
+      if (!verifyAdmin(request)) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized. Admin access required' },
+          { status: 401 }
+        );
+      }
       await dbConnect();
       const query = buildProductQuery(params, { includeInactive: true });
       const sort = buildProductSort(params.sort);
@@ -136,8 +143,9 @@ export async function POST(request) {
 
     const newProduct = await Product.create(productData);
 
-    // Drop the cached public listings so the new product appears immediately.
-    revalidateTag(CACHE_TAGS.products);
+    // Drop the cached public listings so the new product appears on the very
+    // next request (immediate expiration — never serve one stale response).
+    revalidateTag(CACHE_TAGS.products, { expire: 0 });
 
     return NextResponse.json({
       success: true,

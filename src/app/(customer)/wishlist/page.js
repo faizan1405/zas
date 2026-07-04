@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Heart, ArrowRight, ShoppingBag } from 'lucide-react';
-import { useStore } from 'src/context/StoreContext';
+import { useCommerce } from 'src/context/StoreContext';
 import ProductCard from 'src/components/ProductCard';
 
 const WishlistPage = () => {
-  const { wishlist, toggleWishlist, addToCart } = useStore();
+  const { wishlist, toggleWishlist, addToCart } = useCommerce();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 

@@ -8,7 +8,7 @@ import {
   MapPin, 
   MessagesSquare 
 } from 'lucide-react';
-import { useStore } from 'src/context/StoreContext';
+import { useConfig } from 'src/context/StoreContext';
 
 const FacebookIcon = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -38,7 +38,7 @@ const YoutubeIcon = ({ size = 16 }) => (
 );
 
 const Footer = () => {
-  const { settings } = useStore();
+  const { settings } = useConfig();
 
   return (
     <footer className="main-footer">

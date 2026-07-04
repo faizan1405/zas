@@ -94,8 +94,9 @@ export async function PUT(request, { params }) {
       );
     }
 
-    // Refresh cached public listings so the edit shows up right away.
-    revalidateTag(CACHE_TAGS.products);
+    // Refresh cached public listings so the edit shows up on the next request
+    // (immediate expiration — never serve one stale response).
+    revalidateTag(CACHE_TAGS.products, { expire: 0 });
 
     return NextResponse.json({
       success: true,
@@ -143,8 +144,9 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    // Refresh cached public listings so the deletion is reflected right away.
-    revalidateTag(CACHE_TAGS.products);
+    // Refresh cached public listings so the deletion is reflected on the next
+    // request (immediate expiration — never serve one stale response).
+    revalidateTag(CACHE_TAGS.products, { expire: 0 });
 
     return NextResponse.json({
       success: true,
