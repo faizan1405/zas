@@ -545,7 +545,7 @@ const ProductsManagement = () => {
                     </label>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                       <label className="btn btn-secondary btn-sm" style={{ borderStyle: 'dashed', cursor: 'pointer' }}>
-                        <Upload size={14} /> Upload to Cloudinary
+                        <Upload size={14} /> Upload Image
                         <input 
                           type="file" 
                           onChange={handleImageUpload} 
@@ -553,7 +553,7 @@ const ProductsManagement = () => {
                           accept="image/*"
                         />
                       </label>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-light-muted)' }}>Files bypass server directly to external storage node.</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-light-muted)' }}>Image is saved to the server and served directly.</span>
                     </div>
 
                     {images.length > 0 && (

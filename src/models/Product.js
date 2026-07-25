@@ -20,7 +20,7 @@ const ProductSchema = new mongoose.Schema({
     playingLevels: [String],
     ageGroups: [String],
   },
-  images: [String], // Array of Cloudinary image URLs
+  images: [String], // Array of image URLs
   ratings: {
     average: { type: Number, default: 0 },
     count: { type: Number, default: 0 }

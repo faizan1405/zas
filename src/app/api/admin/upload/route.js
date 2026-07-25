@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { uploadImage } from 'src/lib/cloudinary';
+import { uploadImage } from 'src/lib/storage';
 import { verifyAdmin } from 'src/lib/auth';
 
 export async function POST(request) {
@@ -22,12 +22,12 @@ export async function POST(request) {
       );
     }
 
-    // Convert uploaded file buffer into base64 data uri stream
+    // Convert uploaded file buffer into base64 data uri
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const base64Image = `data:${file.type};base64,${buffer.toString('base64')}`;
 
-    // Upload using Cloudinary helper
+    // Save image locally
     const result = await uploadImage(base64Image);
 
     return NextResponse.json({

@@ -9,7 +9,7 @@ export const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v2/userinf
 
 // The Google OAuth redirect URI must match, byte-for-byte, the one registered
 // in the Google Cloud console. In production we therefore never derive it from
-// the incoming request (that yields *.vercel.app preview hosts or an unexpected
+// the incoming request (that yields preview hosts or an unexpected
 // www/non-www variant) and we reject a localhost NEXT_PUBLIC_SITE_URL that was
 // accidentally carried over from .env.
 const CANONICAL_PROD_URL = 'https://zassports.com';
@@ -31,8 +31,8 @@ export function getSiteUrl(request) {
     if (configured) {
       const normalized = normalizeSiteUrl(configured);
       // Ignore anything that can't be the real public site (localhost, LAN,
-      // Vercel preview hosts) and fall back to the canonical domain.
-      if (!/localhost|127\.0\.0\.1|\.vercel\.app/i.test(normalized)) {
+      // preview hosts) and fall back to the canonical domain.
+      if (!/localhost|127\.0\.0\.1/i.test(normalized)) {
         return normalized;
       }
     }

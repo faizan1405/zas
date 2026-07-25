@@ -14,8 +14,8 @@
  *   - have "(Demo)" in the name AND "Demo product" in the description
  *   - use SKUs prefixed "ZAS-DEMO-" and slugs ending in "-demo"
  *   - are isActive:true with positive stock, unique slug + SKU
- *   - use the project's existing image structure (Cloudinary/Unsplash URL in
- *     the `images` array; empty array falls back to the app's <InlineSVG/>)
+ *   - use the project's existing image structure (image URLs in the
+ *     `images` array; empty array falls back to the app's <InlineSVG/>)
  *
  * Usage:
  *   node seed-demo-products.js            # DRY RUN – reports the plan, writes nothing
