@@ -21,14 +21,14 @@ const ReportsManagement = () => {
       // Fetch stats
       const statsRes = await fetch('/api/admin/stats');
       const statsData = await statsRes.json();
-      if (statsData.success) {
+      if (statsRes.ok && statsData.success) {
         setStats(statsData.stats);
       }
 
       // Fetch all products for complete stock valuations
       const prodRes = await fetch('/api/products?adminView=true');
       const prodData = await prodRes.json();
-      if (prodData.success) {
+      if (prodRes.ok && prodData.success) {
         setProducts(prodData.products);
       }
 

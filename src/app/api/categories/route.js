@@ -21,7 +21,7 @@ export async function GET(request) {
         );
       }
       await dbConnect();
-      const categories = await Category.find({}).sort({ displayOrder: 1 }).lean();
+      const categories = await Category.find({}).sort({ displayOrder: 1, name: 1 }).lean();
       return NextResponse.json({
         success: true,
         categories: JSON.parse(JSON.stringify(categories)),

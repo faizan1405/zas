@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, X, Upload } from 'lucide-react';
-import { useStore } from 'src/context/StoreContext';
 
 const CategoriesManagement = () => {
-  const { refreshUser } = useStore(); // custom method to refresh layout header context on edits
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -29,12 +27,15 @@ const CategoriesManagement = () => {
       setLoading(true);
       const res = await fetch('/api/categories?adminView=true');
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setCategories(data.categories);
+      } else {
+        setErrorMsg(data.error || 'Failed to load categories');
       }
       setLoading(false);
     } catch (err) {
       console.log(err);
+      setErrorMsg('Network error loading categories');
       setLoading(false);
     }
   };
@@ -75,7 +76,7 @@ const CategoriesManagement = () => {
       });
       const data = await res.json();
 
-      if (data.success && data.url) {
+      if (res.ok && data.success && data.url) {
         setImage(data.url);
       } else {
         setErrorMsg(data.error || 'Upload failed');
@@ -111,7 +112,7 @@ const CategoriesManagement = () => {
       });
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok && data.success) {
         setShowModal(false);
         fetchCategories();
       } else {
@@ -129,7 +130,7 @@ const CategoriesManagement = () => {
     try {
       const res = await fetch(`/api/categories/${catId}`, { method: 'DELETE' });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         fetchCategories();
       } else {
         alert(data.error || 'Failed to delete category');

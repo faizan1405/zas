@@ -20,8 +20,10 @@ const CustomersManagement = () => {
 
       const res = await fetch(url);
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setCustomers(data.customers);
+      } else {
+        setCustomers([]);
       }
       setLoading(false);
     } catch (err) {
@@ -62,8 +64,8 @@ const CustomersManagement = () => {
         })
       });
       const data = await res.json();
-      
-      if (data.success) {
+
+      if (res.ok && data.success) {
         fetchCustomers();
       } else {
         alert(data.error || `Failed to ${action} customer`);

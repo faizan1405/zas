@@ -41,12 +41,12 @@ const OrdersManagement = () => {
       // To bypass search limitations, we can search by orderId or fetch all and filter locally
       const res = await fetch(url);
       const data = await res.json();
-      
-      if (data.success) {
+
+      if (res.ok && data.success) {
         let filtered = data.orders;
-        
+
         if (search) {
-          filtered = filtered.filter(o => 
+          filtered = filtered.filter(o =>
             o.orderId.toLowerCase().includes(search.toLowerCase()) ||
             o.shippingAddress.fullName.toLowerCase().includes(search.toLowerCase())
           );
@@ -57,6 +57,8 @@ const OrdersManagement = () => {
         }
 
         setOrders(filtered);
+      } else {
+        setOrders([]);
       }
       setLoading(false);
     } catch (err) {
@@ -90,7 +92,7 @@ const OrdersManagement = () => {
       });
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok && data.success) {
         setSelectedOrder(null);
         fetchAdminOrders();
       } else {

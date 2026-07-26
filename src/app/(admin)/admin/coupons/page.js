@@ -30,7 +30,7 @@ const CouponsManagement = () => {
       setLoading(true);
       const res = await fetch('/api/coupons');
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setCoupons(data.coupons);
       }
       setLoading(false);
@@ -97,7 +97,7 @@ const CouponsManagement = () => {
       });
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok && data.success) {
         setShowModal(false);
         fetchCoupons();
       } else {
@@ -115,7 +115,7 @@ const CouponsManagement = () => {
     try {
       const res = await fetch(`/api/coupons/${couponId}`, { method: 'DELETE' });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         fetchCoupons();
       } else {
         alert(data.error || 'Failed to delete coupon code');

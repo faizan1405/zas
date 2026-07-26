@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminSidebar from 'src/components/AdminSidebar';
 import { useStore } from 'src/context/StoreContext';
@@ -10,6 +10,7 @@ export default function AdminLayout({ children }) {
   const router = useRouter();
   const { user } = useStore();
   const [authorized, setAuthorized] = useState(false);
+  const timerRef = React.useRef(null);
 
   useEffect(() => {
     // Check if session contains admin credentials
@@ -21,8 +22,8 @@ export default function AdminLayout({ children }) {
         router.push('/');
       }
     } else {
-      // Give context some buffer time to hydrarate user session
-      const authTimer = setTimeout(() => {
+      // Give context some buffer time to hydrate user session
+      timerRef.current = setTimeout(() => {
         if (!user) {
           router.push('/admin/login');
         } else if (user.role !== 'admin') {
@@ -31,9 +32,9 @@ export default function AdminLayout({ children }) {
           setAuthorized(true);
         }
       }, 1500);
-      return () => clearTimeout(authTimer);
+      return () => clearTimeout(timerRef.current);
     }
-  }, [user]);
+  }, [user, router]);
 
   if (!authorized) {
     return (

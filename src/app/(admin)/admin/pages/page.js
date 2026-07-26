@@ -22,7 +22,7 @@ const PagesManagement = () => {
       setLoading(true);
       const res = await fetch('/api/admin/pages');
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setPages(data.pages);
       }
       setLoading(false);
@@ -55,7 +55,7 @@ const PagesManagement = () => {
       });
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok && data.success) {
         setSelectedPage(null);
         fetchPages();
       } else {

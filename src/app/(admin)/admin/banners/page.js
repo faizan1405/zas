@@ -30,7 +30,7 @@ const BannersManagement = () => {
       setLoading(true);
       const res = await fetch('/api/admin/banners?adminView=true');
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setBanners(data.banners);
       }
       setLoading(false);
@@ -82,7 +82,7 @@ const BannersManagement = () => {
       });
       const data = await res.json();
 
-      if (data.success && data.url) {
+      if (res.ok && data.success && data.url) {
         setImage(data.url);
       } else {
         setErrorMsg(data.error || 'Upload failed');
@@ -121,7 +121,7 @@ const BannersManagement = () => {
       });
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok && data.success) {
         setShowModal(false);
         fetchBanners();
       } else {
@@ -139,7 +139,7 @@ const BannersManagement = () => {
     try {
       const res = await fetch(`/api/admin/banners/${bannerId}`, { method: 'DELETE' });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         fetchBanners();
       } else {
         alert(data.error || 'Failed to delete banner');

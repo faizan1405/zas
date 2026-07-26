@@ -17,14 +17,9 @@ const ReviewsManagement = () => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      // To display all reviews for admin moderation, we can create an admin reviews GET endpoint,
-      // or fetch all reviews from DB.
-      // Wait, we can write a simple endpoint /api/admin/reviews/route.js, or reuse /api/reviews
-      // Let's check: our /api/reviews route handles GET reviews with ?productId, but what about GET all reviews for admin?
-      // Let's create `/api/admin/reviews/route.js` GET handler which fetches all reviews! That's clean and safe!
       const res = await fetch('/api/admin/reviews');
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setReviews(data.reviews);
       }
       setLoading(false);
@@ -42,7 +37,8 @@ const ReviewsManagement = () => {
         body: JSON.stringify({ isApproved: approveStatus })
       });
       const data = await res.json();
-      if (data.success) {
+
+      if (res.ok && data.success) {
         fetchReviews();
       } else {
         alert(data.error || 'Failed to update review status');
@@ -58,7 +54,7 @@ const ReviewsManagement = () => {
     try {
       const res = await fetch(`/api/reviews/${revId}`, { method: 'DELETE' });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         fetchReviews();
       } else {
         alert(data.error || 'Failed to delete review');
@@ -85,8 +81,8 @@ const ReviewsManagement = () => {
         body: JSON.stringify({ reply: replyText })
       });
       const data = await res.json();
-      
-      if (data.success) {
+
+      if (res.ok && data.success) {
         setShowReplyModal(false);
         fetchReviews();
       } else {

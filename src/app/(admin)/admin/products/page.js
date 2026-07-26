@@ -7,12 +7,7 @@ import {
   Edit,
   Trash2,
   X,
-  Upload,
-  Image as ImageIcon,
-  CheckCircle,
-  HelpCircle,
-  ToggleLeft,
-  ToggleRight
+  Upload
 } from 'lucide-react';
 import { formatINR } from 'src/lib/currency';
 
@@ -65,7 +60,7 @@ const ProductsManagement = () => {
       setAdminCategoriesLoading(true);
       const res = await fetch('/api/categories?adminView=true');
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setAdminCategories(data.categories);
       }
       setAdminCategoriesLoading(false);
@@ -76,7 +71,6 @@ const ProductsManagement = () => {
   }, []);
 
   useEffect(() => {
-    fetchAdminProducts();
     fetchAdminCategories();
   }, []);
 
@@ -93,8 +87,11 @@ const ProductsManagement = () => {
 
       const res = await fetch(url, { cache: 'no-store' });
       const data = await res.json();
-      if (data.success) {
+
+      if (res.ok && data.success) {
         setProducts(data.products);
+      } else {
+        setProducts([]);
       }
       setLoading(false);
     } catch (err) {
@@ -180,7 +177,7 @@ const ProductsManagement = () => {
       });
       const data = await res.json();
 
-      if (data.success && data.url) {
+      if (res.ok && data.success && data.url) {
         setImages(prev => [...prev, data.url]);
       } else {
         setErrorMsg(data.error || 'Upload failed');
@@ -267,7 +264,7 @@ const ProductsManagement = () => {
       });
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok && data.success) {
         setShowModal(false);
         fetchAdminProducts();
       } else {
@@ -285,7 +282,7 @@ const ProductsManagement = () => {
     try {
       const res = await fetch(`/api/products/${pId}`, { method: 'DELETE' });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         fetchAdminProducts();
       } else {
         alert(data.error || 'Failed to delete');
@@ -303,7 +300,7 @@ const ProductsManagement = () => {
         body: JSON.stringify({ isActive: !p.isActive })
       });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         fetchAdminProducts();
       }
     } catch (err) {

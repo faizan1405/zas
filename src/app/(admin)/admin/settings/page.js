@@ -37,10 +37,10 @@ const SettingsManagement = () => {
       setLoading(true);
       const res = await fetch('/api/settings');
       const data = await res.json();
-      if (data.success && data.settings) {
+      if (res.ok && data.success && data.settings) {
         const setObj = data.settings;
         setSettings(setObj);
-        
+
         setStoreName(setObj.storeName || '');
         setContactNumber(setObj.contactNumber || '');
         setWhatsappNumber(setObj.whatsappNumber || '');

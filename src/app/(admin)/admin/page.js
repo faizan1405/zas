@@ -23,7 +23,7 @@ const AdminDashboard = () => {
       try {
         const res = await fetch('/api/admin/stats');
         const data = await res.json();
-        if (data.success && data.stats) {
+        if (res.ok && data.success && data.stats) {
           setStats(data.stats);
         }
         setLoading(false);
