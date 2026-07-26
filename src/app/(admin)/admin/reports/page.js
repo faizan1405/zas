@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FileText, AlertTriangle, TrendingUp, BarChart } from 'lucide-react';
+import { FileText, AlertTriangle, TrendingUp, BarChart, DollarSign } from 'lucide-react';
 import { formatINR } from 'src/lib/currency';
 
 const ReportsManagement = () => {

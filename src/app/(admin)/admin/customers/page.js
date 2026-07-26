@@ -1,22 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, UserCheck, ShieldAlert, Shield } from 'lucide-react';
+
+const DEBOUNCE_MS = 400;
 
 const CustomersManagement = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [displaySearch, setDisplaySearch] = useState('');
+  const debounceRef = useRef(null);
 
-  useEffect(() => {
-    fetchCustomers();
-  }, [search]);
-
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async (query) => {
     try {
       setLoading(true);
       let url = '/api/admin/customers';
-      if (search) url += `?search=${encodeURIComponent(search)}`;
+      if (query) url += `?search=${encodeURIComponent(query)}`;
 
       const res = await fetch(url);
       const data = await res.json();
@@ -28,7 +28,25 @@ const CustomersManagement = () => {
       console.log('Error loading customer list:', err);
       setLoading(false);
     }
+  }, []);
+
+  // Debounced search: update display immediately, fetch after delay
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setDisplaySearch(value);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setSearch(value);
+    }, DEBOUNCE_MS);
   };
+
+  useEffect(() => {
+    fetchCustomers(search);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [search, fetchCustomers]);
 
   const handleToggleBlock = async (cust) => {
     const action = cust.isBlocked ? 'unblock' : 'block';
@@ -70,11 +88,11 @@ const CustomersManagement = () => {
       <div className="admin-card table-filter-row" style={{ backgroundColor: 'var(--bg-dark-card)' }}>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <Search size={16} style={{ color: 'var(--text-light-muted)' }} />
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Search by customer name or email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={displaySearch}
+            onChange={handleSearchChange}
             className="admin-search-input"
             style={{ width: '320px' }}
           />

@@ -1,24 +1,24 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Search, 
-  Edit, 
-  Trash2, 
-  X, 
-  Upload, 
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  X,
+  Upload,
   Image as ImageIcon,
   CheckCircle,
   HelpCircle,
   ToggleLeft,
   ToggleRight
 } from 'lucide-react';
-import { useStore } from 'src/context/StoreContext';
 import { formatINR } from 'src/lib/currency';
 
 const ProductsManagement = () => {
-  const { categories } = useStore();
+  const [adminCategories, setAdminCategories] = useState([]);
+  const [adminCategoriesLoading, setAdminCategoriesLoading] = useState(true);
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,6 +59,27 @@ const ProductsManagement = () => {
   const [uploading, setUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Fetch all categories (including inactive) for admin dropdowns
+  const fetchAdminCategories = useCallback(async () => {
+    try {
+      setAdminCategoriesLoading(true);
+      const res = await fetch('/api/categories?adminView=true');
+      const data = await res.json();
+      if (data.success) {
+        setAdminCategories(data.categories);
+      }
+      setAdminCategoriesLoading(false);
+    } catch (err) {
+      console.log(err);
+      setAdminCategoriesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAdminProducts();
+    fetchAdminCategories();
+  }, []);
+
   useEffect(() => {
     fetchAdminProducts();
   }, [search, catFilter]);
@@ -69,7 +90,7 @@ const ProductsManagement = () => {
       let url = '/api/products?adminView=true';
       if (search) url += `&search=${encodeURIComponent(search)}`;
       if (catFilter) url += `&category=${catFilter}`;
-      
+
       const res = await fetch(url, { cache: 'no-store' });
       const data = await res.json();
       if (data.success) {
@@ -86,7 +107,7 @@ const ProductsManagement = () => {
     setEditingId(null);
     setName('');
     setBrand('Zassports');
-    setCategory(categories[0]?.slug || 'cricket-bats');
+    setCategory(adminCategories.length > 0 ? adminCategories[0].slug : 'cricket-bats');
     setDescription('');
     setPrice(0);
     setMrp(0);
@@ -124,7 +145,7 @@ const ProductsManagement = () => {
     setIsNewArrival(p.isNewArrival || false);
     setIsActive(p.isActive !== undefined ? p.isActive : true);
     setSubcategory(p.subcategory || '');
-    
+
     // Map specs object to key-value rows
     if (p.specs) {
       const rows = Object.entries(p.specs).map(([key, value]) => ({ key, value }));
@@ -290,6 +311,11 @@ const ProductsManagement = () => {
     }
   };
 
+  // Category dropdown option list with loading state
+  const categoryOptions = adminCategoriesLoading
+    ? [{ _id: '__loading', name: 'Loading categories...', slug: '' }]
+    : adminCategories;
+
   return (
     <div className="animate-fade">
       {/* Header */}
@@ -298,8 +324,8 @@ const ProductsManagement = () => {
           <h2>Product Inventory</h2>
           <p>Create, update, and manage your online cricket stock catalog.</p>
         </div>
-        <button 
-          type="button" 
+        <button
+          type="button"
           className="btn btn-accent btn-sm"
           style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           onClick={handleOpenAddModal}
@@ -312,8 +338,8 @@ const ProductsManagement = () => {
       <div className="admin-card table-filter-row" style={{ backgroundColor: 'var(--bg-dark-card)' }}>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <Search size={16} style={{ color: 'var(--text-light-muted)' }} />
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Search by name or SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -321,14 +347,16 @@ const ProductsManagement = () => {
           />
         </div>
         <div className="table-filter-actions">
-          <select 
+          <select
             value={catFilter}
             onChange={(e) => setCatFilter(e.target.value)}
             className="admin-select"
           >
             <option value="">All Categories</option>
-            {categories.map(c => (
-              <option key={c._id} value={c.slug}>{c.name}</option>
+            {categoryOptions.map(c => (
+              <option key={c._id} value={c.slug} disabled={adminCategoriesLoading}>
+                {c.name}
+              </option>
             ))}
           </select>
         </div>
@@ -372,8 +400,8 @@ const ProductsManagement = () => {
                     </span>
                   </td>
                   <td>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => handleToggleActive(p)}
                       title="Toggle active display status"
                     >
@@ -392,16 +420,16 @@ const ProductsManagement = () => {
                   </td>
                   <td>
                     <div className="action-btns">
-                      <button 
-                        type="button" 
-                        className="action-btn edit" 
+                      <button
+                        type="button"
+                        className="action-btn edit"
                         onClick={() => handleOpenEditModal(p)}
                       >
                         <Edit size={14} />
                       </button>
-                      <button 
-                        type="button" 
-                        className="action-btn delete" 
+                      <button
+                        type="button"
+                        className="action-btn delete"
                         onClick={() => handleDeleteProduct(p._id)}
                       >
                         <Trash2 size={14} />
@@ -432,7 +460,7 @@ const ProductsManagement = () => {
                 <X size={18} />
               </button>
             </div>
-            
+
             <form onSubmit={handleFormSubmit}>
               <div className="admin-modal-body">
                 {errorMsg && (
@@ -444,9 +472,9 @@ const ProductsManagement = () => {
                 <div className="grid grid-2">
                   <div className="admin-form-group" style={{ gridColumn: 'span 2' }}>
                     <label>Product Name</label>
-                    <input 
-                      type="text" 
-                      value={name} 
+                    <input
+                      type="text"
+                      value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="admin-form-control"
                       required
@@ -454,9 +482,9 @@ const ProductsManagement = () => {
                   </div>
                   <div className="admin-form-group">
                     <label>SKU Product Code</label>
-                    <input 
-                      type="text" 
-                      value={sku} 
+                    <input
+                      type="text"
+                      value={sku}
                       onChange={(e) => setSku(e.target.value)}
                       className="admin-form-control"
                       required
@@ -464,32 +492,36 @@ const ProductsManagement = () => {
                   </div>
                   <div className="admin-form-group">
                     <label>Brand Name</label>
-                    <input 
-                      type="text" 
-                      value={brand} 
+                    <input
+                      type="text"
+                      value={brand}
                       onChange={(e) => setBrand(e.target.value)}
                       className="admin-form-control"
                       required
                     />
                   </div>
                   <div className="admin-form-group">
-                    <label>Category Category</label>
-                    <select 
-                      value={category} 
+                    <label>Category</label>
+                    <select
+                      value={category}
                       onChange={(e) => setCategory(e.target.value)}
                       className="admin-select"
                       style={{ width: '100%', padding: '12px' }}
                     >
-                      {categories.map(c => (
-                        <option key={c._id} value={c.slug}>{c.name}</option>
-                      ))}
+                      {adminCategoriesLoading ? (
+                        <option value="">Loading categories...</option>
+                      ) : (
+                        adminCategories.map(c => (
+                          <option key={c._id} value={c.slug}>{c.name}</option>
+                        ))
+                      )}
                     </select>
                   </div>
                   <div className="admin-form-group">
                     <label>Subcategory Slug</label>
-                    <input 
-                      type="text" 
-                      value={subcategory} 
+                    <input
+                      type="text"
+                      value={subcategory}
                       onChange={(e) => setSubcategory(e.target.value)}
                       className="admin-form-control"
                       placeholder="e.g. english-willow-bat"
@@ -497,9 +529,9 @@ const ProductsManagement = () => {
                   </div>
                   <div className="admin-form-group">
                     <label>Stock Quantity</label>
-                    <input 
-                      type="number" 
-                      value={stock} 
+                    <input
+                      type="number"
+                      value={stock}
                       onChange={(e) => setStock(e.target.value)}
                       className="admin-form-control"
                       required
@@ -507,9 +539,9 @@ const ProductsManagement = () => {
                   </div>
                   <div className="admin-form-group">
                     <label>Price (₹)</label>
-                    <input 
-                      type="number" 
-                      value={price} 
+                    <input
+                      type="number"
+                      value={price}
                       onChange={(e) => setPrice(e.target.value)}
                       className="admin-form-control"
                       required
@@ -517,9 +549,9 @@ const ProductsManagement = () => {
                   </div>
                   <div className="admin-form-group">
                     <label>MRP (₹)</label>
-                    <input 
-                      type="number" 
-                      value={mrp} 
+                    <input
+                      type="number"
+                      value={mrp}
                       onChange={(e) => setMrp(e.target.value)}
                       className="admin-form-control"
                       required
@@ -528,8 +560,8 @@ const ProductsManagement = () => {
 
                   <div className="admin-form-group" style={{ gridColumn: 'span 2' }}>
                     <label>Product Description</label>
-                    <textarea 
-                      value={description} 
+                    <textarea
+                      value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       className="admin-form-control"
                       rows={4}
@@ -546,10 +578,10 @@ const ProductsManagement = () => {
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                       <label className="btn btn-secondary btn-sm" style={{ borderStyle: 'dashed', cursor: 'pointer' }}>
                         <Upload size={14} /> Upload Image
-                        <input 
-                          type="file" 
-                          onChange={handleImageUpload} 
-                          style={{ display: 'none' }} 
+                        <input
+                          type="file"
+                          onChange={handleImageUpload}
+                          style={{ display: 'none' }}
                           accept="image/*"
                         />
                       </label>
@@ -561,9 +593,9 @@ const ProductsManagement = () => {
                         {images.map((img, idx) => (
                           <div key={idx} className="image-preview-item">
                             <img src={img} alt="Preview" />
-                            <button 
-                              type="button" 
-                              className="image-preview-delete" 
+                            <button
+                              type="button"
+                              className="image-preview-delete"
                               onClick={() => handleDeleteImage(idx)}
                             >
                               ×
@@ -577,9 +609,9 @@ const ProductsManagement = () => {
                   {/* Variants String inputs */}
                   <div className="admin-form-group">
                     <label>Sizes (Comma separated, e.g. S, M, L or Short Handle, Harrow)</label>
-                    <input 
-                      type="text" 
-                      value={sizesInput} 
+                    <input
+                      type="text"
+                      value={sizesInput}
                       onChange={(e) => setSizesInput(e.target.value)}
                       placeholder="e.g. S, M, L"
                       className="admin-form-control"
@@ -587,37 +619,41 @@ const ProductsManagement = () => {
                   </div>
                   <div className="admin-form-group">
                     <label>Colors (Comma separated)</label>
-                    <input 
-                      type="text" 
-                      value={colorsInput} 
+                    <input
+                      type="text"
+                      value={colorsInput}
                       onChange={(e) => setColorsInput(e.target.value)}
+                      placeholder="e.g. Red, Blue"
                       className="admin-form-control"
                     />
                   </div>
                   <div className="admin-form-group">
                     <label>Hand Orientations (e.g. Right Hand, Left Hand)</label>
-                    <input 
-                      type="text" 
-                      value={handsInput} 
+                    <input
+                      type="text"
+                      value={handsInput}
                       onChange={(e) => setHandsInput(e.target.value)}
+                      placeholder="e.g. Right Hand, Left Hand"
                       className="admin-form-control"
                     />
                   </div>
                   <div className="admin-form-group">
                     <label>Bat Wood Types (e.g. English Willow, Kashmir Willow)</label>
-                    <input 
-                      type="text" 
-                      value={woodsInput} 
+                    <input
+                      type="text"
+                      value={woodsInput}
                       onChange={(e) => setWoodsInput(e.target.value)}
+                      placeholder="e.g. English Willow, Kashmir Willow"
                       className="admin-form-control"
                     />
                   </div>
                   <div className="admin-form-group" style={{ gridColumn: 'span 2' }}>
                     <label>Ball Core Types (e.g. Leather ball, Tennis ball)</label>
-                    <input 
-                      type="text" 
-                      value={ballsInput} 
+                    <input
+                      type="text"
+                      value={ballsInput}
                       onChange={(e) => setBallsInput(e.target.value)}
+                      placeholder="e.g. Leather ball, Tennis ball"
                       className="admin-form-control"
                     />
                   </div>
@@ -626,9 +662,9 @@ const ProductsManagement = () => {
                   <div className="admin-form-group" style={{ gridColumn: 'span 2' }}>
                     <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span>Technical Specifications</span>
-                      <button 
-                        type="button" 
-                        className="text-success" 
+                      <button
+                        type="button"
+                        className="text-success"
                         style={{ fontSize: '0.8rem', fontWeight: 600 }}
                         onClick={handleAddSpecRow}
                       >
@@ -639,16 +675,16 @@ const ProductsManagement = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {specRows.map((row, idx) => (
                         <div key={idx} style={{ display: 'flex', gap: '10px' }}>
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             placeholder="Specification Key (e.g. Weight)"
                             value={row.key}
                             onChange={(e) => handleSpecRowChange(idx, 'key', e.target.value)}
                             className="admin-form-control"
                             style={{ flex: 1 }}
                           />
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             placeholder="Specification Value (e.g. 2.7 lbs)"
                             value={row.value}
                             onChange={(e) => handleSpecRowChange(idx, 'value', e.target.value)}
@@ -656,8 +692,8 @@ const ProductsManagement = () => {
                             style={{ flex: 1.2 }}
                           />
                           {specRows.length > 1 && (
-                            <button 
-                              type="button" 
+                            <button
+                              type="button"
                               onClick={() => handleRemoveSpecRow(idx)}
                               style={{ color: 'var(--danger)', padding: '0 10px', fontSize: '1.25rem' }}
                             >
@@ -672,32 +708,32 @@ const ProductsManagement = () => {
                   {/* Feature Checkboxes */}
                   <div className="admin-form-group" style={{ gridColumn: 'span 2', display: 'flex', gap: '20px', flexWrap: 'wrap', marginTop: '10px' }}>
                     <label className="filter-checkbox-item" style={{ color: 'white' }}>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={isFeatured}
                         onChange={(e) => setIsFeatured(e.target.checked)}
                       />
                       <span>Featured Product</span>
                     </label>
                     <label className="filter-checkbox-item" style={{ color: 'white' }}>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={isBestSeller}
                         onChange={(e) => setIsBestSeller(e.target.checked)}
                       />
                       <span>Bestseller</span>
                     </label>
                     <label className="filter-checkbox-item" style={{ color: 'white' }}>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={isNewArrival}
                         onChange={(e) => setIsNewArrival(e.target.checked)}
                       />
                       <span>New Arrival</span>
                     </label>
                     <label className="filter-checkbox-item" style={{ color: 'white' }}>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={isActive}
                         onChange={(e) => setIsActive(e.target.checked)}
                       />
@@ -709,8 +745,8 @@ const ProductsManagement = () => {
               </div>
 
               <div className="admin-modal-footer">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="btn btn-secondary btn-sm"
                   onClick={() => setShowModal(false)}
                 >
