@@ -1,38 +1,25 @@
-import fs from 'fs';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
 
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
-
-// Ensure upload directory exists
-function ensureUploadDir() {
-  if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-  }
-}
+// Configure Cloudinary with credentials from environment variables
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 /**
- * Saves a base64 data URI to the local public/uploads directory.
- * Returns the public URL path and a unique file ID.
+ * Uploads a base64 data URI to Cloudinary.
+ * Returns the public URL and a unique file ID.
  */
 export async function uploadImage(dataUri, folder = 'zassports-cricket') {
-  ensureUploadDir();
-
-  // Generate a unique filename
-  const ext = dataUri.split(';')[0]?.split('/')[1] || 'png';
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 8);
-  const filename = `${folder}_${timestamp}_${random}.${ext}`;
-  const filepath = path.join(UPLOAD_DIR, filename);
-
-  // Extract base64 data (remove "data:image/png;base64," prefix)
-  const base64Data = dataUri.replace(/^data:[^;]+;base64,/, '');
-  const buffer = Buffer.from(base64Data, 'base64');
-
-  fs.writeFileSync(filepath, buffer);
+  const result = await cloudinary.uploader.upload(dataUri, {
+    folder: folder,
+    resource_type: 'auto',
+  });
 
   return {
-    secure_url: `/uploads/${filename}`,
-    public_id: filename,
+    secure_url: result.secure_url,
+    public_id: result.public_id,
   };
 }
 
