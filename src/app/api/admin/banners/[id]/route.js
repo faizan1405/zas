@@ -49,7 +49,7 @@ export async function PUT(request, { params }) {
   } catch (error) {
     console.error('Banner update error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }
@@ -95,7 +95,7 @@ export async function DELETE(request, { params }) {
   } catch (error) {
     console.error('Banner delete error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }

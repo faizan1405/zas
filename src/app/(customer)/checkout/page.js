@@ -325,22 +325,23 @@ const CheckoutContent = () => {
                 </div>
               </label>
 
+              {/* Online Payment Option - DISABLED FOR PRODUCTION */}
               <label 
                 className={`form-control ${paymentMethod === 'Online' ? 'active' : ''}`}
-                style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', padding: '16px', border: paymentMethod === 'Online' ? '2px solid var(--text-dark)' : '1px solid var(--bg-light-border)' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'not-allowed', padding: '16px', border: paymentMethod === 'Online' ? '2px solid var(--text-dark)' : '1px solid var(--bg-light-border)', opacity: 0.6 }}
               >
                 <input 
                   type="radio" 
                   name="paymentMethod" 
                   value="Online"
                   checked={paymentMethod === 'Online'}
-                  onChange={() => setPaymentMethod('Online')}
-                  style={{ width: '18px', height: '18px', accentColor: 'var(--text-dark)' }}
+                  onChange={() => {}}
+                  disabled
+                  style={{ width: '20px', height: '20px', accentColor: 'var(--text-dark)', cursor: 'not-allowed' }}
                 />
-                <CreditCard size={20} />
-                <div>
-                  <span style={{ fontWeight: 700, display: 'block' }}>Online Prepayment (Demo Gateway)</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dark-muted)' }}>Pay via UPI, Cards, Netbanking instantly. Razorpay/Cashfree ready.</span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontWeight: '600', fontSize: '1.05rem', color: 'var(--text-dark)' }}>Online Payment (Currently Unavailable)</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dark-muted)' }}>Online payments will be available soon.</span>
                 </div>
               </label>
             </div>

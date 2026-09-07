@@ -39,7 +39,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('File upload API error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }

@@ -5,6 +5,7 @@ import Product from 'src/models/Product';
 import Coupon from 'src/models/Coupon';
 import Setting from 'src/models/Setting';
 import { getAuthUser, verifyAdmin } from 'src/lib/auth';
+import { checkRateLimit } from 'src/lib/rateLimit';
 
 // 1. GET: Fetch orders list.
 // If admin, returns all orders. If customer, returns customer's orders.
@@ -35,7 +36,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('Orders fetch error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }
@@ -44,6 +45,11 @@ export async function GET(request) {
 // 2. POST: Secure Order Placement (Verifies stock & price on server)
 export async function POST(request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || request.ip || 'unknown';
+    if (!checkRateLimit(ip, 10, 60000)) { // 10 orders per minute per IP
+      return NextResponse.json({ success: false, error: 'Too many requests. Please slow down.' }, { status: 429 });
+    }
+
     await dbConnect();
     const user = getAuthUser(request); // Null for guest checkouts
     const body = await request.json();
@@ -65,6 +71,9 @@ export async function POST(request) {
     }
     if (!paymentMethod) {
       return NextResponse.json({ success: false, error: 'Payment method is required' }, { status: 400 });
+    }
+    if (paymentMethod !== 'COD') {
+      return NextResponse.json({ success: false, error: 'Online payments are currently disabled' }, { status: 400 });
     }
     if (!user && (!guestDetails || !guestDetails.name || !guestDetails.email || !guestDetails.phone)) {
       return NextResponse.json({ success: false, error: 'Guest checkout requires contact details' }, { status: 400 });
@@ -145,9 +154,10 @@ export async function POST(request) {
     const shippingPrice = subtotal >= settings.freeShippingMinAmount ? 0 : settings.shippingCharges;
     const totalAmount = subtotal - discountAmount + shippingPrice;
 
-    // Generate readable order ID: ZAS-#####-IND
-    const randomNum = Math.floor(10000 + Math.random() * 90000);
-    const orderId = `ZAS-${randomNum}-IND`;
+    // Generate readable but unguessable order ID: ZAS-########-IND
+    const crypto = require('crypto');
+    const randomHex = crypto.randomBytes(4).toString('hex').toUpperCase();
+    const orderId = `ZAS-${randomHex}-IND`;
 
     // Create the order entry
     const newOrder = await Order.create({
@@ -188,7 +198,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Checkout error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }

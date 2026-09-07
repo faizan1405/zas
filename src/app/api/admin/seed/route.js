@@ -7,6 +7,7 @@ import Page from 'src/models/Page';
 import Setting from 'src/models/Setting';
 import Banner from 'src/models/Banner';
 import { hashPassword, verifyAdmin } from 'src/lib/auth';
+import { checkRateLimit } from 'src/lib/rateLimit';
 
 const DEFAULT_CATEGORIES = [
   { name: 'Cricket Bats', slug: 'cricket-bats', image: '/images/categories/cricket-bats.jpg', displayOrder: 1, isActive: true },
@@ -897,6 +898,15 @@ If you have questions about bat grains, size fittings, or order shipping times, 
 
 export async function GET(request) {
   try {
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ success: false, error: 'Seeding is disabled in production' }, { status: 403 });
+    }
+
+    const ip = request.headers.get('x-forwarded-for') || request.ip || 'unknown';
+    if (!checkRateLimit(ip, 3, 60000)) {
+      return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 });
+    }
+
     await dbConnect();
 
     // Check if ?force=true is query param to clean & re-seed
@@ -1013,7 +1023,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('Seeding error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }

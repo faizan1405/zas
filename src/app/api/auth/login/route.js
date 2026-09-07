@@ -2,9 +2,15 @@ import { NextResponse } from 'next/server';
 import dbConnect from 'src/lib/mongodb';
 import User from 'src/models/User';
 import { comparePassword, signToken } from 'src/lib/auth';
+import { checkRateLimit } from 'src/lib/rateLimit';
 
 export async function POST(request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || request.ip || 'unknown';
+    if (!checkRateLimit(ip, 5, 60000)) { // 5 requests per minute
+      return NextResponse.json({ success: false, error: 'Too many login attempts. Please try again later.' }, { status: 429 });
+    }
+
     await dbConnect();
     const { email, password } = await request.json();
 
@@ -94,7 +100,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Login API error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }
