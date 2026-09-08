@@ -1,18 +1,14 @@
 import { NextResponse } from 'next/server';
-import dbConnect from 'src/lib/mongodb';
-import Banner from 'src/models/Banner';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
 
-// GET: Fetch all homepage banners sorted by displayOrder
 export async function GET(request) {
   try {
-    await dbConnect();
     const { searchParams } = new URL(request.url);
 
     const query = {};
     const isAdminView = searchParams.get('adminView') === 'true';
     if (isAdminView) {
-      // Inactive banners are admin-only — require a verified admin token.
       if (!verifyAdmin(request)) {
         return NextResponse.json(
           { success: false, error: 'Unauthorized. Admin access required' },
@@ -23,7 +19,10 @@ export async function GET(request) {
       query.isActive = true;
     }
 
-    const banners = await Banner.find(query).sort({ displayOrder: 1 });
+    const banners = await prisma.banner.findMany({
+      where: query,
+      orderBy: { displayOrder: 'asc' }
+    });
 
     return NextResponse.json({
       success: true,
@@ -39,10 +38,8 @@ export async function GET(request) {
   }
 }
 
-// POST: Create a banner (Protected: Admin Only)
 export async function POST(request) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -53,7 +50,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { title, image, type } = body;
+    const { title, subtitle, image, link, type, displayOrder, isActive } = body;
 
     if (!title || !image) {
       return NextResponse.json(
@@ -62,10 +59,16 @@ export async function POST(request) {
       );
     }
 
-    const newBanner = await Banner.create({
-      ...body,
-      displayOrder: body.displayOrder || 0,
-      isActive: body.isActive !== undefined ? body.isActive : true
+    const newBanner = await prisma.banner.create({
+      data: {
+        title,
+        subtitle: subtitle || null,
+        image,
+        link: link || '/shop',
+        type: type || 'hero',
+        displayOrder: displayOrder || 0,
+        isActive: isActive !== undefined ? isActive : true
+      }
     });
 
     return NextResponse.json({

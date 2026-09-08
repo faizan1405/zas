@@ -1,25 +1,29 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
 import { revalidateTag } from 'next/cache';
-import dbConnect from 'src/lib/mongodb';
-import Product from 'src/models/Product';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
 import { CACHE_TAGS } from 'src/lib/storeData';
+import { deleteImage } from 'src/lib/storage';
 
-// Always run at request time so product detail reflects the latest edits.
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// GET: Fetch product by ID or by Slug (full document — detail page needs everything)
 export async function GET(request, { params }) {
   try {
-    await dbConnect();
     const { id } = await params;
 
-    const isObjectId = mongoose.Types.ObjectId.isValid(id);
-    const query = isObjectId ? { _id: id } : { slug: id };
+    // Prisma: ID usually CUID (length 25+). If it's a short slug, we query by slug.
+    // We can just try both if we don't know, but typically slug doesn't have spaces or certain chars.
+    // A simple check: if it looks like a cuid, query id, else slug. Or just use OR.
+    const product = await prisma.product.findFirst({
+      where: {
+        OR: [
+          { id: id },
+          { slug: id }
+        ]
+      }
+    });
 
-    const product = await Product.findOne(query).lean();
     if (!product) {
       return NextResponse.json(
         { success: false, error: 'Product not found' },
@@ -41,10 +45,8 @@ export async function GET(request, { params }) {
   }
 }
 
-// PUT: Update product details (Protected: Admin Only)
 export async function PUT(request, { params }) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
     
     if (!isAdmin) {
@@ -57,46 +59,65 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const body = await request.json();
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid product ID' },
-        { status: 400 }
-      );
-    }
-
-    // Auto-calculate discount if price/mrp changes
-    if (body.price !== undefined || body.mrp !== undefined) {
-      const product = await Product.findById(id);
-      if (product) {
-        const finalPrice = body.price !== undefined ? body.price : product.price;
-        const finalMrp = body.mrp !== undefined ? body.mrp : product.mrp;
-        body.discount = finalMrp > finalPrice ? Math.round(((finalMrp - finalPrice) / finalMrp) * 100) : 0;
-      }
-    }
-
-    // Auto-update slug if name changes
-    if (body.name) {
-      const newSlug = body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-      const existingSlug = await Product.findOne({ slug: newSlug, _id: { $ne: id } });
-      body.slug = existingSlug ? `${newSlug}-${Date.now()}` : newSlug;
-    }
-
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      { $set: body },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedProduct) {
+    const product = await prisma.product.findUnique({ where: { id } });
+    if (!product) {
       return NextResponse.json(
         { success: false, error: 'Product not found' },
         { status: 404 }
       );
     }
 
-    // Refresh cached public listings so the edit shows up on the next request
-    // (immediate expiration — never serve one stale response).
-    revalidateTag(CACHE_TAGS.products, { expire: 0 });
+    if (body.price !== undefined || body.mrp !== undefined) {
+      const finalPrice = body.price !== undefined ? body.price : product.price;
+      const finalMrp = body.mrp !== undefined ? body.mrp : product.mrp;
+      body.discount = finalMrp > finalPrice ? Math.round(((finalMrp - finalPrice) / finalMrp) * 100) : 0;
+    }
+
+    if (body.name) {
+      const newSlug = body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const existingSlug = await prisma.product.findFirst({
+        where: { slug: newSlug, id: { not: id } }
+      });
+      body.slug = existingSlug ? `${newSlug}-${Date.now()}` : newSlug;
+    }
+
+    const safeData = {
+      ...(body.name !== undefined && { name: body.name }),
+      ...(body.brand !== undefined && { brand: body.brand }),
+      ...(body.slug !== undefined && { slug: body.slug }),
+      ...(body.description !== undefined && { description: body.description }),
+      ...(body.specs !== undefined && { specs: body.specs }),
+      ...(body.price !== undefined && { price: body.price }),
+      ...(body.mrp !== undefined && { mrp: body.mrp }),
+      ...(body.discount !== undefined && { discount: body.discount }),
+      ...(body.stock !== undefined && { stock: body.stock }),
+      ...(body.sku !== undefined && { sku: body.sku }),
+      ...(body.variants !== undefined && { variants: body.variants }),
+      ...(body.images !== undefined && { images: body.images }),
+      ...(body.ratings !== undefined && { ratingsAverage: body.ratings.average, ratingsCount: body.ratings.count }),
+      ...(body.isFeatured !== undefined && { isFeatured: body.isFeatured }),
+      ...(body.isBestSeller !== undefined && { isBestSeller: body.isBestSeller }),
+      ...(body.isNewArrival !== undefined && { isNewArrival: body.isNewArrival }),
+      ...(body.isActive !== undefined && { isActive: body.isActive }),
+      ...(body.category !== undefined && { category: body.category }),
+      ...(body.subcategory !== undefined && { subcategory: body.subcategory }),
+    };
+
+    const updatedProduct = await prisma.product.update({
+      where: { id },
+      data: safeData
+    });
+
+    if (body.images !== undefined && Array.isArray(product.images)) {
+      const currentImages = new Set(Array.isArray(body.images) ? body.images : []);
+      for (const image of product.images) {
+        if (!currentImages.has(image)) {
+          await deleteImage(image);
+        }
+      }
+    }
+
+    revalidateTag(CACHE_TAGS.products);
 
     return NextResponse.json({
       success: true,
@@ -113,10 +134,8 @@ export async function PUT(request, { params }) {
   }
 }
 
-// DELETE: Remove product from database (Protected: Admin Only)
 export async function DELETE(request, { params }) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
     
     if (!isAdmin) {
@@ -128,25 +147,32 @@ export async function DELETE(request, { params }) {
 
     const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid product ID' },
-        { status: 400 }
-      );
-    }
-
-    const deletedProduct = await Product.findByIdAndDelete(id);
-
-    if (!deletedProduct) {
+    const productToDelete = await prisma.product.findUnique({ where: { id } });
+    if (!productToDelete) {
       return NextResponse.json(
         { success: false, error: 'Product not found' },
         { status: 404 }
       );
     }
 
-    // Refresh cached public listings so the deletion is reflected on the next
-    // request (immediate expiration — never serve one stale response).
-    revalidateTag(CACHE_TAGS.products, { expire: 0 });
+    const deletedProduct = await prisma.product.delete({
+      where: { id }
+    }).catch(() => null);
+
+    if (deletedProduct) {
+      if (Array.isArray(productToDelete.images)) {
+        for (const img of productToDelete.images) {
+          await deleteImage(img);
+        }
+      }
+    } else {
+      return NextResponse.json(
+        { success: false, error: 'Product not found or could not be deleted' },
+        { status: 404 }
+      );
+    }
+
+    revalidateTag(CACHE_TAGS.products);
 
     return NextResponse.json({
       success: true,

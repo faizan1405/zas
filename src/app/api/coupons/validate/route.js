@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import dbConnect from 'src/lib/mongodb';
-import Coupon from 'src/models/Coupon';
+import { prisma } from 'src/lib/prisma';
 
 export async function POST(request) {
   try {
-    await dbConnect();
     const { code, subtotal } = await request.json();
 
     if (!code || subtotal === undefined) {
@@ -15,7 +13,7 @@ export async function POST(request) {
     }
 
     const uppercaseCode = code.toUpperCase();
-    const coupon = await Coupon.findOne({ code: uppercaseCode });
+    const coupon = await prisma.coupon.findUnique({ where: { code: uppercaseCode } });
 
     if (!coupon) {
       return NextResponse.json(
@@ -31,7 +29,6 @@ export async function POST(request) {
       );
     }
 
-    // Check expiry
     const now = new Date();
     const expiry = new Date(coupon.expiryDate);
     if (now > expiry) {
@@ -41,7 +38,6 @@ export async function POST(request) {
       );
     }
 
-    // Check usage limits
     if (coupon.usedCount >= coupon.usageLimit) {
       return NextResponse.json(
         { success: false, error: 'Coupon usage limit reached' },
@@ -49,7 +45,6 @@ export async function POST(request) {
       );
     }
 
-    // Check minimum order value
     if (subtotal < coupon.minOrderValue) {
       return NextResponse.json(
         { success: false, error: `Minimum order value of ₹${coupon.minOrderValue} required for this coupon` },
@@ -57,7 +52,6 @@ export async function POST(request) {
       );
     }
 
-    // Calculate exact discount amount
     let discountAmount = 0;
     if (coupon.discountType === 'percentage') {
       discountAmount = Math.round(subtotal * (coupon.discountValue / 100));

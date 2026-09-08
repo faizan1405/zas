@@ -1,21 +1,17 @@
 import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
-import dbConnect from 'src/lib/mongodb';
-import Setting from 'src/models/Setting';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
 import { getPublicSettings, CACHE_TAGS } from 'src/lib/storeData';
 
-// GET: Fetch store configurations (Open to everyone) — cached, revalidated on save.
 export async function GET() {
   try {
     let settings = await getPublicSettings();
 
-    // Create default settings if none exist yet, then refresh the cache.
     if (!settings) {
-      await dbConnect();
-      const created = await Setting.create({});
-      settings = JSON.parse(JSON.stringify(created.toObject()));
-      revalidateTag(CACHE_TAGS.settings, { expire: 0 });
+      const created = await prisma.setting.create({ data: {} });
+      settings = JSON.parse(JSON.stringify(created));
+      revalidateTag(CACHE_TAGS.settings);
     }
 
     return NextResponse.json({
@@ -32,10 +28,8 @@ export async function GET() {
   }
 }
 
-// PUT: Update store configurations (Protected: Admin Only)
 export async function PUT(request) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -46,19 +40,34 @@ export async function PUT(request) {
     }
 
     const body = await request.json();
-    let settings = await Setting.findOne();
+    let settings = await prisma.setting.findFirst();
+
+    const safeData = {
+      ...(body.storeName !== undefined && { storeName: body.storeName }),
+      ...(body.contactNumber !== undefined && { contactNumber: body.contactNumber }),
+      ...(body.whatsappNumber !== undefined && { whatsappNumber: body.whatsappNumber }),
+      ...(body.email !== undefined && { email: body.email }),
+      ...(body.address !== undefined && { address: body.address }),
+      ...(body.shippingCharges !== undefined && { shippingCharges: body.shippingCharges }),
+      ...(body.freeShippingMinAmount !== undefined && { freeShippingMinAmount: body.freeShippingMinAmount }),
+      ...(body.codEnabled !== undefined && { codEnabled: body.codEnabled }),
+      ...(body.onlinePaymentEnabled !== undefined && { onlinePaymentEnabled: body.onlinePaymentEnabled }),
+      ...(body.taxPercent !== undefined && { taxPercent: body.taxPercent }),
+      ...(body.gstDetails !== undefined && { gstDetails: body.gstDetails }),
+      ...(body.logoUrl !== undefined && { logoUrl: body.logoUrl }),
+      ...(body.socialLinks !== undefined && { socialLinks: body.socialLinks }),
+    };
 
     if (!settings) {
-      settings = await Setting.create(body);
+      settings = await prisma.setting.create({ data: safeData });
     } else {
-      settings = await Setting.findByIdAndUpdate(
-        settings._id,
-        { $set: body },
-        { new: true, runValidators: true }
-      );
+      settings = await prisma.setting.update({
+        where: { id: settings.id },
+        data: safeData
+      });
     }
 
-    revalidateTag(CACHE_TAGS.settings, { expire: 0 });
+    revalidateTag(CACHE_TAGS.settings);
 
     return NextResponse.json({
       success: true,

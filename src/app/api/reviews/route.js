@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server';
-import dbConnect from 'src/lib/mongodb';
-import Review from 'src/models/Review';
-import Product from 'src/models/Product';
+import { prisma } from 'src/lib/prisma';
 import { getAuthUser } from 'src/lib/auth';
 
-// 1. GET: Fetch approved reviews for a specific product
 export async function GET(request) {
   try {
-    await dbConnect();
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get('productId');
 
@@ -18,7 +14,10 @@ export async function GET(request) {
       );
     }
 
-    const reviews = await Review.find({ product: productId, isApproved: true }).sort({ createdAt: -1 });
+    const reviews = await prisma.review.findMany({
+      where: { productId, isApproved: true },
+      orderBy: { createdAt: 'desc' }
+    });
 
     return NextResponse.json({
       success: true,
@@ -34,11 +33,9 @@ export async function GET(request) {
   }
 }
 
-// 2. POST: Write a product review (Moderate state initially)
 export async function POST(request) {
   try {
-    await dbConnect();
-    const user = getAuthUser(request); // optional, can review as guest
+    const user = getAuthUser(request);
     const { productId, rating, comment, userName, userEmail } = await request.json();
 
     if (!productId || !rating || !comment) {
@@ -51,8 +48,7 @@ export async function POST(request) {
     const reviewerName = user ? user.name : (userName || 'Anonymous');
     const reviewerEmail = user ? user.email : (userEmail || 'guest@zassports.com');
 
-    // Check if product exists
-    const product = await Product.findById(productId);
+    const product = await prisma.product.findUnique({ where: { id: productId } });
     if (!product) {
       return NextResponse.json(
         { success: false, error: 'Product not found' },
@@ -60,13 +56,15 @@ export async function POST(request) {
       );
     }
 
-    const newReview = await Review.create({
-      product: productId,
-      userName: reviewerName,
-      userEmail: reviewerEmail.toLowerCase(),
-      rating: Number(rating),
-      comment,
-      isApproved: false // awaits admin moderation
+    const newReview = await prisma.review.create({
+      data: {
+        productId,
+        userName: reviewerName,
+        userEmail: reviewerEmail.toLowerCase(),
+        rating: Number(rating),
+        comment,
+        isApproved: false
+      }
     });
 
     return NextResponse.json({

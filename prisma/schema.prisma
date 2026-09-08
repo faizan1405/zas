@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id               String   @id @default(cuid())
+  name             String
+  brand            String
+  slug             String   @unique
+  description      String   @db.Text
+  specs            Json?    // Key-value pairs for technical specifications
+  price            Float
+  mrp              Float
+  discount         Float    @default(0)
+  stock            Int      @default(0)
+  sku              String   @unique
+  variants         Json?    // Store sizes, colors, etc as JSON
+  images           Json?    // Array of strings as JSON
+  ratingsAverage   Float    @default(0)
+  ratingsCount     Int      @default(0)
+  isFeatured       Boolean  @default(false)
+  isBestSeller     Boolean  @default(false)
+  isNewArrival     Boolean  @default(false)
+  isActive         Boolean  @default(true)
+  category         String   // Slug of the category
+  subcategory      String?  // Slug of the subcategory
+  createdAt        DateTime @default(now())
+
+  orderItems       OrderItem[]
+  reviews          Review[]
+  wishlistedBy     User[]   @relation("UserWishlist")
+
+  @@index([isActive, category, createdAt(sort: Desc)])
+  @@index([isActive, subcategory])
+  @@index([isActive, price])
+  @@index([isActive, ratingsAverage(sort: Desc)])
+  @@index([isActive, discount(sort: Desc)])
+  @@index([isActive, isFeatured])
+  @@index([isActive, isBestSeller])
+  @@index([isActive, isNewArrival])
+}
+
+model Order {
+  id               String   @id @default(cuid())
+  orderId          String   @unique // E.g., ZAS-29381-IND
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  guestDetails     Json?    // { name, email, phone }
+  orderItems       OrderItem[]
+  shippingAddress  Json     // { fullName, addressLine, city, state, pincode, phone }
+  paymentMethod    String   // 'COD', 'Online'
+  paymentStatus    String   @default("Pending") // 'Pending', 'Paid', 'Failed', 'Refunded'
+  orderStatus      String   @default("Pending") // 'Pending', 'Confirmed', 'Packed', 'Shipped', 'Delivered', 'Cancelled', 'Returned'
+  trackingId       String?
+  courierName      String?
+  shippingPrice    Float    @default(0)
+  discountAmount   Float    @default(0)
+  subtotal         Float
+  totalAmount      Float
+  couponCode       String?
+  createdAt        DateTime @default(now())
+}
+
+model OrderItem {
+  id               String   @id @default(cuid())
+  orderId          String
+  order            Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id])
+  name             String
+  sku              String
+  image            String?
+  price            Float
+  quantity         Int
+  selectedVariant  Json?    // { size, color, etc }
+}
+
+model User {
+  id               String   @id @default(cuid())
+  name             String
+  email            String   @unique
+  password         String?
+  provider         String   @default("credentials") // 'credentials', 'google'
+  avatar           String?
+  role             String   @default("customer") // 'customer', 'admin'
+  addresses        Json?    // Array of address objects
+  wishlist         Product[] @relation("UserWishlist")
+  isBlocked        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  orders           Order[]
+}
+
+model Category {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  image            String?
+  displayOrder     Int      @default(0)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  @@index([isActive, displayOrder])
+}
+
+model Banner {
+  id               String   @id @default(cuid())
+  title            String
+  subtitle         String?
+  image            String
+  link             String   @default("/shop")
+  type             String   @default("hero") // 'hero', 'offer'
+  isActive         Boolean  @default(true)
+  displayOrder     Int      @default(0)
+  createdAt        DateTime @default(now())
+}
+
+model Coupon {
+  id               String   @id @default(cuid())
+  code             String   @unique
+  discountType     String   // 'percentage', 'fixed'
+  discountValue    Float
+  minOrderValue    Float    @default(0)
+  expiryDate       DateTime
+  usageLimit       Int      @default(100)
+  usedCount        Int      @default(0)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+}
+
+model Review {
+  id               String   @id @default(cuid())
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userName         String
+  userEmail        String
+  rating           Int
+  comment          String   @db.Text
+  isApproved       Boolean  @default(false)
+  reply            String?  @db.Text
+  createdAt        DateTime @default(now())
+}
+
+model Setting {
+  id                    String   @id @default(cuid())
+  storeName             String   @default("Zassports")
+  contactNumber         String   @default("8860654659")
+  whatsappNumber        String   @default("918860654659")
+  email                 String   @default("info@zassports.com")
+  address               String   @default("Main Road, Deepak Vihar, Near Indus Valley Public School, Khora Colony, Noida Sector 62, Uttar Pradesh – 201309")
+  shippingCharges       Float    @default(100)
+  freeShippingMinAmount Float    @default(999)
+  codEnabled            Boolean  @default(true)
+  onlinePaymentEnabled  Boolean  @default(true)
+  taxPercent            Float    @default(12)
+  gstDetails            String   @default("09AACCZ4143L1ZY")
+  logoUrl               String   @default("")
+  socialLinks           Json?    // { facebook, instagram, twitter, youtube }
+  updatedAt             DateTime @default(now())
+}
+
+model Page {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  content          String   @db.Text
+  updatedAt        DateTime @default(now())
+}

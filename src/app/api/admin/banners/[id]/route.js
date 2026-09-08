@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import dbConnect from 'src/lib/mongodb';
-import Banner from 'src/models/Banner';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
+import { deleteImage } from 'src/lib/storage';
 
-// PUT: Update banner details (Protected: Admin Only)
 export async function PUT(request, { params }) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -19,25 +16,39 @@ export async function PUT(request, { params }) {
 
     const { id } = await params;
     const body = await request.json();
+    const existingBanner = await prisma.banner.findUnique({ where: { id } });
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!existingBanner) {
       return NextResponse.json(
-        { success: false, error: 'Invalid banner ID' },
-        { status: 400 }
+        { success: false, error: 'Banner not found' },
+        { status: 404 }
       );
     }
 
-    const updatedBanner = await Banner.findByIdAndUpdate(
-      id,
-      { $set: body },
-      { new: true, runValidators: true }
-    );
+    const safeData = {
+      ...(body.title !== undefined && { title: body.title }),
+      ...(body.subtitle !== undefined && { subtitle: body.subtitle }),
+      ...(body.image !== undefined && { image: body.image }),
+      ...(body.link !== undefined && { link: body.link }),
+      ...(body.type !== undefined && { type: body.type }),
+      ...(body.displayOrder !== undefined && { displayOrder: body.displayOrder }),
+      ...(body.isActive !== undefined && { isActive: body.isActive }),
+    };
+
+    const updatedBanner = await prisma.banner.update({
+      where: { id },
+      data: safeData
+    }).catch(() => null);
 
     if (!updatedBanner) {
       return NextResponse.json(
         { success: false, error: 'Banner not found' },
         { status: 404 }
       );
+    }
+
+    if (body.image !== undefined && body.image !== existingBanner.image) {
+      await deleteImage(existingBanner.image);
     }
 
     return NextResponse.json({
@@ -55,10 +66,8 @@ export async function PUT(request, { params }) {
   }
 }
 
-// DELETE: Remove banner from database (Protected: Admin Only)
 export async function DELETE(request, { params }) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -70,18 +79,23 @@ export async function DELETE(request, { params }) {
 
     const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    const bannerToDelete = await prisma.banner.findUnique({ where: { id } });
+    if (!bannerToDelete) {
       return NextResponse.json(
-        { success: false, error: 'Invalid banner ID' },
-        { status: 400 }
+        { success: false, error: 'Banner not found' },
+        { status: 404 }
       );
     }
 
-    const deletedBanner = await Banner.findByIdAndDelete(id);
+    const deletedBanner = await prisma.banner.delete({
+      where: { id }
+    }).catch(() => null);
 
-    if (!deletedBanner) {
+    if (deletedBanner && bannerToDelete.image) {
+      await deleteImage(bannerToDelete.image);
+    } else if (!deletedBanner) {
       return NextResponse.json(
-        { success: false, error: 'Banner not found' },
+        { success: false, error: 'Banner not found or could not be deleted' },
         { status: 404 }
       );
     }

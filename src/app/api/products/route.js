@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
-import dbConnect from 'src/lib/mongodb';
-import Product from 'src/models/Product';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
 import {
   getPublicProducts,
@@ -10,8 +9,6 @@ import {
   CACHE_TAGS,
 } from 'src/lib/storeData';
 
-// Collect the public listing params into a plain, serializable object. Keeping
-// this shape stable is what lets the cached query key correctly.
 function readParams(searchParams) {
   return {
     search: searchParams.get('search') || '',
@@ -39,15 +36,11 @@ function readParams(searchParams) {
   };
 }
 
-// 1. GET: Fetch products with search filters, sorting and optional pagination.
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const params = readParams(searchParams);
 
-    // Admin view can see inactive products and full documents — gate it behind a
-    // verified admin token so the public can't reach inactive/complete data by
-    // simply appending ?adminView=true.
     const isAdminView = searchParams.get('adminView') === 'true';
     if (isAdminView) {
       if (!verifyAdmin(request)) {
@@ -56,21 +49,24 @@ export async function GET(request) {
           { status: 401 }
         );
       }
-      await dbConnect();
+      
       const query = buildProductQuery(params, { includeInactive: true });
       const sort = buildProductSort(params.sort);
-      const products = await Product.find(query).sort(sort).lean();
-      const json = JSON.parse(JSON.stringify(products));
+      
+      const products = await prisma.product.findMany({
+        where: query,
+        orderBy: sort,
+      });
+      
       return NextResponse.json({
         success: true,
-        count: json.length,
-        total: json.length,
+        count: products.length,
+        total: products.length,
         page: 1,
-        products: json,
+        products,
       });
     }
 
-    // Public view: cached, compact card fields, optional pagination.
     const { products, total, page, limit } = await getPublicProducts(params);
     const totalPages = limit > 0 ? Math.max(1, Math.ceil(total / limit)) : 1;
 
@@ -94,10 +90,8 @@ export async function GET(request) {
   }
 }
 
-// 2. POST: Create a product (Protected: Admin Only)
 export async function POST(request) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
     
     if (!isAdmin) {
@@ -110,7 +104,6 @@ export async function POST(request) {
     const body = await request.json();
     const { name, brand, description, price, mrp, stock, sku, category } = body;
 
-    // Validate required fields
     if (!name || !brand || !description || price === undefined || mrp === undefined || stock === undefined || !sku || !category) {
       return NextResponse.json(
         { success: false, error: 'Required fields are missing' },
@@ -118,8 +111,7 @@ export async function POST(request) {
       );
     }
 
-    // Check SKU duplicate
-    const existingSku = await Product.findOne({ sku });
+    const existingSku = await prisma.product.findUnique({ where: { sku } });
     if (existingSku) {
       return NextResponse.json(
         { success: false, error: 'SKU product code already exists' },
@@ -127,12 +119,10 @@ export async function POST(request) {
       );
     }
 
-    // Compute automatic slug & discount percent
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
 
-    // Check slug duplicate
-    const existingSlug = await Product.findOne({ slug });
+    const existingSlug = await prisma.product.findUnique({ where: { slug } });
     const finalSlug = existingSlug ? `${slug}-${Date.now()}` : slug;
 
     const productData = {
@@ -140,12 +130,40 @@ export async function POST(request) {
       slug: finalSlug,
       discount
     };
+    
+    // In Prisma, we might need to be careful if body has extra fields not in schema, 
+    // or if we pass 'id' manually. Usually better to explicitly define, but spreading is fine if client is well behaved.
+    // If it fails, it will be caught in catch block.
+    // Pass only fields represented by the Prisma model.
+    // So let's extract explicitly to be safe:
+    const safeData = {
+      name: productData.name,
+      brand: productData.brand,
+      slug: productData.slug,
+      description: productData.description,
+      specs: productData.specs,
+      price: productData.price,
+      mrp: productData.mrp,
+      discount: productData.discount,
+      stock: productData.stock,
+      sku: productData.sku,
+      variants: productData.variants,
+      images: productData.images,
+      ratingsAverage: productData.ratings?.average || 0,
+      ratingsCount: productData.ratings?.count || 0,
+      isFeatured: productData.isFeatured || false,
+      isBestSeller: productData.isBestSeller || false,
+      isNewArrival: productData.isNewArrival || false,
+      isActive: productData.isActive !== undefined ? productData.isActive : true,
+      category: productData.category,
+      subcategory: productData.subcategory,
+    };
 
-    const newProduct = await Product.create(productData);
+    const newProduct = await prisma.product.create({
+      data: safeData
+    });
 
-    // Drop the cached public listings so the new product appears on the very
-    // next request (immediate expiration — never serve one stale response).
-    revalidateTag(CACHE_TAGS.products, { expire: 0 });
+    revalidateTag(CACHE_TAGS.products);
 
     return NextResponse.json({
       success: true,

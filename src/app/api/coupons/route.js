@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
-import dbConnect from 'src/lib/mongodb';
-import Coupon from 'src/models/Coupon';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
 
-// 1. GET: Fetch all coupons (Protected: Admin Only)
 export async function GET(request) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -16,7 +13,9 @@ export async function GET(request) {
       );
     }
 
-    const coupons = await Coupon.find({}).sort({ createdAt: -1 });
+    const coupons = await prisma.coupon.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
 
     return NextResponse.json({
       success: true,
@@ -32,10 +31,8 @@ export async function GET(request) {
   }
 }
 
-// 2. POST: Create a coupon code (Protected: Admin Only)
 export async function POST(request) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -46,7 +43,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { code, discountType, discountValue, expiryDate } = body;
+    const { code, discountType, discountValue, expiryDate, minOrderValue, usageLimit, isActive } = body;
 
     if (!code || !discountType || discountValue === undefined || !expiryDate) {
       return NextResponse.json(
@@ -57,8 +54,7 @@ export async function POST(request) {
 
     const uppercaseCode = code.toUpperCase();
 
-    // Check code duplicate
-    const existingCoupon = await Coupon.findOne({ code: uppercaseCode });
+    const existingCoupon = await prisma.coupon.findUnique({ where: { code: uppercaseCode } });
     if (existingCoupon) {
       return NextResponse.json(
         { success: false, error: 'Coupon code already exists' },
@@ -66,9 +62,16 @@ export async function POST(request) {
       );
     }
 
-    const newCoupon = await Coupon.create({
-      ...body,
-      code: uppercaseCode
+    const newCoupon = await prisma.coupon.create({
+      data: {
+        code: uppercaseCode,
+        discountType,
+        discountValue,
+        expiryDate: new Date(expiryDate),
+        minOrderValue: minOrderValue || 0,
+        usageLimit: usageLimit || 100,
+        isActive: isActive !== undefined ? isActive : true
+      }
     });
 
     return NextResponse.json({

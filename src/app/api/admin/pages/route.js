@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
-import dbConnect from 'src/lib/mongodb';
-import Page from 'src/models/Page';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
 
-// GET: Fetch all editable corporate page documents (Protected: Admin Only)
 export async function GET(request) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -16,7 +13,9 @@ export async function GET(request) {
       );
     }
 
-    const pages = await Page.find({}).sort({ title: 1 });
+    const pages = await prisma.page.findMany({
+      orderBy: { title: 'asc' }
+    });
 
     return NextResponse.json({
       success: true,
@@ -32,10 +31,8 @@ export async function GET(request) {
   }
 }
 
-// PUT: Update page details/content (Protected: Admin Only)
 export async function PUT(request) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -54,11 +51,10 @@ export async function PUT(request) {
       );
     }
 
-    const page = await Page.findByIdAndUpdate(
-      id,
-      { $set: { title, content, updatedAt: Date.now() } },
-      { new: true }
-    );
+    const page = await prisma.page.update({
+      where: { id },
+      data: { title, content }
+    }).catch(() => null);
 
     if (!page) {
       return NextResponse.json(

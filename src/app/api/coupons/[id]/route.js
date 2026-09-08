@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import dbConnect from 'src/lib/mongodb';
-import Coupon from 'src/models/Coupon';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
 
-// PUT: Update coupon details (Protected: Admin Only)
 export async function PUT(request, { params }) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -20,22 +16,28 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const body = await request.json();
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid coupon ID' },
-        { status: 400 }
-      );
-    }
-
     if (body.code) {
       body.code = body.code.toUpperCase();
     }
 
-    const updatedCoupon = await Coupon.findByIdAndUpdate(
-      id,
-      { $set: body },
-      { new: true, runValidators: true }
-    );
+    if (body.expiryDate) {
+      body.expiryDate = new Date(body.expiryDate);
+    }
+
+    const safeData = {
+      ...(body.code !== undefined && { code: body.code }),
+      ...(body.discountType !== undefined && { discountType: body.discountType }),
+      ...(body.discountValue !== undefined && { discountValue: body.discountValue }),
+      ...(body.minOrderValue !== undefined && { minOrderValue: body.minOrderValue }),
+      ...(body.expiryDate !== undefined && { expiryDate: body.expiryDate }),
+      ...(body.usageLimit !== undefined && { usageLimit: body.usageLimit }),
+      ...(body.isActive !== undefined && { isActive: body.isActive }),
+    };
+
+    const updatedCoupon = await prisma.coupon.update({
+      where: { id },
+      data: safeData
+    }).catch(() => null);
 
     if (!updatedCoupon) {
       return NextResponse.json(
@@ -59,10 +61,8 @@ export async function PUT(request, { params }) {
   }
 }
 
-// DELETE: Remove coupon (Protected: Admin Only)
 export async function DELETE(request, { params }) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -74,14 +74,9 @@ export async function DELETE(request, { params }) {
 
     const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid coupon ID' },
-        { status: 400 }
-      );
-    }
-
-    const deletedCoupon = await Coupon.findByIdAndDelete(id);
+    const deletedCoupon = await prisma.coupon.delete({
+      where: { id }
+    }).catch(() => null);
 
     if (!deletedCoupon) {
       return NextResponse.json(

@@ -35,13 +35,9 @@ const nextConfig = {
     ];
   },
   images: {
-    // Only the hosts this store actually serves images from: Cloudinary
-    // (product/category uploads) and Unsplash (seed + banner fallbacks).
+    // Only the remote host this store uses. Hostinger uploads are served
+    // directly from public_html/uploads at same-origin /uploads URLs.
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-      },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',

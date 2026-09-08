@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
-import dbConnect from 'src/lib/mongodb';
-import Review from 'src/models/Review';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
 
-// GET: Fetch all reviews for admin moderation (Protected: Admin Only)
 export async function GET(request) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -16,7 +13,14 @@ export async function GET(request) {
       );
     }
 
-    const reviews = await Review.find({}).sort({ createdAt: -1 });
+    const reviews = await prisma.review.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        product: {
+          select: { name: true, slug: true }
+        }
+      }
+    });
 
     return NextResponse.json({
       success: true,

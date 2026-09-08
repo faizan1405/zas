@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
-import dbConnect from 'src/lib/mongodb';
-import User from 'src/models/User';
+import { prisma } from 'src/lib/prisma';
 import { getAuthUser } from 'src/lib/auth';
 
 // 1. GET: Fetch authenticated user session profile
 export async function GET(request) {
   try {
-    await dbConnect();
     const tokenUser = getAuthUser(request);
     
     if (!tokenUser) {
@@ -16,7 +14,10 @@ export async function GET(request) {
       );
     }
 
-    const user = await User.findById(tokenUser._id).select('-password');
+    const user = await prisma.user.findUnique({
+      where: { id: tokenUser.id }
+    });
+    
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -37,9 +38,12 @@ export async function GET(request) {
       return response;
     }
 
+    // Exclude password
+    const { password, ...userWithoutPassword } = user;
+
     return NextResponse.json({
       success: true,
-      user
+      user: userWithoutPassword
     });
 
   } catch (error) {
@@ -54,7 +58,6 @@ export async function GET(request) {
 // 2. PUT: Update user profile addresses (Customer address CRUD sync)
 export async function PUT(request) {
   try {
-    await dbConnect();
     const tokenUser = getAuthUser(request);
 
     if (!tokenUser) {
@@ -73,23 +76,17 @@ export async function PUT(request) {
       );
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      tokenUser._id,
-      { $set: { addresses } },
-      { new: true, runValidators: true }
-    ).select('-password');
+    const updatedUser = await prisma.user.update({
+      where: { id: tokenUser.id },
+      data: { addresses }
+    });
 
-    if (!updatedUser) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      );
-    }
+    const { password, ...userWithoutPassword } = updatedUser;
 
     return NextResponse.json({
       success: true,
       message: 'Profile updated successfully',
-      user: updatedUser
+      user: userWithoutPassword
     });
 
   } catch (error) {

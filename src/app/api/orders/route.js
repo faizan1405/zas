@@ -1,17 +1,10 @@
 import { NextResponse } from 'next/server';
-import dbConnect from 'src/lib/mongodb';
-import Order from 'src/models/Order';
-import Product from 'src/models/Product';
-import Coupon from 'src/models/Coupon';
-import Setting from 'src/models/Setting';
-import { getAuthUser, verifyAdmin } from 'src/lib/auth';
+import { prisma } from 'src/lib/prisma';
+import { getAuthUser } from 'src/lib/auth';
 import { checkRateLimit } from 'src/lib/rateLimit';
 
-// 1. GET: Fetch orders list.
-// If admin, returns all orders. If customer, returns customer's orders.
 export async function GET(request) {
   try {
-    await dbConnect();
     const user = getAuthUser(request);
 
     if (!user) {
@@ -23,9 +16,12 @@ export async function GET(request) {
 
     let orders;
     if (user.role === 'admin') {
-      orders = await Order.find({}).sort({ createdAt: -1 });
+      orders = await prisma.order.findMany({ orderBy: { createdAt: 'desc' } });
     } else {
-      orders = await Order.find({ user: user._id }).sort({ createdAt: -1 });
+      orders = await prisma.order.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: 'desc' }
+      });
     }
 
     return NextResponse.json({
@@ -42,16 +38,14 @@ export async function GET(request) {
   }
 }
 
-// 2. POST: Secure Order Placement (Verifies stock & price on server)
 export async function POST(request) {
   try {
     const ip = request.headers.get('x-forwarded-for') || request.ip || 'unknown';
-    if (!checkRateLimit(ip, 10, 60000)) { // 10 orders per minute per IP
+    if (!checkRateLimit(ip, 10, 60000)) { 
       return NextResponse.json({ success: false, error: 'Too many requests. Please slow down.' }, { status: 429 });
     }
 
-    await dbConnect();
-    const user = getAuthUser(request); // Null for guest checkouts
+    const user = getAuthUser(request);
     const body = await request.json();
 
     const { 
@@ -62,7 +56,6 @@ export async function POST(request) {
       guestDetails 
     } = body;
 
-    // Validation
     if (orderItems.length === 0) {
       return NextResponse.json({ success: false, error: 'Cart is empty' }, { status: 400 });
     }
@@ -79,8 +72,7 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: 'Guest checkout requires contact details' }, { status: 400 });
     }
 
-    // Fetch store settings for shipping rules
-    const settings = await Setting.findOne() || {
+    const settings = await prisma.setting.findFirst() || {
       shippingCharges: 10,
       freeShippingMinAmount: 100
     };
@@ -88,9 +80,9 @@ export async function POST(request) {
     let subtotal = 0;
     const validatedItems = [];
 
-    // Verify stock and price on server from DB
     for (const item of orderItems) {
-      const product = await Product.findById(item.product._id || item.product);
+      const productId = item.product?.id || item.product?._id || item.product;
+      const product = await prisma.product.findUnique({ where: { id: productId } });
       
       if (!product) {
         return NextResponse.json(
@@ -113,29 +105,35 @@ export async function POST(request) {
         );
       }
 
-      // Calculate server price
       const itemPrice = product.price;
       const itemSubtotal = itemPrice * item.quantity;
       subtotal += itemSubtotal;
 
+      // Extract first image
+      let firstImage = '';
+      if (Array.isArray(product.images) && product.images.length > 0) {
+        firstImage = product.images[0];
+      }
+
       validatedItems.push({
-        product: product._id,
+        productId: product.id,
         name: product.name,
         sku: product.sku,
-        image: product.images[0] || '',
+        image: firstImage,
         price: itemPrice,
         quantity: item.quantity,
         selectedVariant: item.selectedVariant || {}
       });
     }
 
-    // Validate coupon code if applied
     let discountAmount = 0;
     let validCoupon = null;
 
     if (couponCode) {
-      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
-      if (coupon) {
+      const coupon = await prisma.coupon.findUnique({ 
+        where: { code: couponCode.toUpperCase() }
+      });
+      if (coupon && coupon.isActive) {
         const now = new Date();
         const expiry = new Date(coupon.expiryDate);
         
@@ -150,44 +148,60 @@ export async function POST(request) {
       }
     }
 
-    // Calculate shipping charges
     const shippingPrice = subtotal >= settings.freeShippingMinAmount ? 0 : settings.shippingCharges;
     const totalAmount = subtotal - discountAmount + shippingPrice;
 
-    // Generate readable but unguessable order ID: ZAS-########-IND
     const crypto = require('crypto');
     const randomHex = crypto.randomBytes(4).toString('hex').toUpperCase();
     const orderId = `ZAS-${randomHex}-IND`;
 
-    // Create the order entry
-    const newOrder = await Order.create({
-      orderId,
-      user: user ? user._id : null,
-      guestDetails: user ? null : guestDetails,
-      orderItems: validatedItems,
-      shippingAddress,
-      paymentMethod,
-      paymentStatus: paymentMethod === 'Online' ? 'Paid' : 'Pending', // mock online payment auto-paid
-      orderStatus: 'Pending',
-      shippingPrice,
-      discountAmount,
-      subtotal,
-      totalAmount,
-      couponCode: validCoupon ? validCoupon.code : ''
+    // Start a transaction to ensure atomic stock update and order creation
+    const newOrder = await prisma.$transaction(async (tx) => {
+      const order = await tx.order.create({
+        data: {
+          orderId,
+          userId: user ? user.id : null,
+          guestDetails: user ? null : guestDetails,
+          shippingAddress,
+          paymentMethod,
+          paymentStatus: paymentMethod === 'Online' ? 'Paid' : 'Pending',
+          orderStatus: 'Pending',
+          shippingPrice,
+          discountAmount,
+          subtotal,
+          totalAmount,
+          couponCode: validCoupon ? validCoupon.code : '',
+          orderItems: {
+            create: validatedItems.map(item => ({
+              productId: item.productId,
+              name: item.name,
+              sku: item.sku,
+              image: item.image,
+              price: item.price,
+              quantity: item.quantity,
+              selectedVariant: item.selectedVariant
+            }))
+          }
+        },
+        include: { orderItems: true }
+      });
+
+      for (const item of validatedItems) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.quantity } }
+        });
+      }
+
+      if (validCoupon) {
+        await tx.coupon.update({
+          where: { id: validCoupon.id },
+          data: { usedCount: { increment: 1 } }
+        });
+      }
+
+      return order;
     });
-
-    // Reduce product stock & increment coupon counts in DB
-    for (const item of validatedItems) {
-      await Product.findByIdAndUpdate(item.product, {
-        $inc: { stock: -item.quantity }
-      });
-    }
-
-    if (validCoupon) {
-      await Coupon.findByIdAndUpdate(validCoupon._id, {
-        $inc: { usedCount: 1 }
-      });
-    }
 
     return NextResponse.json({
       success: true,

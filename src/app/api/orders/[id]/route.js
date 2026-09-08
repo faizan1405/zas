@@ -1,20 +1,27 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import dbConnect from 'src/lib/mongodb';
-import Order from 'src/models/Order';
+import { prisma } from 'src/lib/prisma';
 import { getAuthUser, verifyAdmin } from 'src/lib/auth';
 
-// GET: Fetch order details by ID (MongoDB ID or readable orderId)
 export async function GET(request, { params }) {
   try {
-    await dbConnect();
     const { id } = await params;
-    const user = getAuthUser(request); // can be null for guest checker
+    const user = getAuthUser(request);
 
-    const isObjectId = mongoose.Types.ObjectId.isValid(id);
-    const query = isObjectId ? { _id: id } : { orderId: id.toUpperCase() };
+    // Id can be either the Prisma CUID or the readable orderId
+    const order = await prisma.order.findFirst({
+      where: {
+        OR: [
+          { id: id },
+          { orderId: id.toUpperCase() }
+        ]
+      },
+      include: {
+        orderItems: {
+          include: { product: true }
+        }
+      }
+    });
 
-    const order = await Order.findOne(query).populate('orderItems.product');
     if (!order) {
       return NextResponse.json(
         { success: false, error: 'Order not found' },
@@ -22,9 +29,8 @@ export async function GET(request, { params }) {
       );
     }
 
-    // Protection check: Guest, Owner, or Admin can access
-    if (order.user) {
-      if (!user || (user.role !== 'admin' && String(order.user) !== String(user._id))) {
+    if (order.userId) {
+      if (!user || (user.role !== 'admin' && order.userId !== user.id)) {
         return NextResponse.json(
           { success: false, error: 'Access denied. You do not own this order' },
           { status: 403 }
@@ -46,10 +52,8 @@ export async function GET(request, { params }) {
   }
 }
 
-// PUT: Update order details/status (Protected: Admin Only)
 export async function PUT(request, { params }) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -62,10 +66,16 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const body = await request.json();
 
-    const isObjectId = mongoose.Types.ObjectId.isValid(id);
-    const query = isObjectId ? { _id: id } : { orderId: id.toUpperCase() };
+    const order = await prisma.order.findFirst({
+      where: {
+        OR: [
+          { id: id },
+          { orderId: id.toUpperCase() }
+        ]
+      },
+      include: { orderItems: true }
+    });
 
-    const order = await Order.findOne(query);
     if (!order) {
       return NextResponse.json(
         { success: false, error: 'Order not found' },
@@ -75,28 +85,45 @@ export async function PUT(request, { params }) {
 
     const { orderStatus, paymentStatus, trackingId, courierName } = body;
 
-    // Update fields
-    if (orderStatus) order.orderStatus = orderStatus;
-    if (paymentStatus) order.paymentStatus = paymentStatus;
-    if (trackingId !== undefined) order.trackingId = trackingId;
-    if (courierName !== undefined) order.courierName = courierName;
+    const updateData = {};
+    if (orderStatus) updateData.orderStatus = orderStatus;
+    if (paymentStatus) updateData.paymentStatus = paymentStatus;
+    if (trackingId !== undefined) updateData.trackingId = trackingId;
+    if (courierName !== undefined) updateData.courierName = courierName;
 
-    // If order is cancelled, restore stock quantities
+    // Use transaction if stock restoration is needed
     if (orderStatus === 'Cancelled' && order.orderStatus !== 'Cancelled') {
-      const Product = mongoose.model('Product');
-      for (const item of order.orderItems) {
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: { stock: item.quantity }
+      await prisma.$transaction(async (tx) => {
+        await tx.order.update({
+          where: { id: order.id },
+          data: updateData
         });
-      }
+
+        for (const item of order.orderItems) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } }
+          });
+        }
+      });
+      
+      const updatedOrder = await prisma.order.findUnique({ where: { id: order.id } });
+      return NextResponse.json({
+        success: true,
+        message: 'Order updated successfully',
+        order: updatedOrder
+      });
     }
 
-    await order.save();
+    const updatedOrder = await prisma.order.update({
+      where: { id: order.id },
+      data: updateData
+    });
 
     return NextResponse.json({
       success: true,
       message: 'Order updated successfully',
-      order
+      order: updatedOrder
     });
 
   } catch (error) {

@@ -1,14 +1,9 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import dbConnect from 'src/lib/mongodb';
-import Review from 'src/models/Review';
-import Product from 'src/models/Product';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
 
-// PUT: Approve / Reply to a review (Protected: Admin Only)
 export async function PUT(request, { params }) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -21,14 +16,7 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const body = await request.json();
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid review ID' },
-        { status: 400 }
-      );
-    }
-
-    const review = await Review.findById(id);
+    const review = await prisma.review.findUnique({ where: { id } });
     if (!review) {
       return NextResponse.json(
         { success: false, error: 'Review not found' },
@@ -38,30 +26,33 @@ export async function PUT(request, { params }) {
 
     const { isApproved, reply } = body;
 
-    if (isApproved !== undefined) {
-      review.isApproved = isApproved;
-    }
-    if (reply !== undefined) {
-      review.reply = reply;
-    }
+    const safeData = {};
+    if (isApproved !== undefined) safeData.isApproved = isApproved;
+    if (reply !== undefined) safeData.reply = reply;
 
-    await review.save();
+    const updatedReview = await prisma.review.update({
+      where: { id },
+      data: safeData
+    });
 
     // Recalculate average rating of approved reviews for this product
-    const approvedReviews = await Review.find({ product: review.product, isApproved: true });
+    const approvedReviews = await prisma.review.findMany({
+      where: { productId: review.productId, isApproved: true }
+    });
+    
     const count = approvedReviews.length;
     const sum = approvedReviews.reduce((acc, r) => acc + r.rating, 0);
     const average = count > 0 ? Number((sum / count).toFixed(1)) : 0;
 
-    await Product.findByIdAndUpdate(review.product, {
-      'ratings.average': average,
-      'ratings.count': count
+    await prisma.product.update({
+      where: { id: review.productId },
+      data: { ratingsAverage: average, ratingsCount: count }
     });
 
     return NextResponse.json({
       success: true,
       message: 'Review moderation updated successfully',
-      review
+      review: updatedReview
     });
 
   } catch (error) {
@@ -73,10 +64,8 @@ export async function PUT(request, { params }) {
   }
 }
 
-// DELETE: Remove review (Protected: Admin Only)
 export async function DELETE(request, { params }) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -88,14 +77,9 @@ export async function DELETE(request, { params }) {
 
     const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid review ID' },
-        { status: 400 }
-      );
-    }
-
-    const deletedReview = await Review.findByIdAndDelete(id);
+    const deletedReview = await prisma.review.delete({
+      where: { id }
+    }).catch(() => null);
 
     if (!deletedReview) {
       return NextResponse.json(
@@ -104,15 +88,17 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    // Recalculate product ratings after delete
-    const approvedReviews = await Review.find({ product: deletedReview.product, isApproved: true });
+    const approvedReviews = await prisma.review.findMany({
+      where: { productId: deletedReview.productId, isApproved: true }
+    });
+    
     const count = approvedReviews.length;
     const sum = approvedReviews.reduce((acc, r) => acc + r.rating, 0);
     const average = count > 0 ? Number((sum / count).toFixed(1)) : 0;
 
-    await Product.findByIdAndUpdate(deletedReview.product, {
-      'ratings.average': average,
-      'ratings.count': count
+    await prisma.product.update({
+      where: { id: deletedReview.productId },
+      data: { ratingsAverage: average, ratingsCount: count }
     });
 
     return NextResponse.json({

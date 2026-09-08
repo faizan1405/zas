@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
-import { uploadImage } from 'src/lib/storage';
+import {
+  MAX_IMAGE_SIZE,
+  UploadValidationError,
+  uploadImage,
+} from 'src/lib/storage';
 import { verifyAdmin } from 'src/lib/auth';
 
 export async function POST(request) {
@@ -15,20 +19,21 @@ export async function POST(request) {
     const formData = await request.formData();
     const file = formData.get('file');
 
-    if (!file) {
+    if (!file || typeof file.arrayBuffer !== 'function') {
       return NextResponse.json(
         { success: false, error: 'No file provided for upload' },
         { status: 400 }
       );
     }
 
-    // Convert uploaded file buffer into base64 data uri
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const base64Image = `data:${file.type};base64,${buffer.toString('base64')}`;
+    if (file.size > MAX_IMAGE_SIZE) {
+      return NextResponse.json(
+        { success: false, error: 'File size exceeds the 5MB limit.' },
+        { status: 413 }
+      );
+    }
 
-    // Save image locally
-    const result = await uploadImage(base64Image);
+    const result = await uploadImage(file);
 
     return NextResponse.json({
       success: true,
@@ -37,6 +42,13 @@ export async function POST(request) {
     });
 
   } catch (error) {
+    if (error instanceof UploadValidationError) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 400 }
+      );
+    }
+
     console.error('File upload API error:', error);
     return NextResponse.json(
       { success: false, error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error' },

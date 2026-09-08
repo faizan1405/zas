@@ -1,18 +1,14 @@
 import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
-import dbConnect from 'src/lib/mongodb';
-import Category from 'src/models/Category';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
 import { getPublicCategories, CACHE_TAGS } from 'src/lib/storeData';
 
-// 1. GET: Fetch categories sorted by displayOrder
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const isAdminView = searchParams.get('adminView') === 'true';
 
-    // Admin view needs inactive categories too — gate it behind a verified admin
-    // token so ?adminView=true can't leak inactive documents to the public.
     if (isAdminView) {
       if (!verifyAdmin(request)) {
         return NextResponse.json(
@@ -20,15 +16,19 @@ export async function GET(request) {
           { status: 401 }
         );
       }
-      await dbConnect();
-      const categories = await Category.find({}).sort({ displayOrder: 1, name: 1 }).lean();
+      
+      const categories = await prisma.category.findMany({
+        orderBy: [
+          { displayOrder: 'asc' },
+          { name: 'asc' }
+        ]
+      });
       return NextResponse.json({
         success: true,
-        categories: JSON.parse(JSON.stringify(categories)),
+        categories,
       });
     }
 
-    // Public: cached active categories, invalidated on admin category mutations.
     const categories = await getPublicCategories();
     return NextResponse.json({
       success: true,
@@ -44,10 +44,8 @@ export async function GET(request) {
   }
 }
 
-// 2. POST: Create a category (Protected: Admin Only)
 export async function POST(request) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -66,10 +64,9 @@ export async function POST(request) {
       );
     }
 
-    // Auto-create slug
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
-    const existingCategory = await Category.findOne({ slug });
+    const existingCategory = await prisma.category.findUnique({ where: { slug } });
     if (existingCategory) {
       return NextResponse.json(
         { success: false, error: 'Category with this name/slug already exists' },
@@ -77,15 +74,17 @@ export async function POST(request) {
       );
     }
 
-    const newCategory = await Category.create({
-      name,
-      slug,
-      image,
-      displayOrder: displayOrder || 0,
-      isActive: isActive !== undefined ? isActive : true
+    const newCategory = await prisma.category.create({
+      data: {
+        name,
+        slug,
+        image,
+        displayOrder: displayOrder || 0,
+        isActive: isActive !== undefined ? isActive : true
+      }
     });
 
-    revalidateTag(CACHE_TAGS.categories, { expire: 0 });
+    revalidateTag(CACHE_TAGS.categories);
 
     return NextResponse.json({
       success: true,

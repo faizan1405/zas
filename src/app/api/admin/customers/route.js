@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
-import dbConnect from 'src/lib/mongodb';
-import User from 'src/models/User';
+import { prisma } from 'src/lib/prisma';
 import { verifyAdmin } from 'src/lib/auth';
 
-// GET: List all customers (Protected: Admin Only)
 export async function GET(request) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -21,13 +18,27 @@ export async function GET(request) {
 
     const query = { role: 'customer' };
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
+      query.OR = [
+        { name: { contains: search } },
+        { email: { contains: search } }
       ];
     }
 
-    const customers = await User.find(query).select('-password').sort({ createdAt: -1 });
+    const customers = await prisma.user.findMany({
+      where: query,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        provider: true,
+        avatar: true,
+        role: true,
+        addresses: true,
+        isBlocked: true,
+        createdAt: true,
+      }
+    });
 
     return NextResponse.json({
       success: true,
@@ -43,10 +54,8 @@ export async function GET(request) {
   }
 }
 
-// PUT: Block/Unblock customer account (Protected: Admin Only)
 export async function PUT(request) {
   try {
-    await dbConnect();
     const isAdmin = verifyAdmin(request);
 
     if (!isAdmin) {
@@ -65,11 +74,21 @@ export async function PUT(request) {
       );
     }
 
-    const customer = await User.findOneAndUpdate(
-      { _id: id, role: 'customer' },
-      { $set: { isBlocked } },
-      { new: true }
-    ).select('-password');
+    const customer = await prisma.user.update({
+      where: { id, role: 'customer' },
+      data: { isBlocked },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        provider: true,
+        avatar: true,
+        role: true,
+        addresses: true,
+        isBlocked: true,
+        createdAt: true,
+      }
+    }).catch(() => null);
 
     if (!customer) {
       return NextResponse.json(
